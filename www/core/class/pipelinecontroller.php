@@ -48,22 +48,40 @@ class PipelineController {
 	}
 
 
-	public function add_prepared_module($module, $connections = array())
+	public function add_module($id, $module, $connections = array())
 	{
-		$id = $module->id();
+		/* check module name */
+		if (!is_string($module) || strpos($module, '.') !== FALSE) {
+			error_log(sprintf('%s::%s(): Invalid module name: %s', __CLASS__, __FUNCTION__, $module));
+			return false;
+		}
+
+		/* check for duplicate IDs */
 		if (array_key_exists($id, $this->modules)) {
 			error_log(sprintf('%s::%s(): Module ID "%s" already exists in pipeline!', __CLASS__, __FUNCTION__, $id));
 			return false;
-		} else {
-			if ($module->pc_connect($connections, $this->modules)) {
-				$this->modules[$id] = $module;
-
-				$this->queue[] = $module;	// todo
-				return true;
-			} else {
-				return false;
-			}
 		}
+
+		/* build class name */
+		$class = 'M_'.str_replace('/', '__', $module);
+
+		/* skip autoloader (and another str_replace()) */
+		if (!class_exists($class)) {
+			require(CMS_ROOT.DIR_MODULE.'/'.$module.'.php');
+		}
+
+		/* initialize module */
+		$module = new $class();
+		$module->pc_init($id, $this);
+		if (!$module->pc_connect($connections, $this->modules)) {
+			error_log(sprintf('%s::%s(): Module "%s": Can\'t connect inputs!', __CLASS__, __FUNCTION__, $id));
+			return false;
+		}
+
+		/* add module to queue */
+		$this->modules[$id] = $module;
+		$this->queue[] = $module;	// todo
+		return true;
 	}
 
 

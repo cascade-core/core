@@ -31,6 +31,7 @@
 abstract class Module {
 
 	private $id;
+	private $pipeline_controller;
 	private $is_done = false;
 	private $input_refs = array();
 	private $output_cache = array();
@@ -63,9 +64,10 @@ abstract class Module {
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($id)
+	final public function pc_init($id, $pipeline_controller)
 	{
 		$this->id = $id;
+		$this->pipeline_controller = $pipeline_controller;
 	}
 
 
@@ -202,6 +204,13 @@ abstract class Module {
 	final protected function template_add($id_suffix, $template, $data)
 	{
 		// todo
+	}
+
+
+	// add output object to template subsystem
+	final protected function pipeline_add($module, $id, $connections)
+	{
+		return $this->pipeline_controller->add_module($module, $id, $connections);
 	}
 }
 
