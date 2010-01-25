@@ -69,7 +69,7 @@ abstract class Module {
 	}
 
 
-	final public function pc_connect($connections, & $module_refs)
+	final public function pc_connect($connections)
 	{
 		$wildcard = array_key_exists('*', $this->inputs);
 
@@ -82,22 +82,31 @@ abstract class Module {
 			foreach(array_diff_key($connections, $this->inputs) as $in => $out) {
 				error_log(sprintf('%s::%s(): Input "%s.+%s" does not exist!', __CLASS__, __FUNCTION__, $this->id, $in));
 			}
-			error_log(sprintf('%s::%s(): Module "%s" can\'t be inserted to pipeline.', __CLASS__, __FUNCTION__, $this->id));
 			return false;
 		}
 
 		$this->inputs = $new_inputs;
-		$this->dependencies = array();
-		$failed = false;
+		return true;
+	}
+
+
+	final public function pc_execute(& $module_refs)
+	{
+		if ($this->is_done) {
+			return true;
+		}
+
+		error_log(sprintf('%s::%s(): Preparing module "%s"', __CLASS__, __FUNCTION__, $this->id()));
 
 		/* dereference module names and build dependency list */
+		$dependencies = array();
 		foreach($this->inputs as $in => & $out) {
 			if (is_array($out)) {
 				@list($mod_name, $mod_out) = $out;
 
 				// connect to output
 				if (($m = @$module_refs[$mod_name]) && isset($m->outputs[$mod_out])) {
-					$this->dependencies[$mod_name] = $m;
+					$dependencies[$mod_name] = $m;
 					$out[0] = $m;
 				} else {
 					error_log(sprintf('%s::%s(): Can\'t connect input "%s.+%s" to "%s.%s" !', __CLASS__, __FUNCTION__,
@@ -107,12 +116,19 @@ abstract class Module {
 			}
 		}
 
-		if ($failed) {
-			error_log(sprintf('%s::%s(): Module "%s" can\'t be inserted to pipeline.', __CLASS__, __FUNCTION__, $this->id));
-			return false;
-		} else {
-			return true;
+		$this->is_done = true;
+
+		/* execute dependencies */
+		foreach($dependencies as & $d) {
+			if (!$d->is_done) {
+				$d->pc_execute(& $module_refs);
+			}
 		}
+
+		/* execute main */
+		error_log(sprintf('%s::%s(): Starting module "%s"', __CLASS__, __FUNCTION__, $this->id()));
+		$this->main();
+		return true;
 	}
 
 
@@ -139,15 +155,6 @@ abstract class Module {
 			$this->output_cache[$name] = $value;
 			return $value;
 		}
-	}
-
-
-	final public function pc_execute()
-	{
-		assert(!$this->is_done);
-
-		$this->main();
-		$this->is_done = true;
 	}
 
 
@@ -188,6 +195,13 @@ abstract class Module {
 	final protected function out($name, $value)
 	{
 		$this->output_cache[$name] = $value;
+	}
+
+
+	// add output object to template subsystem
+	final protected function template_add($id_suffix, $template, $data)
+	{
+		// todo
 	}
 }
 

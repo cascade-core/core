@@ -70,7 +70,7 @@ class PipelineController {
 	private function exec_module($module)
 	{
 		// todo
-		$module->main();
+		$module->pc_execute($this->modules);
 	}
 }
 
