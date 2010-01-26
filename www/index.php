@@ -84,3 +84,10 @@ $Pipeline->start();
 // TODO
 
 
+/* visualize executed pipeline */
+$dot = $Pipeline->export_graphviz_dot();
+$dot_name = 'data/graphviz/pipeline-'.$_SERVER['REMOTE_ADDR'].'-last';	// FIXME
+file_put_contents($dot_name.'.dot', $dot);				// FIXME
+$Pipeline->exec_dot($dot, 'png', $dot_name.'.png');			// FIXME
+define('PIPELINE_VISUALISATION_CURRENT_URL', '/'.$dot_name.'.png');	// FIXME
+

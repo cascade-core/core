@@ -103,6 +103,123 @@ class PipelineController {
 		$this->queue[] = $m;		// todo
 		return true;
 	}
+
+
+	public function export_graphviz_dot()
+	{
+		$colors = array(
+			Module::QUEUED  => '#ffeebb',	// grey
+			Module::RUNNING => '#aaccff',	// blue -- never used
+			Module::ZOMBIE  => '#ccffaa',	// green
+			Module::FAILED  => '#ffccaa',	// red
+		);
+
+		$gv =	 "#\n"
+			."# Generated at ".strftime('%F %T')."\n"
+			."#\n"
+			."# Use \"dot -Tpng this-file.gv -o this-file.png\" to compile.\n"
+			."#\n"
+			."graph structs {\n"
+			."	rankdir = LR;\n"
+			."	edge [ arrowtail=none, arrowhead=normal, arrowsize=0.6 ];\n"
+			."	node [ shape=none, fontsize=8 ];\n"
+			."\n";
+
+		foreach ($this->modules as $id => & $module) {
+			$gv .=	 "	m_".get_ident($id)." [label=<<table border=\"1\" cellborder=\"0\" cellspacing=\"0\">\n"
+				."		<tr>\n"
+				."			<td bgcolor=\"".$colors[$module->status()]."\" colspan=\"2\">\n"
+				."				<font face=\"Sans Bold\">".htmlspecialchars($id)."</font><br/>\n"
+				."				<font face=\"Sans Italic\" point-size=\"7\">".htmlspecialchars($module->module_name())."</font>\n"
+				."			</td>\n"
+				."		</tr>\n";
+
+			$inputs  = array_keys($module->pc_inputs());
+			$outputs = array_keys($module->pc_outputs());
+
+			reset($inputs);
+			reset($outputs);
+			$in = current($inputs);
+			$out = current($outputs);
+
+			while($in !== false || $out !== false) {
+				while ($in === '*') {
+					$in = next($inputs);
+				}
+				while ($out === '*') {
+					$out = next($outputs);
+				}
+
+				if ($in !== false || $out !== false) {
+					$gv .=	"\t\t<tr>\n";
+					if ($in !== false) {
+						$gv .= "\t\t\t<td align=\"left\"  port=\"i_".get_ident($in)."\">".htmlspecialchars($in)."</td>\n";
+					} else {
+						$gv .= "\t\t\t<td></td>\n";
+					}
+					if ($out !== false) {
+						$gv .= "\t\t\t<td align=\"right\" port=\"o_".get_ident($out)."\">".htmlspecialchars($out)."</td>\n";
+					} else {
+						$gv .= "\t\t\t<td></td>\n";
+					}
+					$gv .= "\t\t</tr>\n";
+				}
+
+				$in = next($inputs);
+				$out = next($outputs);
+			}
+
+			$gv .=	"\t\t</table>>];\n";
+
+			foreach ($module->pc_inputs() as $in => $out) {
+				if (is_array($out)) {
+					list($out_mod, $out_name) = $out;
+					if (is_object($out_mod)) {
+						$out_mod = $out_mod->id();
+					}
+					$gv .= "\tm_".get_ident($out_mod).":o_".get_ident($out_name).":e -- m_".get_ident($id).":i_".get_ident($in).":w;\n";
+				}
+			}
+			$gv .= "\n";
+		}
+
+		$gv .= "}\n";
+
+		return $gv;
+	}
+
+
+	public function exec_dot($dot_source, $out_type, $out_file = null)
+	{
+		$descriptorspec = array(
+			0 => array('pipe', 'r'),
+			1 => ($out_file == null ? array('pipe', 'w') : array('file', $out_file, 'w')),
+		);
+		$pipe = null;
+
+		$proc = proc_open('dot -T '.escapeshellarg($out_type), $descriptorspec, $pipe);
+
+		if (is_resource($proc)) {
+
+			/* send dot source */
+			fwrite($pipe[0], $dot_source);
+			fclose($pipe[0]);
+
+			if ($out_file == null) {
+				/* load result */
+				$result = stream_get_contents($pipe[1]);
+				fclose($pipe[1]);
+
+				$ret_code = proc_close($proc);
+				return ($ret_code == 0 ? $result : false);
+			} else {
+				$ret_code = proc_close($proc);
+				return ($ret_code == 0 ? true : false);
+			}
+		} else {
+			return false;
+		}
+	}
 }
 
 // vim:encoding=utf8:

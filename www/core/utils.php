@@ -28,6 +28,22 @@
  * SUCH DAMAGE.
  */
 
+function debug_msg($msg)
+{
+	$args = func_get_args();
+	unset($args[0]);
+
+	$trace = debug_backtrace();
+
+	if (isset($trace[1])) {
+		$t = & $trace[1];
+		error_log($t['class'].'::'.$t['function'].'(): Debug: '.vsprintf($msg, $args));
+	} else {
+		error_log(vsprintf($msg, $args));
+	}
+}
+
+
 function error_msg($msg)
 {
 	$args = func_get_args();
@@ -40,6 +56,17 @@ function error_msg($msg)
 		error_log($t['class'].'::'.$t['function'].'(): Error: '.vsprintf($msg, $args));
 	} else {
 		error_log(vsprintf($msg, $args));
+	}
+}
+
+
+function get_ident($name)
+{
+	if ($name == '') {
+		return '';
+	} else {
+		// TODO: je potreba zachovat unikatnost
+		return str_replace('-', '_', $name);
 	}
 }
 

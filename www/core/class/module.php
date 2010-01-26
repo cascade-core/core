@@ -30,6 +30,20 @@
 
 abstract class Module {
 
+	// module status
+	const QUEUED = 0x00;
+	const RUNNING = 0x01;
+	const ZOMBIE = 0x02;
+	const FAILED = 0x04;
+
+	public static $STATUS_NAMES = array(
+		self::QUEUED  => 'queued',
+		self::RUNNING => 'running',
+		self::ZOMBIE  => 'zombie',
+		self::FAILED  => 'failed',
+	);
+
+
 	private $id;
 	private $pipeline_controller;
 	private $module_name;
@@ -67,6 +81,17 @@ abstract class Module {
 		return $this->module_name;
 	}
 
+
+	final public function status()
+	{
+		if ($this->is_done) {
+			return self::ZOMBIE;
+		} else if ($this->is_prepared !== null) {
+			return self::FAILED;
+		} else {
+			return self::QUEUED;
+		}
+	}
 
 	/****************************************************************************
 	 *	Part of Pipeline Controller
@@ -163,7 +188,7 @@ abstract class Module {
 	}
 
 
-	final private function get_output($name)
+	final private function pc_get_output($name)
 	{
 		assert($this->is_done);
 
@@ -182,6 +207,18 @@ abstract class Module {
 			$this->output_cache[$name] = $value;
 			return $value;
 		}
+	}
+
+
+	final public function pc_inputs()
+	{
+		return $this->inputs;
+	}
+
+
+	final public function pc_outputs()
+	{
+		return array_merge($this->outputs, $this->output_cache);
 	}
 
 
@@ -210,7 +247,7 @@ abstract class Module {
 		// read input
 		if (is_array($ref)) {
 			// read from output
-			return $ref[0] ? $ref[0]->get_output($ref[1]) : null;
+			return $ref[0] !== null ? $ref[0]->pc_get_output($ref[1]) : null;
 		} else {
 			// ref is constant
 			return $ref;
