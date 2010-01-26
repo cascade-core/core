@@ -92,7 +92,7 @@ abstract class Module {
 		if (!$wildcard && count($this->inputs) != count($new_inputs)) {
 			/* Connected non-existent inputs */
 			foreach(array_diff_key($connections, $this->inputs) as $in => $out) {
-				error_msg('Input "%s.+%s" does not exist!', $this->id, $in);
+				error_msg('Input "%s.%s" does not exist!', $this->id, $in);
 			}
 			return false;
 		}
@@ -112,10 +112,10 @@ abstract class Module {
 		}
 
 		debug_msg('%s: Preparing module "%s"', $this->module_name(), $this->id());
+		$this->is_prepared = true;
 
 		/* dereference module names and build dependency list */
 		$dependencies = array();
-		$failed = false;
 		foreach($this->inputs as $in => & $out) {
 			if (is_array($out)) {
 				@list($mod_name, $mod_out) = $out;
@@ -125,17 +125,18 @@ abstract class Module {
 					$dependencies[$mod_name] = $m;
 					$out[0] = $m;
 				} else {
-					error_msg('Can\'t connect input "%s.+%s" to "%s.%s" !',
+					error_msg('Can\'t connect input "%s.%s" to "%s.%s" !',
 							$this->id, $in, $mod_name, $mod_out);
-					$failed = true;
+					$this->is_prepared = false;
 				}
 			}
 		}
-		if ($failed) {
+
+		/* abort if failed */
+		if (!$this->is_prepared) {
+			error_msg('%s: Failed to prepare module "%s"', $this->module_name(), $this->id());
 			return false;
 		}
-
-		$this->is_prepared = true;
 
 		/* execute dependencies */
 		foreach($dependencies as & $d) {
@@ -148,7 +149,7 @@ abstract class Module {
 				}
 
 				if (!$this->is_prepared) {
-					error_msg('%s: Failed to start module "%s"', $this->module_name(), $this->id());
+					error_msg('%s: Failed to solve dependencies of module "%s"', $this->module_name(), $this->id());
 					return false;
 				}
 			}
@@ -166,18 +167,14 @@ abstract class Module {
 	{
 		assert($this->is_done);
 
-		if ($name[0] == '+') {
-			// input
-			return $this->in(substr($name, 1));
-
-		} else if (array_key_exists($name, $this->output_cache)) {
+		if (array_key_exists($name, $this->output_cache)) {
 			// cached output
 			return $this->output_cache[$name];
 
 		} else {
 			// create output and cache it
 			$fn = 'out_'.$name;
-			if (method_exists($this, $fn)) {
+			if (method_exists($this, $fn)) {	// FIXME
 				$value = $this->$fn();
 			} else {
 				$value = $this->out_wildcard($name);
