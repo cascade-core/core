@@ -265,6 +265,13 @@ abstract class Module {
 	// add output object to template subsystem
 	final protected function template_add($id_suffix, $template, $data)
 	{
+		$this->template_add_to_slot($id_suffix, $this->in('slot'), $this->in('slot-weight'), $template, $data);
+	}
+
+
+	// add output object to template subsystem (with slot and weight)
+	final protected function template_add_to_slot($id_suffix, $slot, $weight, $template, $data)
+	{
 		// todo
 	}
 

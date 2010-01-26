@@ -48,7 +48,7 @@ class PipelineController {
 	}
 
 
-	public function add_module($id, $module, $connections = array())
+	public function add_module($id, $module, $connections = array(), $force_exec = false)
 	{
 		/* check module name */
 		if (!is_string($module) || strpos($module, '.') !== FALSE) {
@@ -100,7 +100,10 @@ class PipelineController {
 
 		/* add module to queue */
 		$this->modules[$id] = $m;
-		$this->queue[] = $m;		// todo
+
+		if ($force_exec) {
+			$this->queue[] = $m;
+		}
 		return true;
 	}
 
@@ -108,7 +111,7 @@ class PipelineController {
 	public function export_graphviz_dot()
 	{
 		$colors = array(
-			Module::QUEUED  => '#ffeebb',	// grey
+			Module::QUEUED  => '#eeeeee',	// grey
 			Module::RUNNING => '#aaccff',	// blue -- never used
 			Module::ZOMBIE  => '#ccffaa',	// green
 			Module::FAILED  => '#ffccaa',	// red
