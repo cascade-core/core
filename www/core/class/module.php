@@ -32,6 +32,8 @@ abstract class Module {
 
 	private $id;
 	private $pipeline_controller;
+	private $module_name;
+
 	private $is_done = false;
 	private $input_refs = array();
 	private $output_cache = array();
@@ -59,15 +61,22 @@ abstract class Module {
 	}
 
 
+	final public function module_name()
+	{
+		return $this->module_name;
+	}
+
+
 	/****************************************************************************
 	 *	Part of Pipeline Controller
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($id, $pipeline_controller)
+	final public function pc_init($id, $pipeline_controller, $module_name)
 	{
 		$this->id = $id;
 		$this->pipeline_controller = $pipeline_controller;
+		$this->module_name = $module_name;
 	}
 
 
@@ -82,7 +91,7 @@ abstract class Module {
 		if (!$wildcard && count($this->inputs) != count($new_inputs)) {
 			/* Connected non-existent inputs */
 			foreach(array_diff_key($connections, $this->inputs) as $in => $out) {
-				error_log(sprintf('%s::%s(): Input "%s.+%s" does not exist!', __CLASS__, __FUNCTION__, $this->id, $in));
+				error_msg('Input "%s.+%s" does not exist!', $this->id, $in);
 			}
 			return false;
 		}
@@ -98,7 +107,7 @@ abstract class Module {
 			return true;
 		}
 
-		error_log(sprintf('%s::%s(): Preparing module "%s"', __CLASS__, __FUNCTION__, $this->id()));
+		debug_msg('%s: Preparing module "%s"', $this->module_name(), $this->id());
 
 		/* dereference module names and build dependency list */
 		$dependencies = array();
@@ -111,8 +120,8 @@ abstract class Module {
 					$dependencies[$mod_name] = $m;
 					$out[0] = $m;
 				} else {
-					error_log(sprintf('%s::%s(): Can\'t connect input "%s.+%s" to "%s.%s" !', __CLASS__, __FUNCTION__,
-							$this->id, $in, $mod_name, $mod_out));
+					error_msg('Can\'t connect input "%s.+%s" to "%s.%s" !',
+							$this->id, $in, $mod_name, $mod_out);
 					$failed = true;
 				}
 			}
@@ -128,7 +137,7 @@ abstract class Module {
 		}
 
 		/* execute main */
-		error_log(sprintf('%s::%s(): Starting module "%s"', __CLASS__, __FUNCTION__, $this->id()));
+		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
 		$this->main();
 		return true;
 	}
@@ -178,14 +187,14 @@ abstract class Module {
 			$ref = & $this->inputs['*'];
 		} else {
 			// or fail
-			error_log(sprintf("%s::%s(): Input \"%s\" is not defined!", __CLASS__, __FUNCTION__, $name));
+			error_msg('Input "%s" is not defined!', $name);
 			return null;
 		}
 
 		// read input
 		if (is_array($ref)) {
 			// read from output
-			return is_object($ref[0]) ? $ref[0]->get_output($ref[1]) : null;
+			return $ref[0] ? $ref[0]->get_output($ref[1]) : null;
 		} else {
 			// ref is constant
 			return $ref;

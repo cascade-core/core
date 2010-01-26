@@ -43,7 +43,7 @@ class PipelineController {
 	{
 		reset($this->queue);
 		while((list($id, $m) = each($this->queue))) {
-			$this->exec_module($m);
+			$m->pc_execute($this->modules);
 		}
 	}
 
@@ -52,13 +52,13 @@ class PipelineController {
 	{
 		/* check module name */
 		if (!is_string($module) || strpos($module, '.') !== FALSE) {
-			error_log(sprintf('%s::%s(): Invalid module name: %s', __CLASS__, __FUNCTION__, $module));
+			error_msg('Invalid module name: %s', $module);
 			return false;
 		}
 
 		/* check for duplicate IDs */
 		if (array_key_exists($id, $this->modules)) {
-			error_log(sprintf('%s::%s(): Module ID "%s" already exists in pipeline!', __CLASS__, __FUNCTION__, $id));
+			error_msg('Module ID "%s" already exists in pipeline!', $id);
 			return false;
 		}
 
@@ -67,28 +67,41 @@ class PipelineController {
 
 		/* skip autoloader (and another str_replace()) */
 		if (!class_exists($class)) {
-			require(CMS_ROOT.DIR_MODULE.'/'.$module.'.php');
+			$f = strtolower($class).'.php';
+			$cf = DIR_CORE_CLASS.$f;
+			$af = DIR_APP_CLASS.$f;
+
+			if (is_readable($cf)) {
+				include($cf);
+			} else if (is_readable($af)) {
+				include($af);
+			}
+
+			if (!class_exists($class)) {
+				/* module not found */
+				// todo: module not found message
+				error_msg('Module "%s" not found.', $module);
+			}
+		}
+
+		/* check permissions */
+		if (false) {
+			/* TODO */
+			return false;
 		}
 
 		/* initialize module */
-		$module = new $class();
-		$module->pc_init($id, $this);
-		if (!$module->pc_connect($connections, $this->modules)) {
-			error_log(sprintf('%s::%s(): Module "%s": Can\'t connect inputs!', __CLASS__, __FUNCTION__, $id));
+		$m = new $class();
+		$m->pc_init($id, $this, $module);
+		if (!$m->pc_connect($connections, $this->modules)) {
+			error_msg('Module "%s": Can\'t connect inputs!', $id);
 			return false;
 		}
 
 		/* add module to queue */
-		$this->modules[$id] = $module;
-		$this->queue[] = $module;	// todo
+		$this->modules[$id] = $m;
+		$this->queue[] = $m;		// todo
 		return true;
-	}
-
-
-	private function exec_module($module)
-	{
-		// todo
-		$module->pc_execute($this->modules);
 	}
 }
 
