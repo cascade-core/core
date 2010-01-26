@@ -34,6 +34,7 @@ abstract class Module {
 	private $pipeline_controller;
 	private $module_name;
 
+	private $is_prepared = null;
 	private $is_done = false;
 	private $input_refs = array();
 	private $output_cache = array();
@@ -105,12 +106,16 @@ abstract class Module {
 	{
 		if ($this->is_done) {
 			return true;
+		} else if ($this->is_prepared !== null) {
+			debug_msg('%s: Skipping partialy prepared module "%s"', $this->module_name(), $this->id());
+			return false;
 		}
 
 		debug_msg('%s: Preparing module "%s"', $this->module_name(), $this->id());
 
 		/* dereference module names and build dependency list */
 		$dependencies = array();
+		$failed = false;
 		foreach($this->inputs as $in => & $out) {
 			if (is_array($out)) {
 				@list($mod_name, $mod_out) = $out;
@@ -126,19 +131,33 @@ abstract class Module {
 				}
 			}
 		}
+		if ($failed) {
+			return false;
+		}
 
-		$this->is_done = true;
+		$this->is_prepared = true;
 
 		/* execute dependencies */
 		foreach($dependencies as & $d) {
 			if (!$d->is_done) {
-				$d->pc_execute(& $module_refs);
+				if ($d->is_prepared) {
+					error_msg('Circular dependency detected while preparing module "%s" !', $this->id);
+					$this->is_prepared = false;
+				} else {
+					$this->is_prepared &= $d->pc_execute(& $module_refs);
+				}
+
+				if (!$this->is_prepared) {
+					error_msg('%s: Failed to start module "%s"', $this->module_name(), $this->id());
+					return false;
+				}
 			}
 		}
 
 		/* execute main */
 		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
 		$this->main();
+		$this->is_done = true;
 		return true;
 	}
 
@@ -158,7 +177,7 @@ abstract class Module {
 		} else {
 			// create output and cache it
 			$fn = 'out_'.$name;
-			if (method_exists($fn)) {
+			if (method_exists($this, $fn)) {
 				$value = $this->$fn();
 			} else {
 				$value = $this->out_wildcard($name);
