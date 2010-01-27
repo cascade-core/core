@@ -47,6 +47,7 @@ abstract class Module {
 	private $id;
 	private $pipeline_controller;
 	private $module_name;
+	private $slot_weight_penalty;		// guarantees keeping order of output objects
 
 	private $is_prepared = null;
 	private $is_done = false;
@@ -97,11 +98,12 @@ abstract class Module {
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($id, $pipeline_controller, $module_name)
+	final public function pc_init($id, $pipeline_controller, $module_name, $add_order)
 	{
 		$this->id = $id;
 		$this->pipeline_controller = $pipeline_controller;
 		$this->module_name = $module_name;
+		$this->slot_weight_penalty = 1.0 - 100.0 / ($add_order + 99.0); // lim -> inf = 1
 	}
 
 
@@ -282,6 +284,8 @@ abstract class Module {
 	final protected function template_add_to_slot($id_suffix, $slot, $weight, $template, $data)
 	{
 		// todo
+		// $this->in('slot')
+		// $this->in('slot-weight') + $this->slot_weight_penalty
 	}
 
 

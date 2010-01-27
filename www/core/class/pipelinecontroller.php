@@ -32,6 +32,7 @@ class PipelineController {
 
 	private $queue = array();	// moduly cekajici na provedeni
 	private $modules = array();	// moduly existujici v pipeline
+	private $add_order = 1;		// poradi vlozeni pro upravu vahy vystupu
 
 
 	public function __construct()
@@ -92,11 +93,12 @@ class PipelineController {
 
 		/* initialize module */
 		$m = new $class();
-		$m->pc_init($id, $this, $module);
+		$m->pc_init($id, $this, $module, $this->add_order);
 		if (!$m->pc_connect($connections, $this->modules)) {
 			error_msg('Module "%s": Can\'t connect inputs!', $id);
 			return false;
 		}
+		$this->add_order++;
 
 		/* add module to queue */
 		$this->modules[$id] = $m;
