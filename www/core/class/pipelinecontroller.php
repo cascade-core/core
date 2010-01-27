@@ -48,7 +48,7 @@ class PipelineController {
 	}
 
 
-	public function add_module($id, $module, $connections = array(), $force_exec = false)
+	public function add_module($id, $module, $force_exec = false, $connections = array())
 	{
 		/* check module name */
 		if (!is_string($module) || strpos($module, '.') !== FALSE) {
@@ -104,7 +104,7 @@ class PipelineController {
 		if ($force_exec) {
 			$this->queue[] = $m;
 		}
-		return true;
+		return $m;
 	}
 
 
@@ -116,19 +116,21 @@ class PipelineController {
 			Module::ZOMBIE  => '#ccffaa',	// green
 			Module::FAILED  => '#ffccaa',	// red
 		);
+		$missing_modules = array();
 
 		$gv =	 "#\n"
 			."# Generated at ".strftime('%F %T')."\n"
 			."#\n"
 			."# Use \"dot -Tpng this-file.gv -o this-file.png\" to compile.\n"
 			."#\n"
-			."graph structs {\n"
+			."digraph structs {\n"
 			."	rankdir = LR;\n"
 			."	edge [ arrowtail=none, arrowhead=normal, arrowsize=0.6 ];\n"
 			."	node [ shape=none, fontsize=8 ];\n"
 			."\n";
 
 		foreach ($this->modules as $id => & $module) {
+			/* add module header */
 			$gv .=	 "	m_".get_ident($id)." [label=<<table border=\"1\" cellborder=\"0\" cellspacing=\"0\">\n"
 				."		<tr>\n"
 				."			<td bgcolor=\"".$colors[$module->status()]."\" colspan=\"2\">\n"
@@ -145,6 +147,7 @@ class PipelineController {
 			$in = current($inputs);
 			$out = current($outputs);
 
+			/* add module inputs and outputs */
 			while($in !== false || $out !== false) {
 				while ($in === '*') {
 					$in = next($inputs);
@@ -174,16 +177,40 @@ class PipelineController {
 
 			$gv .=	"\t\t</table>>];\n";
 
+			/* connect inputs */
 			foreach ($module->pc_inputs() as $in => $out) {
 				if (is_array($out)) {
 					list($out_mod, $out_name) = $out;
+
 					if (is_object($out_mod)) {
 						$out_mod = $out_mod->id();
 					}
-					$gv .= "\tm_".get_ident($out_mod).":o_".get_ident($out_name).":e -- m_".get_ident($id).":i_".get_ident($in).":w;\n";
+					if (@$this->modules[$out_mod] === null) {
+						$missing_modules[$out_mod] = true;
+						$missing = true;
+					} else if (!$this->modules[$out_mod]->pc_output_exists($out_name)) {
+						$missing = true;
+					} else {
+						$missing = false;
+					}
+
+					$gv .= "\tm_".get_ident($out_mod).":o_".get_ident($out_name).":e -> m_".get_ident($id).":i_".get_ident($in).':w'
+						.($missing ? " [color=red]":'').";\n";
 				}
 			}
 			$gv .= "\n";
+		}
+
+		/* add missing modules */
+		if (!empty($missing_modules)) {
+			foreach ($missing_modules as $module => $t) {
+				if ((string) $module == '') {
+					$label = '<<font face="Sans Italic">null</font>>';
+				} else {
+					$label = '"'.addcslashes($module, '"\\').'"';
+				}
+				$gv .= "\t m_".get_ident($module)." [color=\"#ff6666\", shape=ellipse, label=$label, padding=0];\n";
+			}
 		}
 
 		$gv .= "}\n";

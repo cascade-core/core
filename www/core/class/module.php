@@ -50,7 +50,6 @@ abstract class Module {
 
 	private $is_prepared = null;
 	private $is_done = false;
-	private $input_refs = array();
 	private $output_cache = array();
 
 	// list of inputs and their default values
@@ -111,7 +110,7 @@ abstract class Module {
 		$wildcard = array_key_exists('*', $this->inputs);
 
 		/* replace defaults */
-		$new_inputs = array_merge($this->inputs, $connections);
+		$new_inputs = $connections + $this->inputs;
 
 		/* check connections */
 		if (!$wildcard && count($this->inputs) != count($new_inputs)) {
@@ -146,7 +145,7 @@ abstract class Module {
 				@list($mod_name, $mod_out) = $out;
 
 				// connect to output
-				if (($m = @$module_refs[$mod_name]) && isset($m->outputs[$mod_out])) {
+				if (($m = @$module_refs[$mod_name]) && (isset($m->outputs[$mod_out]) || isset($m->outputs['*']))) {
 					$dependencies[$mod_name] = $m;
 					$out[0] = $m;
 				} else {
@@ -190,19 +189,18 @@ abstract class Module {
 
 	final private function pc_get_output($name)
 	{
-		assert($this->is_done);
-
 		if (array_key_exists($name, $this->output_cache)) {
 			// cached output
 			return $this->output_cache[$name];
-
 		} else {
 			// create output and cache it
 			$fn = 'out_'.$name;
 			if (method_exists($this, $fn)) {	// FIXME
 				$value = $this->$fn();
-			} else {
+			} else if (method_exists($this, 'out_wildcard')) {
 				$value = $this->out_wildcard($name);
+			} else {
+				return null;
 			}
 			$this->output_cache[$name] = $value;
 			return $value;
@@ -218,7 +216,15 @@ abstract class Module {
 
 	final public function pc_outputs()
 	{
-		return array_merge($this->outputs, $this->output_cache);
+		return $this->output_cache + $this->outputs;
+	}
+
+
+	final public function pc_output_exists($name)
+	{
+		return array_key_exists($name, $this->output_cache)
+			|| array_key_exists($name, $this->outputs)
+			|| array_key_exists('*', $this->outputs);
 	}
 
 
@@ -230,12 +236,8 @@ abstract class Module {
 	final protected function in($name)
 	{
 		// get input
-		if (array_key_exists($name, $this->input_refs)) {
-			$ref = & $this->input_refs[$name];
-
-		} else if (array_key_exists($name, $this->inputs)) {
+		if (array_key_exists($name, $this->inputs)) {
 			$ref = & $this->inputs[$name];
-
 		} else if (array_key_exists('*', $this->inputs)) {
 			$ref = & $this->inputs['*'];
 		} else {
@@ -262,6 +264,13 @@ abstract class Module {
 	}
 
 
+	// set all output values (keys are output names)
+	final protected function out_all($values)
+	{
+		$this->output_cache = $values;
+	}
+
+  
 	// add output object to template subsystem
 	final protected function template_add($id_suffix, $template, $data)
 	{
@@ -276,10 +285,17 @@ abstract class Module {
 	}
 
 
-	// add output object to template subsystem
-	final protected function pipeline_add($module, $id, $connections)
+	// set page title
+	final protected function template_set_title($title)
 	{
-		return $this->pipeline_controller->add_module($module, $id, $connections);
+		// todo
+	}
+
+
+	// add output object to template subsystem
+	final protected function pipeline_add($module, $id, $force_exec = false, $connections = array())
+	{
+		return $this->pipeline_controller->add_module($module, $id, $force_exec, $connections);
 	}
 }
 
