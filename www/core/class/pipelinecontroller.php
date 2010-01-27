@@ -139,21 +139,47 @@ class PipelineController {
 				."			</td>\n"
 				."		</tr>\n";
 
-			$inputs  = array_keys($module->pc_inputs());
-			$outputs = array_keys($module->pc_outputs());
 
-			reset($inputs);
-			reset($outputs);
-			$in = current($inputs);
-			$out = current($outputs);
+			$gv_inputs = '';
+			$inputs  = $module->pc_inputs();
+			$input_names = array();
+			$output_names = array_keys($module->pc_outputs());
+
+			/* connect inputs */
+			foreach ($inputs as $in => $out) {
+				if (is_array($out)) {
+					list($out_mod, $out_name) = $out;
+					$input_names[] = $in;
+
+					if (is_object($out_mod)) {
+						$out_mod = $out_mod->id();
+					}
+					if (@$this->modules[$out_mod] === null) {
+						$missing_modules[$out_mod] = true;
+						$missing = true;
+					} else if (!$this->modules[$out_mod]->pc_output_exists($out_name)) {
+						$missing = true;
+					} else {
+						$missing = false;
+					}
+
+					$gv_inputs .= "\tm_".get_ident($out_mod).":o_".get_ident($out_name).":e -> m_".get_ident($id).":i_".get_ident($in).':w'
+						.($missing ? " [color=red]":'').";\n";
+				}
+			}
+
+			reset($input_names);
+			reset($output_names);
+			$in = current($input_names);
+			$out = current($output_names);
 
 			/* add module inputs and outputs */
 			while($in !== false || $out !== false) {
 				while ($in === '*') {
-					$in = next($inputs);
+					$in = next($input_names);
 				}
 				while ($out === '*') {
-					$out = next($outputs);
+					$out = next($output_names);
 				}
 
 				if ($in !== false || $out !== false) {
@@ -171,33 +197,12 @@ class PipelineController {
 					$gv .= "\t\t</tr>\n";
 				}
 
-				$in = next($inputs);
-				$out = next($outputs);
+				$in = next($input_names);
+				$out = next($output_names);
 			}
 
 			$gv .=	"\t\t</table>>];\n";
-
-			/* connect inputs */
-			foreach ($module->pc_inputs() as $in => $out) {
-				if (is_array($out)) {
-					list($out_mod, $out_name) = $out;
-
-					if (is_object($out_mod)) {
-						$out_mod = $out_mod->id();
-					}
-					if (@$this->modules[$out_mod] === null) {
-						$missing_modules[$out_mod] = true;
-						$missing = true;
-					} else if (!$this->modules[$out_mod]->pc_output_exists($out_name)) {
-						$missing = true;
-					} else {
-						$missing = false;
-					}
-
-					$gv .= "\tm_".get_ident($out_mod).":o_".get_ident($out_name).":e -> m_".get_ident($id).":i_".get_ident($in).':w'
-						.($missing ? " [color=red]":'').";\n";
-				}
-			}
+			$gv .=	$gv_inputs;
 			$gv .= "\n";
 		}
 
