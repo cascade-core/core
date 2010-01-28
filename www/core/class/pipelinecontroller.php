@@ -113,10 +113,11 @@ class PipelineController {
 	public function export_graphviz_dot()
 	{
 		$colors = array(
-			Module::QUEUED  => '#eeeeee',	// grey
-			Module::RUNNING => '#aaccff',	// blue -- never used
-			Module::ZOMBIE  => '#ccffaa',	// green
-			Module::FAILED  => '#ffccaa',	// red
+			Module::QUEUED   => '#eeeeee',	// grey
+			Module::RUNNING  => '#aaccff',	// blue -- never used
+			Module::ZOMBIE   => '#ccffaa',	// green
+			Module::DISABLED => '#cccccc',	// dark grey
+			Module::FAILED   => '#ffccaa',	// red
 		);
 		$missing_modules = array();
 

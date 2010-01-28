@@ -31,16 +31,18 @@
 abstract class Module {
 
 	// module status
-	const QUEUED = 0x00;
-	const RUNNING = 0x01;
-	const ZOMBIE = 0x02;
-	const FAILED = 0x04;
+	const QUEUED   = 0x00;
+	const RUNNING  = 0x01;
+	const ZOMBIE   = 0x02;
+	const DISABLED = 0x04;
+	const FAILED   = 0x08;
 
 	public static $STATUS_NAMES = array(
-		self::QUEUED  => 'queued',
-		self::RUNNING => 'running',
-		self::ZOMBIE  => 'zombie',
-		self::FAILED  => 'failed',
+		self::QUEUED   => 'queued',
+		self::RUNNING  => 'running',
+		self::ZOMBIE   => 'zombie',
+		self::DISABLED => 'disabled',
+		self::FAILED   => 'failed',
 	);
 
 
@@ -49,8 +51,7 @@ abstract class Module {
 	private $module_name;
 	private $slot_weight_penalty;		// guarantees keeping order of output objects
 
-	private $is_prepared = null;
-	private $is_done = false;
+	private $status = self::QUEUED;
 	private $output_cache = array();
 
 	// list of inputs and their default values
@@ -84,13 +85,7 @@ abstract class Module {
 
 	final public function status()
 	{
-		if ($this->is_done) {
-			return self::ZOMBIE;
-		} else if ($this->is_prepared !== null) {
-			return self::FAILED;
-		} else {
-			return self::QUEUED;
-		}
+		return $this->status;
 	}
 
 	/****************************************************************************
@@ -133,15 +128,18 @@ abstract class Module {
 
 	final public function pc_execute(& $module_refs)
 	{
-		if ($this->is_done) {
-			return true;
-		} else if ($this->is_prepared !== null) {
-			debug_msg('%s: Skipping partialy prepared module "%s"', $this->module_name(), $this->id());
-			return false;
+		switch ($this->status) {
+			case self::ZOMBIE:
+			case self::DISABLED:
+				return true;
+
+			case self::FAILED:
+				debug_msg('%s: Skipping failed module "%s"', $this->module_name(), $this->id());
+				return false;
 		}
 
 		debug_msg('%s: Preparing module "%s"', $this->module_name(), $this->id());
-		$this->is_prepared = true;
+		$this->status = self::RUNNING;
 
 		/* dereference module names and build dependency list */
 		$dependencies = array();
@@ -156,42 +154,57 @@ abstract class Module {
 				} else {
 					error_msg('Can\'t connect input "%s.%s" to "%s.%s" !',
 							$this->id, $in, $mod_name, $mod_out);
-					$this->is_prepared = false;
+					$this->status = self::FAILED;
 				}
 			}
 		}
 
 		/* abort if failed */
-		if (!$this->is_prepared) {
+		if (!$this->status == self::FAILED) {
 			error_msg('%s: Failed to prepare module "%s"', $this->module_name(), $this->id());
 			return false;
 		}
 
 		/* execute dependencies */
+		// TODO: lze spoustet zavislosti az na vyzadani a ne predem vse ?
 		foreach($dependencies as & $d) {
-			if (!$d->is_done) {
-				if ($d->is_prepared) {
-					error_msg('Circular dependency detected while preparing module "%s" !', $this->id);
-					$this->is_prepared = false;
-				} else {
-					$this->is_prepared &= $d->pc_execute(& $module_refs);
-				}
+			switch ($d->status) {
+				case self::RUNNING:
+ 					error_msg('Circular dependency detected while preparing module "%s" !', $this->id);
+					$this->status = self::FAILED;
+					break 2;
 
-				if (!$this->is_prepared) {
-					error_msg('%s: Failed to solve dependencies of module "%s"', $this->module_name(), $this->id());
-					return false;
-				}
+				case self::QUEUED:
+					if (!$d->pc_execute(& $module_refs)) {
+						$this->status = self::FAILED;
+						break 2;
+					}
+					break;
+
+				case self::FAILED:
+					$this->status = self::FAILED;
+					break 2;
 			}
 		}
 
-		/* execute main */
-		if ($this->in('enable')) {
-			debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
-			$this->main();
-		} else {
-			debug_msg('%s: Skipping disabled module "%s"', $this->module_name(), $this->id());
+		/* abort if failed */
+		if ($this->status == self::FAILED) {
+			error_msg('%s: Failed to solve dependencies of module "%s"', $this->module_name(), $this->id());
+			return false;
 		}
-		$this->is_done = true;
+
+		/* do not execute if disabled */
+		if (!$this->in('enable')) {
+			debug_msg('%s: Skipping disabled module "%s"', $this->module_name(), $this->id());
+			$this->status = self::DISABLED;
+			return true;
+		}
+
+		/* execute main */
+		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
+		$this->main();
+
+		$this->status = self::ZOMBIE;
 		return true;
 	}
 
@@ -201,6 +214,8 @@ abstract class Module {
 		if (array_key_exists($name, $this->output_cache)) {
 			// cached output
 			return $this->output_cache[$name];
+		} else if ($this->status == self::DISABLED) {
+			return null;
 		} else {
 			// create output and cache it
 			$fn = 'out_'.$name;
