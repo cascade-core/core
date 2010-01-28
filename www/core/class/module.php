@@ -104,6 +104,9 @@ abstract class Module {
 		$this->pipeline_controller = $pipeline_controller;
 		$this->module_name = $module_name;
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($add_order + 99.0); // lim -> inf = 1
+
+		// add common inputs
+		$this->inputs['enable'] = true;
 	}
 
 
@@ -182,8 +185,12 @@ abstract class Module {
 		}
 
 		/* execute main */
-		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
-		$this->main();
+		if ($this->in('enable')) {
+			debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
+			$this->main();
+		} else {
+			debug_msg('%s: Skipping disabled module "%s"', $this->module_name(), $this->id());
+		}
 		$this->is_done = true;
 		return true;
 	}
@@ -237,6 +244,11 @@ abstract class Module {
 	// get value from input
 	final protected function in($name)
 	{
+		// TODO: Virtualni moduly -- Neexistujici moduly vzdy pritomne
+		//       v pipeline, ktere maji zvlastni jmeno osetrene zde.
+		//       Umozni to velmi efektivne pristupovat k casto
+		//       pouzivanym hodnotam. Mozna by tak sel resit kontext.
+
 		// get input
 		if (array_key_exists($name, $this->inputs)) {
 			$ref = & $this->inputs[$name];
@@ -256,6 +268,16 @@ abstract class Module {
 			// ref is constant
 			return $ref;
 		}
+	}
+
+
+	// get input names, excluding common inputs and '*'
+	final protected function input_names()
+	{
+		return array_diff(array_keys($this->inputs), array(
+				'*',
+				'enable',
+			));
 	}
 
 
