@@ -32,6 +32,7 @@ class M_core__split extends Module {
 
 	protected $inputs = array(
 		'in' => null,
+		'keys' => null,
 	);
 
 	protected $outputs = array(
@@ -40,7 +41,15 @@ class M_core__split extends Module {
 
 	public function main()
 	{
-		$this->out_all((array) $this->in('in'));
+		$keys = $this->in('keys');
+		if ($keys !== null) {
+			if (!is_array($keys)) {
+				$keys = explode(':', $keys);
+			}
+			$this->out_all((array) array_extract_keys($this->in('in'), $keys));
+		} else {
+			$this->out_all((array) $this->in('in'));
+		}
 	}
 }
 
