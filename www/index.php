@@ -85,8 +85,17 @@ $Pipeline->start();
 
 
 /* visualize executed pipeline */
+// TODO: udelat toto jen na pozadani a vyrazne lepe
+if (empty($_COOKIE['graphviz-id'])) {
+	$gv_id = md5(rand().time().serialize($_SERVER['HTTP_USER_AGENT']));
+	setcookie('graphviz-id', $gv_id, time() + 315360000, '/');
+	$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$gv_id;
+} else {
+	$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$_COOKIE['graphviz-id'];
+	setcookie('graphviz-id', $_COOKIE['graphviz-id'], time() + 315360000, '/');
+}
 $dot = $Pipeline->export_graphviz_dot();
-$dot_name = 'data/graphviz/pipeline-'.$_SERVER['REMOTE_ADDR'].'-last';
+$dot_name = 'data/graphviz/pipeline-'.$gv_id;
 file_put_contents($dot_name.'.dot', $dot);				// FIXME
 $Pipeline->exec_dot($dot, 'png', $dot_name.'.png');			// FIXME
 define('PIPELINE_VISUALISATION_CURRENT_URL', '/'.$dot_name.'.png');	// FIXME
