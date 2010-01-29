@@ -70,6 +70,9 @@ abstract class Module {
 
 	abstract public function main();
 
+	// get unprepared output (called after main; once or never for each output)
+	//abstract public function get_output();
+
 
 	final public function id()
 	{
@@ -218,11 +221,8 @@ abstract class Module {
 			return null;
 		} else {
 			// create output and cache it
-			$fn = 'out_'.$name;
-			if (method_exists($this, $fn)) {	// FIXME
-				$value = $this->$fn();
-			} else if (method_exists($this, 'out_wildcard')) {
-				$value = $this->out_wildcard($name);
+			if (method_exists($this, 'get_output')) {
+				$value = $this->get_output($name);
 			} else {
 				return null;
 			}
