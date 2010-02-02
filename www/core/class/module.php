@@ -334,9 +334,9 @@ abstract class Module {
 
 
 	// add output object to template subsystem
-	final protected function pipeline_add($module, $id, $force_exec = false, $connections = array())
+	final protected function pipeline_add($id, $module, $force_exec = false, $connections = array())
 	{
-		return $this->pipeline_controller->add_module($module, $id, $force_exec, $connections);
+		return $this->pipeline_controller->add_module($id, $module, $force_exec, $connections);
 	}
 }
 
