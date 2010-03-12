@@ -37,6 +37,9 @@ define('DIR_APP_MODULE',	DIR_ROOT.'app/module/');
 define('FILE_APP_CONFIG',	DIR_ROOT.'app/core.ini.php');
 define('FILE_CORE_CONFIG',	DIR_ROOT.'core/core.ini.php');
 
+require(DIR_ROOT.'core/utils.php');
+
+
 /* Class autoloader */
 function __autoload($class)
 {
@@ -58,9 +61,9 @@ function __autoload($class)
 
 /* Load core configuration */
 if (is_readable(FILE_APP_CONFIG)) {
-	$core_cfg = parse_ini_file(FILE_APP_CONFIG);
+	$core_cfg = parse_ini_file(FILE_APP_CONFIG, true);
 } else {
-	$core_cfg = parse_ini_file(FILE_CORE_CONFIG);
+	$core_cfg = parse_ini_file(FILE_CORE_CONFIG, true);
 }
 
 /* Load php.ini options */
@@ -68,6 +71,34 @@ if (isset($core_cfg['php'])) {
 	foreach($core_cfg['php'] as $k => $v) {
 		ini_set($k, $v);
 	}
+}
+
+/* Show banner in log */
+if (!empty($core_cfg['core']['always_log_banner'])) {
+	first_msg();
+}
+
+/* Initialize iconv & mb */
+if (function_exists('iconv_set_encoding')) {
+	iconv_set_encoding('input_encoding',    'UTF-8');
+	iconv_set_encoding('output_encoding',   'UTF-8');
+	iconv_set_encoding('internal_encoding', 'UTF-8');
+}
+if (function_exists('mb_internal_encoding')) {
+	mb_internal_encoding('UTF-8');
+}
+
+/* Call app's init file */
+if (!empty($core_cfg['core']['app_init_file'])) {
+	require(DIR_ROOT.$core_cfg['core']['app_init_file']);
+}
+
+/* initialize template engine */
+// todo: move this to context
+if (isset($core_cfg['template']['engine-class'])) {
+	$Template = new $core_cfg['template']['engine-class']();
+} else {
+	$Template = new Template();
 }
 
 /* Pipeline */
@@ -80,11 +111,7 @@ foreach ($core_cfg as $section => $opts) {
 }
 $Pipeline->start();
 
-/* Output */
-// TODO
-
-
-/* visualize executed pipeline */
+/* Create/update graphviz cookie */
 // TODO: udelat toto jen na pozadani a vyrazne lepe
 if (empty($_COOKIE['graphviz-id'])) {
 	$gv_id = md5(rand().time().serialize($_SERVER['HTTP_USER_AGENT']));
@@ -94,9 +121,16 @@ if (empty($_COOKIE['graphviz-id'])) {
 	$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$_COOKIE['graphviz-id'];
 	setcookie('graphviz-id', $_COOKIE['graphviz-id'], time() + 315360000, '/');
 }
+
+/* Output */
+$Template->start();
+
+/* Visualize executed pipeline */
+// TODO: udelat toto jen na pozadani a vyrazne lepe
 $dot = $Pipeline->export_graphviz_dot();
 $dot_name = 'data/graphviz/pipeline-'.$gv_id;
 file_put_contents($dot_name.'.dot', $dot);				// FIXME
 $Pipeline->exec_dot($dot, 'png', $dot_name.'.png');			// FIXME
-define('PIPELINE_VISUALISATION_CURRENT_URL', '/'.$dot_name.'.png');	// FIXME
+printf('<div style="text-align: center; clear: both; margin: 2em; background: #fff; border: 1px solid #aaa;"><img src="%s" /></div>',
+		'/'.$dot_name.'.png');					// FIXME
 

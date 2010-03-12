@@ -28,8 +28,21 @@
  * SUCH DAMAGE.
  */
 
+$_utils_php__first_msg = true;
+
+
+function first_msg()
+{
+	$_utils_php__first_msg = false;
+	debug_msg('New client from %s:%d at %s.', $_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'], strftime('%F %T', $_SERVER['REQUEST_TIME']));
+}
+
 function debug_msg($msg)
 {
+	if ($_utils_php__first_msg) {
+		first_msg();
+	}
+
 	$args = func_get_args();
 	unset($args[0]);
 
@@ -46,6 +59,10 @@ function debug_msg($msg)
 
 function error_msg($msg)
 {
+	if ($_utils_php__first_msg) {
+		first_msg();
+	}
+
 	$args = func_get_args();
 	unset($args[0]);
 
