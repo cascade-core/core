@@ -108,6 +108,7 @@ if (isset($core_cfg['template']['engine-class'])) {
 
 /* Initialize pipeline controller */
 $Pipeline = new PipelineController();
+$Pipeline->set_replacement_table(@$core_cfg['module-map']);
 
 /* Prepare starting set */
 foreach ($core_cfg as $section => $opts) {

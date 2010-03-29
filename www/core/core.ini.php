@@ -32,7 +32,8 @@ always_log_banner	= true
 
 ; module replacement table
 [module-map]
-;module/name		= replacement/module-name
+;old-module/name	= "replacement-module/name"
+core/print_r		= "core/output"
 
 
 ;
@@ -40,7 +41,7 @@ always_log_banner	= true
 ;
 
 [module:HELLO]
-.module		= core/output
+.module		= core/print_r
 .force-exec	= true
 template	= "core/print_r"
 data		= "Hello world!"

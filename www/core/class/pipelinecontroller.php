@@ -30,9 +30,10 @@
 
 class PipelineController {
 
-	private $queue = array();	// moduly cekajici na provedeni
-	private $modules = array();	// moduly existujici v pipeline
-	private $add_order = 1;		// poradi vlozeni pro upravu vahy vystupu
+	private $queue = array();	// waiting modules
+	private $modules = array();	// all existing modules
+	private $add_order = 1;		// insertion serial number - slot weight modifier
+	private $replacement = array();	// module replacement table (aliases)
 
 
 	public function __construct()
@@ -49,8 +50,23 @@ class PipelineController {
 	}
 
 
+	public function set_replacement_table($table)
+	{
+		if (is_array($table)) {
+			$this->replacement = $table;
+		} else {
+			$this->replacement = array();
+		}
+	}
+
+
 	public function add_module($id, $module, $force_exec = false, $connections = array())
 	{
+		/* check replacement table */
+		for ($step = 32; isset($this->replacement[$module]) && $step > 0; $step--) {
+			$module = $this->replacement[$module];
+		}
+
 		/* check module name */
 		if (!is_string($module) || strpos($module, '.') !== FALSE) {
 			error_msg('Invalid module name: %s', $module);
@@ -75,6 +91,7 @@ class PipelineController {
 				/* module not found */
 				// todo: module not found message
 				error_msg('Module "%s" not found.', $module);
+				return false;
 			}
 		}
 
