@@ -33,12 +33,20 @@ $_utils_php__first_msg = true;
 
 function first_msg()
 {
+	global $_utils_php__first_msg;
+
 	$_utils_php__first_msg = false;
 	debug_msg('New client from %s:%d at %s.', $_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'], strftime('%F %T', $_SERVER['REQUEST_TIME']));
 }
 
 function debug_msg($msg)
 {
+	global $_utils_php__first_msg;
+
+	if (!DEBUG_LOGGING_ENABLED) {
+		return;
+	}
+
 	if ($_utils_php__first_msg) {
 		first_msg();
 	}

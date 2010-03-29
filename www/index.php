@@ -32,8 +32,10 @@
 define('DIR_ROOT',		dirname(__FILE__).'/');
 define('DIR_CORE_CLASS',	DIR_ROOT.'core/class/');
 define('DIR_CORE_MODULE',	DIR_ROOT.'core/module/');
-define('DIR_APP_CLASS',		DIR_ROOT.'app/class/');
+define('DIR_CORE_TEMPLATE',	DIR_ROOT.'core/template/');
+define('DIR_APP_CLASS', 	DIR_ROOT.'app/class/');
 define('DIR_APP_MODULE',	DIR_ROOT.'app/module/');
+define('DIR_APP_TEMPLATE',	DIR_ROOT.'app/template/');
 define('FILE_APP_CONFIG',	DIR_ROOT.'app/core.ini.php');
 define('FILE_CORE_CONFIG',	DIR_ROOT.'core/core.ini.php');
 
@@ -45,7 +47,7 @@ function __autoload($class)
 {
 	if ($class[0] == 'M' && $class[1] == '_') {
 		$m = strtolower(str_replace('__', '/', substr($class, 2)));
-		include((strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE : DIR_APP_MODULE).$m.'.php');
+		include(strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.php' : DIR_APP_MODULE.$m.'.php');
 	} else {
 		$f = strtolower($class).'.php';
 		$cf = DIR_CORE_CLASS.$f;
@@ -72,6 +74,9 @@ if (isset($core_cfg['php'])) {
 		ini_set($k, $v);
 	}
 }
+
+/* Enable debug logging -- a lot of messages from debug_msg() */
+define('DEBUG_LOGGING_ENABLED', !empty($core_cfg['core']['debug_logging_enabled']));
 
 /* Show banner in log */
 if (!empty($core_cfg['core']['always_log_banner'])) {
@@ -104,9 +109,22 @@ if (isset($core_cfg['template']['engine-class'])) {
 /* Pipeline */
 $Pipeline = new PipelineController();
 foreach ($core_cfg as $section => $opts) {
-	list($keyword, $id) = explode(':', $section, 2);
-	if ($keyword == 'module' && isset($id) && isset($opts['module'])) {
-		$Pipeline->add_module($id, $opts['module'], !empty($opts['force-exec']), $opts);
+	@list($keyword, $id) = explode(':', $section, 2);
+	if ($keyword == 'module' && isset($id) && @($module = $opts['.module']) !== null) {
+		$force_exec = !empty($opts['.force-exec']);
+
+		/* drop module options and keep only connections */
+		unset($opts['.module']);
+		unset($opts['.force-exec']);
+
+		/* parse connections */
+		foreach($opts as & $out) {
+			if (is_array($out) && count($out) == 1) {
+				$out = explode(':', $out[0], 2);
+			}
+		}
+
+		$Pipeline->add_module($id, $module, $force_exec, $opts);
 	}
 }
 $Pipeline->start();

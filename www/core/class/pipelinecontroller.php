@@ -66,17 +66,10 @@ class PipelineController {
 		/* build class name */
 		$class = 'M_'.str_replace('/', '__', $module);
 
-		/* skip autoloader (and another str_replace()) */
+		/* skip autoloader -- there are different rules */
 		if (!class_exists($class)) {
-			$f = strtolower($class).'.php';
-			$cf = DIR_CORE_CLASS.$f;
-			$af = DIR_APP_CLASS.$f;
-
-			if (is_readable($cf)) {
-				include($cf);
-			} else if (is_readable($af)) {
-				include($af);
-			}
+			$m = strtolower(str_replace('__', '/', substr($class, 2)));
+			include(strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.php' : DIR_APP_MODULE.$m.'.php');
 
 			if (!class_exists($class)) {
 				/* module not found */

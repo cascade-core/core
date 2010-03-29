@@ -311,18 +311,24 @@ abstract class Module {
 
   
 	// add output object to template subsystem
-	final protected function template_add($id_suffix, $template, $data)
+	final protected function template_add($id_suffix, $template, $data = array())
 	{
 		$this->template_add_to_slot($id_suffix, $this->in('slot'), $this->in('slot-weight'), $template, $data);
 	}
 
 
 	// add output object to template subsystem (with slot and weight)
-	final protected function template_add_to_slot($id_suffix, $slot, $weight, $template, $data)
+	final protected function template_add_to_slot($id_suffix, $slot, $weight, $template, $data = array())
 	{
 		// todo
 		// $this->in('slot')
 		// $this->in('slot-weight') + $this->slot_weight_penalty
+
+		$id = $id_suffix === null ? $this->id() : $this->id().'_'.$id_suffix;
+
+		global $Template; // todo: move this to Context
+		$Template->add_object($id, $slot, $weight + $this->slot_weight_penalty, $template, $data);
+
 	}
 
 
