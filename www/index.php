@@ -106,8 +106,10 @@ if (isset($core_cfg['template']['engine-class'])) {
 	$Template = new Template();
 }
 
-/* Pipeline */
+/* Initialize pipeline controller */
 $Pipeline = new PipelineController();
+
+/* Prepare starting set */
 foreach ($core_cfg as $section => $opts) {
 	@list($keyword, $id) = explode(':', $section, 2);
 	if ($keyword == 'module' && isset($id) && @($module = $opts['.module']) !== null) {
@@ -127,6 +129,8 @@ foreach ($core_cfg as $section => $opts) {
 		$Pipeline->add_module($id, $module, $force_exec, $opts);
 	}
 }
+
+/* Execute */
 $Pipeline->start();
 
 /* Create/update graphviz cookie */

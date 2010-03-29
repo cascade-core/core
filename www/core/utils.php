@@ -97,4 +97,4 @@ function get_ident($name)
 
 
 // vim:encoding=utf8:
-?>
+

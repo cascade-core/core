@@ -347,4 +347,4 @@ abstract class Module {
 }
 
 // vim:encoding=utf8:
-?>
+

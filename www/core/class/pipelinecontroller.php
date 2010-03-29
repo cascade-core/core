@@ -254,4 +254,4 @@ class PipelineController {
 }
 
 // vim:encoding=utf8:
-?>
+

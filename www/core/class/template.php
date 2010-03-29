@@ -113,4 +113,4 @@ class Template {
 }
 
 // vim:encoding=utf8:
-?>
+
