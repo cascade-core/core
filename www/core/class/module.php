@@ -327,7 +327,7 @@ abstract class Module {
 	{
 		$id = $id_suffix === null ? $this->id() : $this->id().'_'.$id_suffix;
 		$t = $this->context->get_template_engine();
-		$t->add_object($id, $slot, $weight + $this->slot_weight_penalty, $template, $data);
+		$t->add_object($id, $slot, $weight + $this->slot_weight_penalty, $template, $data, $this->context);
 
 	}
 

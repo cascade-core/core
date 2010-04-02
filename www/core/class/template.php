@@ -35,16 +35,26 @@ class Template {
 
 	// TODO !!!
 
-	function add_object($id, $slot, $weight, $template, $data = array())
+	function add_object($id, $slot, $weight, $template, $data = array(), $context = null)
 	{
 		if (array_key_exists($id, $this->objects)) {
 			error_msg('Duplicate ID "%s"!', $id);
 			return false;
 		} else {
-			$this->objects[$id] = array($weight, $slot, $id, $template, $data);
+			$this->objects[$id] = array($weight, $slot, $id, $template, $data, $context);
 			$this->slot_content[$slot][] = & $this->objects[$id];
 			return true;
 		}
+	}
+
+
+	function load_template($template_name, $function_name, $indent = '')
+	{
+		// FIXME
+		$f = DIR_CORE_TEMPLATE.'xhtml/'.preg_replace('|^core/|', '', $template_name).'.php';
+		debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
+		include $f;
+		return function_exists($function_name);
 	}
 
 
@@ -54,38 +64,31 @@ class Template {
 		$this->current_slot_depth++;
 
 		if (!array_key_exists($slot_name, $this->slot_content)) {
-			debug_msg('%s Slot "%s" is empty.', $indent, $slot_name);
+			debug_msg(' %s Slot "%s" is empty.', $indent, $slot_name);
 		} else if ($this->slot_content[$slot_name] === false) {
-			debug_msg('%s Slot "%s" is already processed.', $indent, $slot_name);
+			debug_msg(' %s Slot "%s" is already processed.', $indent, $slot_name);
 		} else {
-			debug_msg('%s Processing slot "%s" ...', $indent, $slot_name);
+			debug_msg(' %s Processing slot "%s" ...', $indent, $slot_name);
 			$content = $this->slot_content[$slot_name];
 			$this->slot_content[$slot_name] = false;
 
 			foreach($content as $obj) {
-				list($weight, $slot, $id, $template, $data) = $obj;
+				list($weight, $slot, $id, $template, $data, $context) = $obj;
 				
 				$tpl_fn = 'TPL_'.str_replace('/', '__', $template);
 
-				if (function_exists($tpl_fn)) {
-					debug_msg('%s Executing preloaded "%s" ...', $indent, $template);
+				if (function_exists($tpl_fn) || $this->load_template($template, $tpl_fn, $indent)) {
+					debug_msg(' %s Executing "%s" ...', $indent, $template);
+					if ($context !== null) {
+						$context->update_enviroment();
+					}
 					$tpl_fn($this, $data);
 				} else {
-					// FIXME
-					$f = DIR_CORE_TEMPLATE.'xhtml/'.preg_replace('|^core/|', '', $template).'.php';
-					debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
-					include $f;
-
-					if (function_exists($tpl_fn)) {
-						debug_msg('%s Executing "%s" ...', $indent, $template);
-						$tpl_fn($this, $data);
-					} else {
-						error_msg('Failed to load template "%s"! Object ID is "%s".', $template, $id);
-					}
+					error_msg('Failed to load template "%s"! Object ID is "%s".', $template, $id);
 				}
 			}
 
-			debug_msg('%s Processing slot "%s" done.', $indent, $slot_name);
+			debug_msg(' %s Processing slot "%s" done.', $indent, $slot_name);
 		}
 
 		$this->current_slot_depth--;
