@@ -28,6 +28,7 @@ ignore_repeated_errors	= true
 [core]
 debug_logging_enabled	= true
 always_log_banner	= true
+add_pipeline_graph	= true
 ;app_init_file		= app/init.php
 
 ; module replacement table

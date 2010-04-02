@@ -131,29 +131,32 @@ foreach ($core_cfg as $section => $opts) {
 	}
 }
 
+
 /* Execute */
 $Pipeline->start();
 
-/* Create/update graphviz cookie */
-// TODO: udelat toto jen na pozadani a vyrazne lepe
-if (empty($_COOKIE['graphviz-id'])) {
-	$gv_id = md5(rand().time().serialize($_SERVER['HTTP_USER_AGENT']));
-	setcookie('graphviz-id', $gv_id, time() + 315360000, '/');
-	$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$gv_id;
-} else {
-	$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$_COOKIE['graphviz-id'];
-	setcookie('graphviz-id', $_COOKIE['graphviz-id'], time() + 315360000, '/');
+
+/* Visualize executed pipeline */
+if (!empty($core_cfg['core']['add_pipeline_graph'])) {
+	/* Create/update graphviz cookie */
+	if (empty($_COOKIE['graphviz-id'])) {
+		$gv_id = md5(rand().time().serialize($_SERVER['HTTP_USER_AGENT']));
+		setcookie('graphviz-id', $gv_id, time() + 315360000, '/');
+		$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$gv_id;
+	} else {
+		$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$_COOKIE['graphviz-id'];
+		setcookie('graphviz-id', $_COOKIE['graphviz-id'], time() + 315360000, '/');
+	}
+
+	/* Template object will render image */
+	$Template->add_object('_pipeline_graph', 'root', 95, 'core/pipeline_graph', array(
+			'pipeline' => $Pipeline,
+			'dot_name' => 'data/graphviz/pipeline-'.$gv_id,
+		));
 }
+
 
 /* Output */
 $Template->start();
 
-/* Visualize executed pipeline */
-// TODO: udelat toto jen na pozadani a vyrazne lepe
-$dot = $Pipeline->export_graphviz_dot();
-$dot_name = 'data/graphviz/pipeline-'.$gv_id;
-file_put_contents($dot_name.'.dot', $dot);				// FIXME
-$Pipeline->exec_dot($dot, 'png', $dot_name.'.png');			// FIXME
-printf('<div style="text-align: center; clear: both; margin: 2em; background: #fff; border: 1px solid #aaa;"><img src="%s" /></div>',
-		'/'.$dot_name.'.png');					// FIXME
 
