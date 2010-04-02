@@ -83,34 +83,40 @@ if (!empty($core_cfg['core']['always_log_banner'])) {
 	first_msg();
 }
 
-/* Initialize iconv & mb */
+/* Default locale */
+$lc = empty($core_cfg['core']['default_locale']) ? 'cs_CZ' : $core_cfg['core']['default_locale'];
+define('DEFAULT_LOCALE', setlocale(LC_ALL, $lc.'.UTF8', $lc));
+
+/* Initialize iconv */
 if (function_exists('iconv_set_encoding')) {
 	iconv_set_encoding('input_encoding',    'UTF-8');
 	iconv_set_encoding('output_encoding',   'UTF-8');
 	iconv_set_encoding('internal_encoding', 'UTF-8');
 }
+
+/* Initialize mb */
 if (function_exists('mb_internal_encoding')) {
 	mb_internal_encoding('UTF-8');
 }
 
-/* Call app's init file */
-if (!empty($core_cfg['core']['app_init_file'])) {
-	require(DIR_ROOT.$core_cfg['core']['app_init_file']);
+/* initialize template engine */
+if (isset($core_cfg['template']['engine-class'])) {
+	$template = new $core_cfg['template']['engine-class']();
+} else {
+	$template = new Template();
 }
 
-/* initialize template engine */
-// todo: move this to context
-if (isset($core_cfg['template']['engine-class'])) {
-	$Template = new $core_cfg['template']['engine-class']();
-} else {
-	$Template = new Template();
-}
+/* Initialize default context */
+$context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
+$default_context = new $context_class();
+$default_context->set_locale(DEFAULT_LOCALE);
+$default_context->set_template_engine($template);
 
 /* Initialize pipeline controller */
-$Pipeline = new PipelineController();
-$Pipeline->set_replacement_table(@$core_cfg['module-map']);
+$pipeline = new PipelineController();
+$pipeline->set_replacement_table(@$core_cfg['module-map']);
 
-/* Prepare starting set */
+/* Prepare starting modules */
 foreach ($core_cfg as $section => $opts) {
 	@list($keyword, $id) = explode(':', $section, 2);
 	if ($keyword == 'module' && isset($id) && @($module = $opts['.module']) !== null) {
@@ -127,14 +133,17 @@ foreach ($core_cfg as $section => $opts) {
 			}
 		}
 
-		$Pipeline->add_module($id, $module, $force_exec, $opts);
+		$pipeline->add_module($id, $module, $force_exec, $opts, $default_context);
 	}
 }
 
+/* Call app's init file */
+if (!empty($core_cfg['core']['app_init_file'])) {
+	require(DIR_ROOT.$core_cfg['core']['app_init_file']);
+}
 
-/* Execute */
-$Pipeline->start();
-
+/* Execute pipeline */
+$pipeline->start();
 
 /* Visualize executed pipeline */
 if (!empty($core_cfg['core']['add_pipeline_graph'])) {
@@ -149,14 +158,13 @@ if (!empty($core_cfg['core']['add_pipeline_graph'])) {
 	}
 
 	/* Template object will render image */
-	$Template->add_object('_pipeline_graph', 'root', 95, 'core/pipeline_graph', array(
-			'pipeline' => $Pipeline,
+	$template->add_object('_pipeline_graph', 'root', 95, 'core/pipeline_graph', array(
+			'pipeline' => $pipeline,
 			'dot_name' => 'data/graphviz/pipeline-'.$gv_id,
 		));
 }
 
-
-/* Output */
-$Template->start();
+/* Generate output */
+$template->start();
 
 

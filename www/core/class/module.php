@@ -54,6 +54,8 @@ abstract class Module {
 	private $status = self::QUEUED;
 	private $output_cache = array();
 
+	protected $context;
+
 	// list of inputs and their default values
 	protected $inputs = array(
 		// 'input-name' => 'default-value',
@@ -70,7 +72,8 @@ abstract class Module {
 
 	abstract public function main();
 
-	// get unprepared output (called after main; once or never for each output)
+	// Get unprepared output (called after main; once or never for each output).
+	// Remember to call $this->context->update_enviroment() if required.
 	//abstract public function get_output();
 
 
@@ -96,11 +99,12 @@ abstract class Module {
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($id, $pipeline_controller, $module_name, $add_order)
+	final public function pc_init($id, $pipeline_controller, $module_name, $context, $add_order)
 	{
 		$this->id = $id;
 		$this->pipeline_controller = $pipeline_controller;
 		$this->module_name = $module_name;
+		$this->context = $context;
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($add_order + 99.0); // lim -> inf = 1
 
 		// add common inputs
@@ -108,7 +112,7 @@ abstract class Module {
 	}
 
 
-	final public function pc_connect($connections)
+	final public function pc_connect(array $connections)
 	{
 		$wildcard = array_key_exists('*', $this->inputs);
 
@@ -205,6 +209,7 @@ abstract class Module {
 
 		/* execute main */
 		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
+		$this->context->update_enviroment();
 		$this->main();
 
 		$this->status = self::ZOMBIE;
@@ -320,14 +325,9 @@ abstract class Module {
 	// add output object to template subsystem (with slot and weight)
 	final protected function template_add_to_slot($id_suffix, $slot, $weight, $template, $data = array())
 	{
-		// todo
-		// $this->in('slot')
-		// $this->in('slot-weight') + $this->slot_weight_penalty
-
 		$id = $id_suffix === null ? $this->id() : $this->id().'_'.$id_suffix;
-
-		global $Template; // todo: move this to Context
-		$Template->add_object($id, $slot, $weight + $this->slot_weight_penalty, $template, $data);
+		$t = $this->context->get_template_engine();
+		$t->add_object($id, $slot, $weight + $this->slot_weight_penalty, $template, $data);
 
 	}
 
@@ -340,9 +340,9 @@ abstract class Module {
 
 
 	// add output object to template subsystem
-	final protected function pipeline_add($id, $module, $force_exec = false, $connections = array())
+	final protected function pipeline_add($id, $module, $force_exec = false, $connections = array(), $context = null)
 	{
-		return $this->pipeline_controller->add_module($id, $module, $force_exec, $connections);
+		return $this->pipeline_controller->add_module($id, $module, $force_exec, $connections, $context === null ? $this->context : $context);
 	}
 }
 

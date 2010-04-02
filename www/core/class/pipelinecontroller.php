@@ -60,7 +60,7 @@ class PipelineController {
 	}
 
 
-	public function add_module($id, $module, $force_exec = false, $connections = array())
+	public function add_module($id, $module, $force_exec, array $connections, Context $context)
 	{
 		/* check replacement table */
 		for ($step = 32; isset($this->replacement[$module]) && $step > 0; $step--) {
@@ -103,7 +103,7 @@ class PipelineController {
 
 		/* initialize module */
 		$m = new $class();
-		$m->pc_init($id, $this, $module, $this->add_order);
+		$m->pc_init($id, $this, $module, $context, $this->add_order);
 		if (!$m->pc_connect($connections, $this->modules)) {
 			error_msg('Module "%s": Can\'t connect inputs!', $id);
 			return false;

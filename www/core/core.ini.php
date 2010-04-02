@@ -26,9 +26,11 @@ ignore_repeated_errors	= true
 
 ; core configuration
 [core]
+default_locale		= "cs_CZ"
 debug_logging_enabled	= true
 always_log_banner	= true
 add_pipeline_graph	= true
+;context_class		= Context
 ;app_init_file		= app/init.php
 
 ; module replacement table
