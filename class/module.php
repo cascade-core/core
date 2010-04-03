@@ -318,7 +318,7 @@ abstract class Module {
 	// add output object to template subsystem
 	final protected function template_add($id_suffix, $template, $data = array())
 	{
-		$this->template_add_to_slot($id_suffix, $this->in('slot'), $this->in('slot-weight'), $template, $data);
+		$this->template_add_to_slot($id_suffix, null, null, $template, $data);
 	}
 
 
@@ -327,7 +327,9 @@ abstract class Module {
 	{
 		$id = $id_suffix === null ? $this->id() : $this->id().'_'.$id_suffix;
 		$t = $this->context->get_template_engine();
-		$t->add_object($id, $slot, $weight + $this->slot_weight_penalty, $template, $data, $this->context);
+		$t->add_object($id, $slot === null ? $this->in('slot') : $slot,
+				($weight === null ? $this->in('slot-weight') : $weight) + $this->slot_weight_penalty,
+				$template, $data, $this->context);
 
 	}
 
