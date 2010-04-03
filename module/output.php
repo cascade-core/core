@@ -32,7 +32,7 @@
 class M_core__output extends Module {
 
 	protected $inputs = array(
-		'template' => null,
+		'template' => array(),
 		'data' => null,
 		'slot' => 'default',
 		'slot-weight' => 50,
