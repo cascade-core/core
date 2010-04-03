@@ -82,7 +82,7 @@ class Template {
 					if ($context !== null) {
 						$context->update_enviroment();
 					}
-					$tpl_fn($this, $data);
+					$tpl_fn($this, $id, $data);
 				} else {
 					error_msg('Failed to load template "%s"! Object ID is "%s".', $template, $id);
 				}

@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-function TPL_core__main($t, $d)
+function TPL_core__main($t, $id, $d)
 {
 	echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n"
 		,"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";

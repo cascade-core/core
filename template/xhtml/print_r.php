@@ -28,13 +28,13 @@
  * SUCH DAMAGE.
  */
 
-function TPL_core__print_r($t, $d)
+function TPL_core__print_r($t, $id, $d)
 {
 	ob_start();
 	print_r($d);
 	$str = ob_get_clean();
 
-	echo "<pre>".htmlspecialchars($str)."</pre>\n";
+	echo "<pre id=\"", htmlspecialchars($id), "\">".htmlspecialchars($str)."</pre>\n";
 }
 
 // vim:encoding=utf8:

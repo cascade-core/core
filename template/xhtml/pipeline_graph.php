@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-function TPL_core__pipeline_graph($t, $d)
+function TPL_core__pipeline_graph($t, $id, $d)
 {
 	extract($d);
 
@@ -40,7 +40,8 @@ function TPL_core__pipeline_graph($t, $d)
 	file_put_contents($dot_name.'.dot', $dot);
 	$pipeline->exec_dot($dot, 'png', $dot_name.'.png');
 
-	printf("<div style=\"text-align: center; clear: both; margin: 2em; padding: 1em 0em; background: #fff; border: 1px solid #aaa;\">\n"
+	printf("<div id=\"".htmlspecialchars($id)."\" "
+			."style=\"text-align: center; clear: both; margin: 2em; padding: 1em 0em; background: #fff; border: 1px solid #aaa;\">\n"
 			."\t<img src=\"%s\" />\n</div>\n",
 		'/'.$dot_name.'.png');
 }
