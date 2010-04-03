@@ -28,18 +28,22 @@
  * SUCH DAMAGE.
  */
 
-/* Define basic constants. Each DIR_* must be terminated by slash! */
-define('DIR_ROOT',		dirname(__FILE__).'/');
-define('DIR_CORE_CLASS',	DIR_ROOT.'core/class/');
-define('DIR_CORE_MODULE',	DIR_ROOT.'core/module/');
-define('DIR_CORE_TEMPLATE',	DIR_ROOT.'core/template/');
-define('DIR_APP_CLASS', 	DIR_ROOT.'app/class/');
-define('DIR_APP_MODULE',	DIR_ROOT.'app/module/');
-define('DIR_APP_TEMPLATE',	DIR_ROOT.'app/template/');
-define('FILE_APP_CONFIG',	DIR_ROOT.'app/core.ini.php');
-define('FILE_CORE_CONFIG',	DIR_ROOT.'core/core.ini.php');
+/* Define directory and file names.
+ * Each DIR_* must be slash-terminated!
+ */
+define('DIR_ROOT',		dirname(dirname(__FILE__)).'/');
+define('DIR_CORE',		DIR_ROOT.'core/');
+define('FILE_CORE_CONFIG',	  DIR_CORE.'core.ini.php');
+define('DIR_CORE_CLASS',	  DIR_CORE.'class/');
+define('DIR_CORE_MODULE',	  DIR_CORE.'module/');
+define('DIR_CORE_TEMPLATE',	  DIR_CORE.'template/');
+define('DIR_APP',		DIR_ROOT.'app/');
+define('FILE_APP_CONFIG',	  DIR_APP.'core.ini.php');
+define('DIR_APP_CLASS', 	  DIR_APP.'class/');
+define('DIR_APP_MODULE',	  DIR_APP.'module/');
+define('DIR_APP_TEMPLATE',	  DIR_APP.'template/');
 
-require(DIR_ROOT.'core/utils.php');
+require(DIR_CORE.'utils.php');
 
 
 /* Class autoloader */
