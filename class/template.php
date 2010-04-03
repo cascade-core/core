@@ -69,8 +69,11 @@ class Template {
 			debug_msg(' %s Slot "%s" is already processed.', $indent, $slot_name);
 		} else {
 			debug_msg(' %s Processing slot "%s" ...', $indent, $slot_name);
+
 			$content = $this->slot_content[$slot_name];
 			$this->slot_content[$slot_name] = false;
+
+			sort($content);		// sort by weight (this is why weight is first)
 
 			foreach($content as $obj) {
 				list($weight, $slot, $id, $template, $data, $context) = $obj;
