@@ -1,4 +1,5 @@
-<?php
+#!/usr/bin/env php
+<?
 /*
  * Copyright (c) 2010, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
@@ -28,22 +29,49 @@
  * SUCH DAMAGE.
  */
 
-function TPL_core__pipeline_graph($t, $d)
-{
-	extract($d);
 
-	// FIXME: this should not be done here
-	$dot = $pipeline->export_graphviz_dot();
-	if (!is_dir(dirname($dot_name))) {
-		@mkdir(dirname($dot_name));
-	}
-	file_put_contents($dot_name.'.dot', $dot);
-	$pipeline->exec_dot($dot, 'png', $dot_name.'.png');
-
-	printf("<div style=\"text-align: center; clear: both; margin: 2em; padding: 1em 0em; background: #fff; border: 1px solid #aaa;\">\n"
-			."\t<img src=\"%s\" />\n</div>\n",
-		'/'.$dot_name.'.png');
+if (isset($_SERVER['REMOTE_ADDR'])) {
+	die('Please execute this from your command line!');
 }
+
+$dirs = array(
+	'app',
+	'app/module',
+	'app/style',
+	'app/template',
+	'app/default-config',
+	'app/lib',
+	'app/class',
+	'app/font',
+	'app/icon',
+	'data',
+	'var',
+);
+
+chdir(dirname(dirname(realpath($argv[0]))));
+
+$err = false;
+foreach ($dirs as $d) {
+	if (!is_dir($d) && !mkdir($d)) {
+		$err = true;
+	}
+}
+
+if ($err) {
+	echo "Something gone wrong while creating directories.\n";
+} else {
+	echo "Directory hiearchy created (or already existed).\n";
+	echo "Do not forget to allow read-write access to 'data/' and 'var/'.\n";
+}
+
+if (!file_exists('./index.php') && copy('./core/skeleton-index.php', './index.php')) {
+	echo "Bootstrap index.php created\n";
+}
+
+if (!file_exists('./.gitignore')) {
+	file_put_contents('./.gitignore', "./data\n./var\n");
+}
+
 
 // vim:encoding=utf8:
 

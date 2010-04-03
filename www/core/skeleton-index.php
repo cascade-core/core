@@ -28,6 +28,11 @@
  * SUCH DAMAGE.
  */
 
+/*
+ * Yes, you can freely skip this file if you set your web server
+ * directly to core/index.php.
+ */
+
 
 /* Define directory and file names.
  * Each DIR_* must be slash-terminated!
