@@ -37,7 +37,7 @@ class M_core__page extends Module {
 
 	function main()
 	{
-		$this->template_add_to_slot('page', 'root',    50, 'core/main');
+		$this->template_add_to_slot(null, 'root', 50, 'core/main');
 		$this->out('done', true);
 	}
 
