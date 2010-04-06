@@ -28,14 +28,14 @@
  * SUCH DAMAGE.
  */
 
-function TPL_core__main($t, $id, $d)
+function TPL_xhtml__core__main($t, $id, $d, $so)
 {
 	echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n"
 		,"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
 	echo "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
 
 	echo "<head>\n";
-	echo "\t<title>".htmlspecialchars($page_title)."</title>\n"; // FIXME
+	echo "\t<title>".htmlspecialchars(@$so['page_title'])."</title>\n"; // FIXME
 	echo "\t<meta http-equiv=\"content-type\" content=\"application/xhtml+xml; charset=UTF-8\" />\n";
 	$t->process_slot('html_head');
 	echo "</head>\n";

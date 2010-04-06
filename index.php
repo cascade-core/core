@@ -110,6 +110,11 @@ if (isset($core_cfg['template']['engine-class'])) {
 	$template = new Template();
 }
 
+/* set default output type */
+if (isset($core_cfg['output']['default_type'])) {
+	$template->slot_option_set('root', 'type', $core_cfg['output']['default_type']);
+}
+
 /* Initialize default context */
 $context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
 $default_context = new $context_class();

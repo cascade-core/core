@@ -67,6 +67,8 @@ function debug_msg($msg)
 
 function error_msg($msg)
 {
+	global $_utils_php__first_msg;
+
 	if ($_utils_php__first_msg) {
 		first_msg();
 	}

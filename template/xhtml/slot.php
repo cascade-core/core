@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-function TPL_core__slot($t, $id, $d)
+function TPL_xhtml__core__slot($t, $id, $d, $so)
 {
 	extract($d);
 

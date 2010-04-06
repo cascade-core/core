@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-function TPL_core__pipeline_graph($t, $id, $d)
+function TPL_xhtml__core__pipeline_graph($t, $id, $d, $so)
 {
 	extract($d);
 

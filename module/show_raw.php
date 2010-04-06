@@ -28,14 +28,24 @@
  * SUCH DAMAGE.
  */
 
-function TPL_xhtml__core__print_r($t, $id, $d, $so)
-{
-	ob_start();
-	print_r($d);
-	$str = ob_get_clean();
 
-	echo "<pre id=\"", htmlspecialchars($id), "\">".htmlspecialchars($str)."</pre>\n";
+class M_core__show_raw extends Module {
+
+	protected $inputs = array(
+		'data' => array(),
+		'slot' => 'default',
+		'slot-weight' => 50,
+	);
+
+	function main()
+	{
+		$this->template_add(null, 'core/raw', array('data' => $this->in('data')));
+	}
+
 }
+
+
+
 
 // vim:encoding=utf8:
 

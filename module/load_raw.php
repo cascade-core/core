@@ -28,14 +28,40 @@
  * SUCH DAMAGE.
  */
 
-function TPL_xhtml__core__print_r($t, $id, $d, $so)
-{
-	ob_start();
-	print_r($d);
-	$str = ob_get_clean();
 
-	echo "<pre id=\"", htmlspecialchars($id), "\">".htmlspecialchars($str)."</pre>\n";
+class M_core__load_raw extends Module {
+
+	protected $inputs = array(
+		'filename' => array(),
+		'name' => null,
+	);
+
+	protected $outputs = array(
+		'data' => true,
+		'filename' => true,
+		'done' => true,
+	);
+
+
+	public function main()
+	{
+		$name = $this->in('name');
+		$fn = $this->in('filename');
+
+		if ($name !== null) {
+			$fn = sprintf($fn, $name);
+		}
+
+		$data = file_get_contents($fn);
+
+		$this->out('data', $data);
+		$this->out('filename', $fn);
+		$this->out('done', $data !== FALSE);
+	}
 }
+
+
+
 
 // vim:encoding=utf8:
 

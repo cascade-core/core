@@ -335,9 +335,25 @@ abstract class Module {
 
 
 	// set page title
-	final protected function template_set_title($title)
+	final protected function template_set_page_title($title)
 	{
-		// todo
+		$this->set_slot_option('root', 'title', $title);
+	}
+
+
+	// set slot option
+	final protected function template_option_set($slot, $option, $value)
+	{
+		$t = $this->context->get_template_engine();
+		return $t->slot_option_set($slot, $option, $value);
+	}
+
+
+	// append value to slot option (which is list)
+	final protected function template_option_append($slot, $option, $value)
+	{
+		$t = $this->context->get_template_engine();
+		return $t->add_slot_option($slot, $option, $value);
 	}
 
 

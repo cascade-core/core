@@ -31,9 +31,9 @@
 class Template {
 
 	private $objects = array();
+	private $slot_options = array();
 	private $current_slot_depth = 0;
 
-	// TODO !!!
 
 	function add_object($id, $slot, $weight, $template, $data = array(), $context = null)
 	{
@@ -48,10 +48,31 @@ class Template {
 	}
 
 
-	function load_template($template_name, $function_name, $indent = '')
+	// set slot option (no arrays allowed)
+	function slot_option_set($slot, $option, $value)
 	{
-		// FIXME
-		$f = DIR_CORE_TEMPLATE.'xhtml/'.preg_replace('|^core/|', '', $template_name).'.php';
+		if (is_array($value)) {
+			error_msg('Slot option must not be array!');
+		} else {
+			$this->slot_option[$option] = $value;
+		}
+	}
+
+
+	// append slot option value to list
+	function slot_option_append($slot, $option, $value)
+	{
+		if (is_array(@$this->slot_option[$option])) {
+			$this->slot_option[$option][] = $value;
+		} else {
+			$this->slot_option[$option] = array($value);
+		}
+	}
+
+
+	function load_template($output_type, $template_name, $function_name, $indent = '')
+	{
+		$f = DIR_CORE_TEMPLATE.$output_type.'/'.preg_replace('|^core/|', '', $template_name).'.php';
 		debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
 		include $f;
 		return function_exists($function_name);
@@ -60,8 +81,12 @@ class Template {
 
 	function process_slot($slot_name)
 	{
+		static $options = array();
+		static $output_type = 'xhtml';
+
 		$indent = str_repeat(' .', $this->current_slot_depth);
 		$this->current_slot_depth++;
+		$last_options = $options;
 
 		if (!array_key_exists($slot_name, $this->slot_content)) {
 			debug_msg(' %s Slot "%s" is empty.', $indent, $slot_name);
@@ -70,22 +95,36 @@ class Template {
 		} else {
 			debug_msg(' %s Processing slot "%s" ...', $indent, $slot_name);
 
+			/* get slot content */
 			$content = $this->slot_content[$slot_name];
 			$this->slot_content[$slot_name] = false;
-
 			sort($content);		// sort by weight (this is why weight is first)
 
+			/* get slot options & merge with parent slot options */
+			$options = array_merge($options, (array) @$this->slot_options[$slot_name]);
+
+			/* special option 'type' sets output type */
+			if (isset($options['type'])) {
+				$output_type = trim(preg_replace('/[^a-z0-9_]+/', '_', strtolower($options['type'])), '_');
+				if ($output_type == '') {
+					$output_type = $last_output_type;
+				}
+			}
+
+			/* process slot content */
 			foreach($content as $obj) {
 				list($weight, $slot, $id, $template, $data, $context) = $obj;
 				
-				$tpl_fn = 'TPL_'.str_replace('/', '__', $template);
+				$tpl_fn = 'TPL_'.$output_type.'__'.str_replace('/', '__', $template);
 
-				if (function_exists($tpl_fn) || $this->load_template($template, $tpl_fn, $indent)) {
+				if (function_exists($tpl_fn) || $this->load_template($output_type, $template, $tpl_fn, $indent)) {
 					debug_msg(' %s Executing "%s" ...', $indent, $template);
 					if ($context !== null) {
 						$context->update_enviroment();
 					}
-					$tpl_fn($this, $id, $data);
+
+					/* call template (can recursively call process_slot()) */
+					$tpl_fn($this, $id, $data, $options);
 				} else {
 					error_msg('Failed to load template "%s"! Object ID is "%s".', $template, $id);
 				}
@@ -94,6 +133,7 @@ class Template {
 			debug_msg(' %s Processing slot "%s" done.', $indent, $slot_name);
 		}
 
+		$options = $last_options;
 		$this->current_slot_depth--;
 	}
 

@@ -33,6 +33,9 @@ add_pipeline_graph	= true
 ;context_class		= Context
 ;app_init_file		= app/init.php
 
+[output]
+;default_type		= "xhtml"
+
 ; module replacement table
 [module-map]
 ;old-module/name	= "replacement-module/name"
