@@ -28,72 +28,29 @@
  * SUCH DAMAGE.
  */
 
-$_utils_php__first_msg = true;
+class M_core__set_page_title extends Module {
 
+	protected $inputs = array(
+		'title' => null,
+		'format' => null,
+	);
 
-function first_msg()
-{
-	global $_utils_php__first_msg;
+	protected $outputs = array(
+	);
 
-	$_utils_php__first_msg = false;
-	debug_msg('New client from %s:%d at %s.', $_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'], strftime('%F %T', $_SERVER['REQUEST_TIME']));
-}
+	public function main()
+	{
+		$t = $this->in('title');
 
-function debug_msg($msg)
-{
-	global $_utils_php__first_msg;
+		if ($t != '') {
+			$fmt = $this->in('format');
 
-	if (!DEBUG_LOGGING_ENABLED) {
-		return;
-	}
-
-	if ($_utils_php__first_msg) {
-		first_msg();
-	}
-
-	$args = func_get_args();
-	unset($args[0]);
-
-	$trace = debug_backtrace();
-
-	if (isset($trace[1])) {
-		$t = & $trace[1];
-		error_log(@$t['class'].'::'.$t['function'].'(): Debug: '.vsprintf($msg, $args));
-	} else {
-		error_log(vsprintf($msg, $args));
-	}
-}
-
-
-function error_msg($msg)
-{
-	global $_utils_php__first_msg;
-
-	if ($_utils_php__first_msg) {
-		first_msg();
-	}
-
-	$args = func_get_args();
-	unset($args[0]);
-
-	$trace = debug_backtrace();
-
-	if (isset($trace[1])) {
-		$t = & $trace[1];
-		error_log($t['class'].'::'.$t['function'].'(): Error: '.vsprintf($msg, $args));
-	} else {
-		error_log(vsprintf($msg, $args));
-	}
-}
-
-
-function get_ident($name)
-{
-	if ($name == '') {
-		return '';
-	} else {
-		// TODO: je potreba zachovat unikatnost
-		return str_replace('-', '_', $name);
+			if ($fmt == '%s' || $fmt == '') {
+				$this->template_set_page_title($t);
+			} else {
+				$this->template_set_page_title(sprintf($fmt, $t));
+			}
+		}
 	}
 }
 

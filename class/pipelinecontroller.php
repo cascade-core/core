@@ -120,6 +120,31 @@ class PipelineController {
 	}
 
 
+	public function add_modules_from_ini($parsed_ini_with_sections, Context $context)
+	{
+		/* walk thru ini and take 'module:*' sections */
+		foreach ($parsed_ini_with_sections as $section => $opts) {
+			@list($keyword, $id) = explode(':', $section, 2);
+			if ($keyword == 'module' && isset($id) && @($module = $opts['.module']) !== null) {
+				$force_exec = !empty($opts['.force-exec']);
+
+				/* drop module options and keep only connections */
+				unset($opts['.module']);
+				unset($opts['.force-exec']);
+
+				/* parse connections */
+				foreach($opts as & $out) {
+					if (is_array($out) && count($out) == 1) {
+						$out = explode(':', $out[0], 2);
+					}
+				}
+
+				$this->add_module($id, $module, $force_exec, $opts, $context);
+			}
+		}
+	}
+
+
 	public function export_graphviz_dot()
 	{
 		$colors = array(

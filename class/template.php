@@ -54,7 +54,7 @@ class Template {
 		if (is_array($value)) {
 			error_msg('Slot option must not be array!');
 		} else {
-			$this->slot_option[$option] = $value;
+			$this->slot_options[$slot][$option] = $value;
 		}
 	}
 
@@ -62,10 +62,10 @@ class Template {
 	// append slot option value to list
 	function slot_option_append($slot, $option, $value)
 	{
-		if (is_array(@$this->slot_option[$option])) {
-			$this->slot_option[$option][] = $value;
+		if (is_array(@$this->slot_options[$slot][$option])) {
+			$this->slot_options[$slot][$option][] = $value;
 		} else {
-			$this->slot_option[$option] = array($value);
+			$this->slot_options[$slot][$option] = array($value);
 		}
 	}
 

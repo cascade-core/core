@@ -337,7 +337,8 @@ abstract class Module {
 	// set page title
 	final protected function template_set_page_title($title)
 	{
-		$this->set_slot_option('root', 'title', $title);
+		$t = $this->context->get_template_engine();
+		return $t->slot_option_set('root', 'page_title', $title);
 	}
 
 
@@ -357,10 +358,17 @@ abstract class Module {
 	}
 
 
-	// add output object to template subsystem
+	// add module to pipeline
 	final protected function pipeline_add($id, $module, $force_exec = false, $connections = array(), $context = null)
 	{
 		return $this->pipeline_controller->add_module($id, $module, $force_exec, $connections, $context === null ? $this->context : $context);
+	}
+
+
+	// add modules to pipeline from parsed inifile
+	final protected function pipeline_add_from_ini($parsed_ini_with_sections, $context = null)
+	{
+		return $this->pipeline_controller->add_modules_from_ini($parsed_ini_with_sections, $context === null ? $this->context : $context);
 	}
 }
 
