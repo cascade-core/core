@@ -89,7 +89,7 @@ function error_msg($msg)
 
 function get_ident($name)
 {
-	if ($name == '') {
+	if ((string) $name === '') {
 		return '';
 	} else {
 		// TODO: je potreba zachovat unikatnost
