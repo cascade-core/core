@@ -28,37 +28,27 @@
  * SUCH DAMAGE.
  */
 
-class M_core__multi_slot extends Module {
 
-	protected $inputs = array(
-		'slot' => 'default',
-		'slot-weight' => 50,
-		'list' => array(),
-	);
+function TPL_css__core__basic($t, $id, $d, $so)
+{
 
-	protected $outputs = array(
-	);
+	echo <<<eof
+.slot {
+	/* clear inner floats */
+	position: relative;
+	overflow: hidden;
+	width: 100%;
 
-	public function main()
-	{
-		$list = $this->in('list');
-
-		if (!is_array($list)) {
-			error_msg('Input "list" must contain array!');
-		} else {
-			foreach ($list as $name => $opts) {
-				if (isset($opts['slot'])) {
-					debug_msg('Adding slot "%s" into slot "%s".', $name, $opts['slot']);
-				} else {
-					debug_msg('Adding slot "%s" into default slot.', $name);
-				}
-				$this->template_add_to_slot($name, @$opts['slot'], @$opts['weight'], 'core/slot', array(
-						'name' => $name,
-					) + $opts);
-			}
-		}
-	}
+	/* no appearence */
+	border: 0px;
+	margin: 0px;
+	padding: 0px;
 }
+\n
+eof;
+
+}
+
 
 
 // vim:encoding=utf8:

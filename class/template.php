@@ -73,8 +73,12 @@ class Template {
 	function load_template($output_type, $template_name, $function_name, $indent = '')
 	{
 		$f = DIR_CORE_TEMPLATE.$output_type.'/'.preg_replace('|^core/|', '', $template_name).'.php';
-		debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
-		include $f;
+		if (is_readable($f)) {
+			debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
+			include $f;
+		} else {
+			debug_msg('%s Can\'t load "%s" - file "%s" not found.', $indent, substr($f, strlen(DIR_ROOT)), str_replace(DIR_ROOT, '', $f));
+		}
 		return function_exists($function_name);
 	}
 

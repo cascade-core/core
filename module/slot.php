@@ -50,10 +50,14 @@ class M_core__slot extends Module {
 			$this->out('name', $name);
 			$this->out('done', true);
 
-			$this->template_add(null, 'core/slot', array(
-					'name' => $name,
-					'extra_class' => $this->in('extra-class'),
-				));
+			$inputs = array();
+			foreach ($this->input_names() as $in) {
+				if ($in != 'slot' && $in != 'slot-weight') {
+					$inputs[str_replace('-', '_', $in)] = $this->in($in);
+				}
+			}
+
+			$this->template_add(null, 'core/slot', $inputs);
 		}
 	}
 }

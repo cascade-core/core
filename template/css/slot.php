@@ -28,36 +28,23 @@
  * SUCH DAMAGE.
  */
 
-class M_core__multi_slot extends Module {
+function TPL_css__core__slot($t, $id, $d, $so)
+{
+	extract($d);
 
-	protected $inputs = array(
-		'slot' => 'default',
-		'slot-weight' => 50,
-		'list' => array(),
-	);
+	echo "#", $id, " {\n";
 
-	protected $outputs = array(
-	);
-
-	public function main()
-	{
-		$list = $this->in('list');
-
-		if (!is_array($list)) {
-			error_msg('Input "list" must contain array!');
-		} else {
-			foreach ($list as $name => $opts) {
-				if (isset($opts['slot'])) {
-					debug_msg('Adding slot "%s" into slot "%s".', $name, $opts['slot']);
-				} else {
-					debug_msg('Adding slot "%s" into default slot.', $name);
-				}
-				$this->template_add_to_slot($name, @$opts['slot'], @$opts['weight'], 'core/slot', array(
-						'name' => $name,
-					) + $opts);
-			}
-		}
+	if (isset($float)) {
+		echo "\tfloat: $float;\n";
+		echo "\twidth: ", isset($width) ? $width : '100%', ";\n";
 	}
+
+	if (isset($clear)) {
+		echo "\tclear: $clear;\n";
+	}
+
+	echo "}\n\n";
+	$t->process_slot($name);
 }
 
 
