@@ -335,10 +335,23 @@ abstract class Module {
 
 
 	// set page title
-	final protected function template_set_page_title($title)
+	final protected function template_set_page_title($title, $format = null)
 	{
 		$t = $this->context->get_template_engine();
-		return $t->slot_option_set('root', 'page_title', $title);
+		if ($title !== null) {
+			$t->slot_option_set('root', 'page_title', $title);
+		}
+		if ($format !== null) {
+			$t->slot_option_set('root', 'page_title_format', $format);
+		}
+	}
+
+
+	// set output type
+	final protected function template_set_type($type)
+	{
+		$t = $this->context->get_template_engine();
+		$t->slot_option_set('root', 'type', $type);
 	}
 
 

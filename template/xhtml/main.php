@@ -35,7 +35,11 @@ function TPL_xhtml__core__main($t, $id, $d, $so)
 	echo "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
 
 	echo "<head>\n";
-	echo "\t<title>".htmlspecialchars(@$so['page_title'])."</title>\n"; // FIXME
+	echo "\t<title>".htmlspecialchars(
+				isset($so['page_title_format'])
+					? sprintf($so['page_title_format'], @$so['page_title'])
+					: @$so['page_title']
+				)."</title>\n";
 	echo "\t<meta http-equiv=\"content-type\" content=\"application/xhtml+xml; charset=UTF-8\" />\n";
 	$t->process_slot('html_head');
 	echo "</head>\n";

@@ -28,24 +28,26 @@
  * SUCH DAMAGE.
  */
 
-class M_core__set_page_title extends Module {
 
-	protected $inputs = array(
-		'title' => null,
-		'format' => null,
-	);
+function TPL_xhtml__core__header($t, $id, $d, $so)
+{
+	extract($d);
 
-	protected $outputs = array(
-	);
-
-	public function main()
-	{
-		$t = $this->in('title');
-		$fmt = $this->in('format');
-
-		$this->template_set_page_title($t, $fmt);
+	if ($option !== null && isset($so[$option])) {
+		$str = $so[$option];
+	} else if ($text !== null) {
+		$str = $text;
+	} else {
+		return;
 	}
+
+	$tag = 'h'.$level;
+
+	echo "<$tag id=\"", htmlspecialchars($id), "\">",
+		htmlspecialchars($str),
+		"</$tag>\n";
 }
+
 
 
 // vim:encoding=utf8:

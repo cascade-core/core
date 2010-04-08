@@ -28,11 +28,14 @@
  * SUCH DAMAGE.
  */
 
-class M_core__set_page_title extends Module {
+class M_core__show_header extends Module {
 
 	protected $inputs = array(
-		'title' => null,
-		'format' => null,
+		'level' => 2,
+		'text' => null,
+		'option' => null,
+		'slot' => 'default',
+		'slot-weight' => 50,
 	);
 
 	protected $outputs = array(
@@ -40,10 +43,11 @@ class M_core__set_page_title extends Module {
 
 	public function main()
 	{
-		$t = $this->in('title');
-		$fmt = $this->in('format');
-
-		$this->template_set_page_title($t, $fmt);
+		$this->template_add(null, 'core/header', array(
+				'option' => $this->in('option'),
+				'text' => $this->in('text'),
+				'level' => $this->in('level'),
+			));
 	}
 }
 
