@@ -72,7 +72,11 @@ class Template {
 
 	function load_template($output_type, $template_name, $function_name, $indent = '')
 	{
-		$f = DIR_CORE_TEMPLATE.$output_type.'/'.preg_replace('|^core/|', '', $template_name).'.php';
+		if (strncmp($template_name, 'core/', 5) == 0) {
+			$f = DIR_CORE_TEMPLATE.$output_type.'/'.substr($template_name, 5).'.php';
+		} else {
+			$f = DIR_APP_TEMPLATE.$output_type.'/'.$template_name.'.php';
+		}
 		if (is_readable($f)) {
 			debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
 			include $f;
