@@ -37,7 +37,6 @@ class M_core__multi_slot extends Module {
 	);
 
 	protected $outputs = array(
-		'done' => true,
 	);
 
 	public function main()
@@ -53,7 +52,6 @@ class M_core__multi_slot extends Module {
 						'extra_class' => @$opts['extra-class'],
 					));
 			}
-			$this->out('done', true);
 		}
 	}
 }
