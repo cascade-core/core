@@ -37,6 +37,8 @@ function TPL_css__core__slot($t, $id, $d, $so)
 	if (isset($float)) {
 		echo "\tfloat: $float;\n";
 		echo "\twidth: ", isset($width) ? $width : '100%', ";\n";
+	} else if (isset($width)) {
+		echo "\twidth: ", $width, ";\n";
 	}
 
 	if (isset($clear)) {
