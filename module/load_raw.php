@@ -39,6 +39,7 @@ class M_core__load_raw extends Module {
 	protected $outputs = array(
 		'data' => true,
 		'filename' => true,
+		'error' => true,
 		'done' => true,
 	);
 
@@ -54,7 +55,11 @@ class M_core__load_raw extends Module {
 
 		$data = file_get_contents($fn);
 
-		$this->out('data', $data);
+		if ($data === FALSE) {
+			$this->out('error', true);
+		} else {
+			$this->out('data', $data);
+		}
 		$this->out('filename', $fn);
 		$this->out('done', $data !== FALSE);
 	}

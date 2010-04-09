@@ -40,6 +40,7 @@ class M_core__load_ini extends Module {
 	protected $outputs = array(
 		'data' => true,
 		'filename' => true,
+		'error' => true,
 		'done' => true,
 	);
 
@@ -55,10 +56,14 @@ class M_core__load_ini extends Module {
 
 		$data = parse_ini_file($fn, $this->in('process-sections'));
 
-		if ($this->in('multi-output')) {
-			$this->out_all($data);
+		if ($data === FALSE) {
+			$this->out('error', true);
 		} else {
-			$this->out('data', $data);
+			if ($this->in('multi-output')) {
+				$this->out_all($data);
+			} else {
+				$this->out('data', $data);
+			}
 		}
 
 		$this->out('filename', $fn);
