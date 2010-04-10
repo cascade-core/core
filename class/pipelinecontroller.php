@@ -157,7 +157,7 @@ class PipelineController {
 		$missing_modules = array();
 
 		$gv =	 "#\n"
-			."# Generated at ".strftime('%F %T')."\n"
+			."# Pipeline vizualisation\n"
 			."#\n"
 			."# Use \"dot -Tpng this-file.gv -o this-file.png\" to compile.\n"
 			."#\n"
