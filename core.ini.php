@@ -39,7 +39,6 @@ add_pipeline_graph	= true
 ; module replacement table
 [module-map]
 ;old-module/name	= "replacement-module/name"
-core/print_r		= "core/output"
 
 
 ;

@@ -28,22 +28,27 @@
  * SUCH DAMAGE.
  */
 
-function TPL_xhtml__core__print_r($t, $id, $d, $so)
-{
-	extract($d);
+class M_core__print_r extends Module {
 
-	ob_start();
-	print_r($data);
-	$str = ob_get_clean();
+	protected $inputs = array(
+		'data' => null,
+		'title' => null,
+		'header-level' => 2,
+		'slot' => 'default',
+		'slot-weight' => 50,
+	);
 
-	echo "<div id=\"", htmlspecialchars($id), "\" class=\"print_r\">\n";
-	if ($title != '') {
-		$h = 'h'.intval($header_level);
-		echo "<$h>", htmlspecialchars($title), "</$h>\n";
+	function main()
+	{
+		$this->template_add(null, 'core/print_r', array(
+				'title' => $this->in('title'),
+				'header_level' => $this->in('header-level'),
+				'data' => $this->in('data'),
+			));
 	}
-	echo "<pre>", htmlspecialchars($str), "</pre>\n",
-		"</div>\n";
+
 }
+
 
 // vim:encoding=utf8:
 
