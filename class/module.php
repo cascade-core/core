@@ -53,6 +53,7 @@ abstract class Module {
 
 	private $status = self::QUEUED;
 	private $output_cache = array();
+	private $forward_list = array();
 
 	protected $context;
 
@@ -143,6 +144,10 @@ abstract class Module {
 			case self::FAILED:
 				debug_msg('%s: Skipping failed module "%s"', $this->module_name(), $this->id());
 				return false;
+
+			case self::RUNNING:
+				error_msg('Circular dependency detected while executing module "%s" !', $this->id);
+				return false;
 		}
 
 		debug_msg('%s: Preparing module "%s"', $this->module_name(), $this->id());
@@ -173,24 +178,12 @@ abstract class Module {
 		}
 
 		/* execute dependencies */
-		// TODO: lze spoustet zavislosti az na vyzadani a ne predem vse ?
+		// TODO: Lze spoustet zavislosti az na vyzadani a ne predem vse ?
+		//		-- Pokud ano, tak bude potreba poresit preposilani vystupu.
 		foreach($dependencies as & $d) {
-			switch ($d->status) {
-				case self::RUNNING:
- 					error_msg('Circular dependency detected while preparing module "%s" !', $this->id);
-					$this->status = self::FAILED;
-					break 2;
-
-				case self::QUEUED:
-					if (!$d->pc_execute(& $module_refs)) {
-						$this->status = self::FAILED;
-						break 2;
-					}
-					break;
-
-				case self::FAILED:
-					$this->status = self::FAILED;
-					break 2;
+			if (!$d->pc_execute(& $module_refs)) {
+				$this->status = self::FAILED;
+				break;
 			}
 		}
 
@@ -211,8 +204,34 @@ abstract class Module {
 		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
 		$this->context->update_enviroment();
 		$this->main();
-
 		$this->status = self::ZOMBIE;
+
+		/* execute & evaluate forwarded outputs */
+		// TODO - nebylo by lepsi to udelat az na pozadani ?
+		//	-- ne, nebylo. Prilis by se to zeslozitilo a rezije by byla prilis velika.
+		//	  Lepe bude pockat az se budou resit zavislosti na pozadani
+		//	  a udelat to pri tom.
+		foreach($this->forward_list as $name => $src) {
+			list($src_name, $src_out) = $src;
+			$m = @$module_refs[$src_name];
+			if ($m && (isset($m->outputs[$src_out]) || isset($m->outputs['*']))) {
+				if ($m->pc_execute(& $module_refs)) {
+					$this->output_cache[$name] = $m->pc_get_output($src_out);
+				} else {
+					error_msg('Source module or output not found while forwarding to "%s.%s" from "%s.%s"!',
+							$this->id(), $name, $src_name, $src_out);
+					$this->status = self::FAILED;
+					break;
+				}
+			} else {
+				error_msg('Can\'t forward output "%s.%s" from "%s.%s" !',
+						$this->id, $name, $src_name, $src_out);
+				$this->status = self::FAILED;
+				break;
+			}
+
+		}
+
 		return true;
 	}
 
@@ -246,6 +265,11 @@ abstract class Module {
 	final public function pc_outputs()
 	{
 		return $this->output_cache + $this->outputs;
+	}
+
+	final public function pc_forwarded_outputs()
+	{
+		return $this->forward_list;
 	}
 
 
@@ -314,7 +338,14 @@ abstract class Module {
 		$this->output_cache = $values;
 	}
 
-  
+
+	// forward output from another module
+	final protected function out_forward($name, $source_module, $source_name)
+	{
+		$this->forward_list[$name] = array($source_module, $source_name);
+	}
+
+
 	// add output object to template subsystem
 	final protected function template_add($id_suffix, $template, $data = array())
 	{

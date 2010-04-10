@@ -241,6 +241,14 @@ class PipelineController {
 
 			$gv .=	"\t\t</table>>];\n";
 			$gv .=	$gv_inputs;
+
+			/* connect forwarded outputs */
+			foreach ($module->pc_forwarded_outputs() as $name => $src) {
+				list($src_mod, $src_out) = $src;
+				$gv .= "\tm_".get_ident($src_mod).":o_".get_ident($src_out).":e -> m_".get_ident($id).":o_".get_ident($name).':e'
+					."[color=royalblue,arrowhead=dot];\n";
+			}
+
 			$gv .= "\n";
 		}
 
