@@ -33,17 +33,29 @@ function TPL_xhtml__core__pipeline_graph($t, $id, $d, $so)
 	extract($d);
 
 	// FIXME: this should not be done here
-	$dot = $pipeline->export_graphviz_dot();
+
 	if (!is_dir(dirname($dot_name))) {
 		@mkdir(dirname($dot_name));
 	}
-	file_put_contents($dot_name.'.dot', $dot);
-	$pipeline->exec_dot($dot, 'png', $dot_name.'.png');
+
+	$dot = $pipeline->export_graphviz_dot();
+	$hash = md5($dot);
+
+	$dot_file = sprintf($dot_name, $hash, 'dot');
+	$png_file = sprintf($dot_name, $hash, 'png');
+
+	$dot_mtime = @filemtime($dot_file);
+	$png_mtime = @filemtime($png_file);
+
+	if (!$dot_mtime || !$png_mtime || $dot_mtime > $png_mtime || $png_mtime <= filemtime(__FILE__)) {
+		file_put_contents($dot_file, $dot);
+		$pipeline->exec_dot($dot, 'png', $png_file);
+	}
 
 	printf("<div id=\"".htmlspecialchars($id)."\" "
 			."style=\"text-align: center; clear: both; margin: 2em; padding: 1em 0em; background: #fff; border: 1px solid #aaa;\">\n"
 			."\t<img src=\"%s\" />\n</div>\n",
-		'/'.$dot_name.'.png');
+		'/'.$png_file);
 }
 
 // vim:encoding=utf8:

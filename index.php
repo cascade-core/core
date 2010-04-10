@@ -138,20 +138,10 @@ $pipeline->start();
 
 /* Visualize executed pipeline */
 if (!empty($core_cfg['core']['add_pipeline_graph'])) {
-	/* Create/update graphviz cookie */
-	if (empty($_COOKIE['graphviz-id'])) {
-		$gv_id = md5(rand().time().serialize($_SERVER['HTTP_USER_AGENT']));
-		setcookie('graphviz-id', $gv_id, time() + 315360000, '/');
-		$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$gv_id;
-	} else {
-		$gv_id = $_SERVER['REMOTE_ADDR'].'-'.$_COOKIE['graphviz-id'];
-		setcookie('graphviz-id', $_COOKIE['graphviz-id'], time() + 315360000, '/');
-	}
-
-	/* Template object will render image */
+	/* Template object will render & cache image */
 	$template->add_object('_pipeline_graph', 'root', 95, 'core/pipeline_graph', array(
 			'pipeline' => $pipeline,
-			'dot_name' => 'data/graphviz/pipeline-'.$gv_id,
+			'dot_name' => 'data/graphviz/pipeline-%s.%s',
 		));
 }
 
