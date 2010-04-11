@@ -40,9 +40,14 @@ class M_core__version extends Module {
 
 	public function main()
 	{
-		$version = parse_ini_file(DIR_CORE.'version.ini.php', TRUE);
-		if ($version !== null) {
-			$this->template_add(null, 'core/version', $version['version']);
+		$core_version = parse_ini_file(DIR_CORE.'version.ini.php', TRUE);
+		$app_version  = parse_ini_file(DIR_ROOT.'version.ini.php', TRUE);
+
+		if ($core_version !== null || $app_version !== null) {
+			$this->template_add(null, 'core/version', array(
+					'core' => @$core_version['version'],
+					'app'  => @$app_version['version'],
+				));
 		}
 	}
 }

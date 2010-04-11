@@ -30,9 +30,20 @@
 
 function TPL_xhtml__core__version($t, $id, $d, $so)
 {
-	echo "<div id=\"", htmlspecialchars($id), "\" class=\"version_info\">",
-		htmlspecialchars($d['version']),
-		"</div>\n";
+	$core = (string) $d['core']['version'];
+	$app  = (string) $d['app']['version'];
+
+	echo "<div id=\"", htmlspecialchars($id), "\" class=\"version_info\">\n";
+
+	if ($app != '') {
+		echo "<div>app: <tt>", htmlspecialchars($app), "</tt></div>\n";
+	}
+
+	if ($core) {
+		echo "<div>core: <tt>", htmlspecialchars($core), "</tt></div>\n";
+	}
+
+	echo "</div>\n";
 }
 
 // vim:encoding=utf8:
