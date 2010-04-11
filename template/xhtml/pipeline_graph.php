@@ -52,10 +52,11 @@ function TPL_xhtml__core__pipeline_graph($t, $id, $d, $so)
 		$pipeline->exec_dot($dot, 'png', $png_file);
 	}
 
-	printf("<div id=\"".htmlspecialchars($id)."\" "
-			."style=\"text-align: center; clear: both; margin: 2em; padding: 1em 0em; background: #fff; border: 1px solid #aaa;\">\n"
-			."\t<img src=\"%s\" />\n</div>\n",
-		'/'.$png_file);
+	echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
+		"\t<hr />\n",
+		"\t<h2>Pipeline</h2>\n",
+		"\t<img src=\"", htmlspecialchars('/'.$png_file), "\" />\n",
+		"</div>\n";
 }
 
 // vim:encoding=utf8:

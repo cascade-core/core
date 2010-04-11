@@ -44,6 +44,26 @@ function TPL_css__core__basic($t, $id, $d, $so)
 	margin: 0px;
 	padding: 0px;
 }
+
+.pipeline_dump {
+	clear: both;
+	margin: 5em 0em 0em 0em;
+	padding: 0em;
+	background: #fff;
+	color: #000;
+	text-align: center;
+}
+	.pipeline_dump hr {
+		display: none;
+	}
+	.pipeline_dump h2 {
+		font-size: 1.3em;
+		font-weight: normal;
+		margin: 1ex 0em;
+		padding: 1ex 0em;
+		border-top: 1px solid #888;
+		border-bottom: 1px solid #888;
+	}
 \n
 eof;
 
