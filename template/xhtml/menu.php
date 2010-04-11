@@ -57,20 +57,32 @@ function tpl_xhtml__core__menu__tree($id, $items, $active_uri)
 {
 	foreach ($items as $i => $item) {
 
-		if (isset($item['link']) && $item['link'] == $active_uri) {
-			$class = ' class="active"';
+		/* is link active ? */
+		if (isset($item['link'])) {
+			$link = & $item['link'];
+
+			if ($link == '/') {
+				$match = ($link == $active_uri);
+			} else {
+				$match = (strncmp($item['link'], $active_uri, strlen($item['link'])) == 0);
+			}
+
+			$class = $match ? ' class="active"' : '';
 		} else {
 			$class = '';
 		}
 
+		/* show non-numeric id */
 		if (is_numeric($i)) {
 			echo "<li$class>";
 		} else {
 			echo "<li id=\"", htmlspecialchars($id.'_'.$item), "\"$class>";
 		}
 
+		/* show label */
 		tpl_xhtml__core__menu__label($id, $item);
 
+		/* recursively show children */
 		if (isset($item['children'])) {
 			echo "\n<ul>\n";
 			tpl_xhtml__core__menu__tree($id, $item['children']);
