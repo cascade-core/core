@@ -34,6 +34,7 @@ class M_core__show_menu extends Module {
 		'items' => null,
 		'layout' => 'tree',
 		'active-uri' => null,
+		'exact-match' => false,
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -50,6 +51,7 @@ class M_core__show_menu extends Module {
 			$this->template_add(null, 'core/menu', array(
 					'items' => $items,
 					'layout' => $this->in('layout'),
+					'exact_match' => $this->in('exact-match'),
 					'active_uri' => $this->in('active-uri'),
 				));
 		}

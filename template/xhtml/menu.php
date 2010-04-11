@@ -36,8 +36,14 @@ function TPL_xhtml__core__menu($t, $id, $d, $so)
 		default:
 		case 'tree':
 			echo "<ul id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
-			tpl_xhtml__core__menu__tree($id, $items, $active_uri);
+			tpl_xhtml__core__menu__tree($id, $items, $active_uri, $exact_match);
 			echo "</ul>\n";
+			break;
+
+		case 'row':
+			echo "<div id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
+			tpl_xhtml__core__menu__row($id, $items, $active_uri, $exact_match);
+			echo "</div>\n";
 			break;
 	}
 }
@@ -45,15 +51,16 @@ function TPL_xhtml__core__menu($t, $id, $d, $so)
 
 function tpl_xhtml__core__menu__label($id, $item)
 {
+	$label = isset($item['label']) ? $item['label'] : @$item['title'];
 	if (isset($item['link'])) {
-		echo "<a href=\"", htmlspecialchars($item['link']), "\">", htmlspecialchars($item['label']), "</a>";
+		echo "<a href=\"", htmlspecialchars($item['link']), "\">", htmlspecialchars($label), "</a>";
 	} else {
-		echo "<span>", htmlspecialchars($item['label']), "</span>";
+		echo "<span>", htmlspecialchars($label), "</span>";
 	}
 }
 
 
-function tpl_xhtml__core__menu__tree($id, $items, $active_uri)
+function tpl_xhtml__core__menu__tree($id, $items, $active_uri, $exact_match)
 {
 	foreach ($items as $i => $item) {
 
@@ -61,7 +68,7 @@ function tpl_xhtml__core__menu__tree($id, $items, $active_uri)
 		if (isset($item['link'])) {
 			$link = & $item['link'];
 
-			if ($link == '/') {
+			if ($link == '/' || $exact_match) {
 				$match = ($link == $active_uri);
 			} else {
 				$match = (strncmp($item['link'], $active_uri, strlen($item['link'])) == 0);
@@ -76,7 +83,7 @@ function tpl_xhtml__core__menu__tree($id, $items, $active_uri)
 		if (is_numeric($i)) {
 			echo "<li$class>";
 		} else {
-			echo "<li id=\"", htmlspecialchars($id.'_'.$item), "\"$class>";
+			echo "<li id=\"", htmlspecialchars($id.'_'.$i), "\"$class>";
 		}
 
 		/* show label */
@@ -85,11 +92,57 @@ function tpl_xhtml__core__menu__tree($id, $items, $active_uri)
 		/* recursively show children */
 		if (isset($item['children'])) {
 			echo "\n<ul>\n";
-			tpl_xhtml__core__menu__tree($id, $item['children']);
+			tpl_xhtml__core__menu__tree($id, $item['children'], $active_uri, $exact_match);
 			echo "</ul>\n";
 		}
 
 		echo "</li>\n";
+	}
+}
+
+
+function tpl_xhtml__core__menu__row($id, $items, $active_uri, $exact_match, $first = true)
+{
+	foreach ($items as $i => $item) {
+		/* is link active ? */
+		if (isset($item['link'])) {
+			$link = & $item['link'];
+
+			if ($link == '/' || $exact_match) {
+				$match = ($link == $active_uri);
+			} else {
+				$match = (strncmp($item['link'], $active_uri, strlen($item['link'])) == 0);
+			}
+
+			$class = $match ? ' class="active"' : '';
+		} else {
+			$class = '';
+		}
+
+		/* separator */
+		if ($first) {
+			$first = false;
+		} else {
+			echo "\n<span class=\"separator\">|</span> ";
+		}
+
+		/* show non-numeric id */
+		if (is_numeric($i)) {
+			echo "<span$class>";
+		} else {
+			echo "<span id=\"", htmlspecialchars($id.'_'.$i), "\"$class>";
+		}
+
+		/* show label */
+		tpl_xhtml__core__menu__label($id, $item);
+
+		echo "</span>";
+
+		/* recursively show children */
+		if (isset($item['children'])) {
+			tpl_xhtml__core__menu__tree($id, $item['children'], $active_uri, $exact_match, false);
+		}
+
 	}
 }
 
