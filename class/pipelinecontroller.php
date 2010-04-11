@@ -164,7 +164,7 @@ class PipelineController {
 			."digraph structs {\n"
 			."	rankdir = LR;\n"
 			."	edge [ arrowtail=none, arrowhead=normal, arrowsize=0.6 ];\n"
-			."	node [ shape=none, fontsize=8 ];\n"
+			."	node [ shape=none, fontsize=7, fontname=\"sans\" ];\n"
 			."\n";
 
 		foreach ($this->modules as $id => & $module) {
@@ -172,8 +172,8 @@ class PipelineController {
 			$gv .=	 "	m_".get_ident($id)." [label=<<table border=\"1\" cellborder=\"0\" cellspacing=\"0\">\n"
 				."		<tr>\n"
 				."			<td bgcolor=\"".$colors[$module->status()]."\" colspan=\"2\">\n"
-				."				<font face=\"Sans Bold\">".htmlspecialchars($id)."</font><br/>\n"
-				."				<font face=\"Sans Italic\" point-size=\"7\">".htmlspecialchars($module->module_name())."</font>\n"
+				."				<font face=\"sans bold\">".htmlspecialchars($id)."</font><br/>\n"
+				."				<font face=\"sans italic\">".htmlspecialchars($module->module_name())."</font>\n"
 				."			</td>\n"
 				."		</tr>\n";
 
