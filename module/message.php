@@ -34,7 +34,7 @@ class M_core__message extends Module {
 	protected $inputs = array(
 		'type' => 'error',
 		'title' => array(),
-		'text' => array(),
+		'text' => null,
 		'slot' => 'default',
 		'slot-weight' => 20,
 	);
