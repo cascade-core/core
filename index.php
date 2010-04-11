@@ -91,6 +91,13 @@ if (!empty($core_cfg['core']['always_log_banner'])) {
 $lc = empty($core_cfg['core']['default_locale']) ? 'cs_CZ' : $core_cfg['core']['default_locale'];
 define('DEFAULT_LOCALE', setlocale(LC_ALL, $lc.'.UTF8', $lc));
 
+/* Define constants */
+if (isset($core_cfg['define'])) {
+	foreach($core_cfg['define'] as $k => $v) {
+		define(strtoupper($k), $v);
+	}
+}
+
 /* Initialize iconv */
 if (function_exists('iconv_set_encoding')) {
 	iconv_set_encoding('input_encoding',    'UTF-8');

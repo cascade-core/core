@@ -33,8 +33,13 @@ add_pipeline_graph	= true
 ;context_class		= Context
 ;app_init_file		= app/init.php
 
+; default output configuration
 [output]
 ;default_type		= "xhtml"
+
+; constants set by define(strtoupper(key), value)
+[define]
+; key			= value
 
 ; module replacement table
 [module-map]
