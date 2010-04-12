@@ -32,12 +32,38 @@
 class M_core__message extends Module {
 
 	protected $inputs = array(
-		'type' => 'error',
-		'title' => array(),
+		'type' => null,
+		'is-error' => null,
+		'is-success' => null,
+		'is-warning' => null,
+		'is-info' => null,
+
+		// defaults
+		'title' => null,
 		'text' => null,
+
+		// override when error
+		'error-title' => null,
+		'error-text' => null,
+
+		// override when warning
+		'warning-title' => null,
+		'warning-text' => null,
+
+		// override when success
+		'success-title' => null,
+		'success-text' => null,
+
+		// override when info
+		'info-title' => null,
+		'info-text' => null,
+
+		'hide' => false,
+
 		'slot' => 'default',
 		'slot-weight' => 20,
-		'hide' => false,
+
+		'*' => null,
 	);
 
 	protected $outputs = array(
@@ -46,14 +72,44 @@ class M_core__message extends Module {
 
 	public function main()
 	{
+		/* hide */
 		if ($this->in('hide')) {
 			return;
 		}
 
-		$type  = (string) $this->in('type');
-		$title = (string) $this->in('title');
-		$text  = (string) $this->in('text');
+		/* resolve message type */
+		if ($this->in('is-error')) {
+			$type = 'error';
+		} else if ($this->in('is-success')) {
+			$type = 'success';
+		} else if ($this->in('is-warning')) {
+			$type = 'warning';
+		} else if ($this->in('is-info')) {
+			$type = 'info';
+		} else if (!($type = $this->in('type')) || !in_array($type, array('error', 'success', 'warn', 'info'))) {
+			return;
+		}
 
+		/* get numeric inputs */
+		$in_vals = $this->collect_numeric_inputs();
+
+		/* get title */
+		if (($title = (string) $this->in($type.'-title')) == '') {
+			$title = $this->in('title');
+		}
+		if (!empty($in_vals)) {
+			$title = vsprintf($title, $in_vals);
+		}
+
+		/* get text */
+		if (($text = (string) $this->in($type.'-text')) == '') {
+			$text = $this->in('text');
+		}
+		if (!empty($in_vals)) {
+			$text = vsprintf($text, $in_vals);
+		}
+
+		/* show message */
 		if ($title !== '' && preg_match('/^[a-z][a-z0-9_]*$/', $type)) {
 			$this->template_add(null, 'core/message',array(
 					'type' => $type,
@@ -61,6 +117,22 @@ class M_core__message extends Module {
 					'text' => $text,
 				));
 		}
+	}
+
+
+	protected function collect_numeric_inputs()
+	{
+		$real_inputs = $this->input_names();
+		$virtual_cnt = count($real_inputs) - count($this->inputs);
+		$vals = array_pad(array(), $virtual_cnt, null);
+
+		foreach ($real_inputs as $in) {
+			if (is_numeric($in) && $in > 0) {
+				$vals[$in - 1] = $this->in($in);
+			}
+		}
+
+		return $vals;
 	}
 }
 
