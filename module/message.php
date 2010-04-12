@@ -37,6 +37,7 @@ class M_core__message extends Module {
 		'text' => null,
 		'slot' => 'default',
 		'slot-weight' => 20,
+		'hide' => false,
 	);
 
 	protected $outputs = array(
@@ -45,6 +46,10 @@ class M_core__message extends Module {
 
 	public function main()
 	{
+		if ($this->in('hide')) {
+			return;
+		}
+
 		$type  = (string) $this->in('type');
 		$title = (string) $this->in('title');
 		$text  = (string) $this->in('text');
