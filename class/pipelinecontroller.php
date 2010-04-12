@@ -68,8 +68,14 @@ class PipelineController {
 		}
 
 		/* check module name */
-		if (!is_string($module) || strpos($module, '.') !== FALSE) {
+		if (!is_string($module) || strpos($module, '.') !== FALSE || !ctype_graph($module)) {
 			error_msg('Invalid module name: %s', $module);
+			return false;
+		}
+
+		/* check malformed IDs */
+		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
+			error_msg('Invalid module ID: %s', $id);
 			return false;
 		}
 
