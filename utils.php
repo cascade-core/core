@@ -93,7 +93,7 @@ function get_ident($name)
 		return '';
 	} else {
 		// TODO: je potreba zachovat unikatnost
-		return str_replace('-', '_', $name);
+		return preg_replace('/[^A-Za-z0-9_]/', '_', $name);
 	}
 }
 

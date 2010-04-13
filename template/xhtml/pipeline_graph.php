@@ -57,6 +57,7 @@ function TPL_xhtml__core__pipeline_graph($t, $id, $d, $so)
 		"\t<h2>Pipeline</h2>\n",
 		"\t<img src=\"", htmlspecialchars('/'.$png_file), "\" />\n",
 		"</div>\n";
+	//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
 }
 
 // vim:encoding=utf8:

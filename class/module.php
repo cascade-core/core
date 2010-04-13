@@ -46,7 +46,7 @@ abstract class Module {
 	);
 
 
-	private $id;
+	private $id, $full_id;
 	private $pipeline_controller;
 	private $module_name;
 	private $slot_weight_penalty;		// guarantees keeping order of output objects
@@ -55,6 +55,8 @@ abstract class Module {
 	private $output_cache = array();
 	private $forward_list = array();
 
+	private $parent = null;		// parent module
+	private $namespace = null;	// references to other modules
 	protected $context;
 
 	// list of inputs and their default values
@@ -84,6 +86,12 @@ abstract class Module {
 	}
 
 
+	final public function full_id()
+	{
+		return $this->full_id;
+	}
+
+
 	final public function module_name()
 	{
 		return $this->module_name;
@@ -100,13 +108,20 @@ abstract class Module {
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($id, $pipeline_controller, $module_name, $context, $add_order)
+	final public function pc_init($parent, $id, $pipeline_controller, $module_name, $context, $add_order)
 	{
+		// basic init
 		$this->id = $id;
+		$this->parent = $parent;
+		$this->full_id = ($parent ? $parent->id().'.' : '').$id;
 		$this->pipeline_controller = $pipeline_controller;
 		$this->module_name = $module_name;
 		$this->context = $context;
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($add_order + 99.0); // lim -> inf = 1
+
+		// namespace special names
+		$this->namespace['parent'] = $parent;
+		$this->namespace['self'] = $this;
 
 		// add common inputs
 		$this->inputs['enable'] = true;
@@ -134,7 +149,34 @@ abstract class Module {
 	}
 
 
-	final public function pc_execute(& $module_refs)
+	final public function pc_register_module($module)
+	{
+		$id = $module->id();
+
+		if (isset($this->namespace[$id])) {
+			error_msg('Duplicate ID "%s" in the namespace of %s', $id, $this->full_id());
+			return false;
+		} else {
+			$this->namespace[$id] = $module;
+			return true;
+		}
+	}
+
+
+	final private function pc_resolve_module_name($mod_name)
+	{
+		// TODO: Make this faster!
+		if (isset($this->namespace[$mod_name])) {
+			return $this->namespace[$mod_name];
+		} else if ($this->parent) {
+			return $this->parent->pc_resolve_module_name($mod_name);
+		} else {
+			return $this->pipeline_controller->resolve_module_name($mod_name);
+		}
+	}
+
+
+	final public function pc_execute()
 	{
 		switch ($this->status) {
 			case self::ZOMBIE:
@@ -160,8 +202,11 @@ abstract class Module {
 				@list($mod_name, $mod_out) = $out;
 
 				// connect to output
-				if (($m = @$module_refs[$mod_name]) && (isset($m->outputs[$mod_out]) || isset($m->outputs['*']))) {
-					$dependencies[$mod_name] = $m;
+				if (!($m = $this->pc_resolve_module_name($mod_name))) {
+					error_msg('Can\'t connect inputs -- module "%s" not found!', $mod_name);
+					$this->status = self::FAILED;
+				} else if (isset($m->outputs[$mod_out]) || isset($m->outputs['*'])) {
+					$dependencies[$m->full_id()] = $m;
 					$out[0] = $m;
 				} else {
 					error_msg('Can\'t connect input "%s.%s" to "%s.%s" !',
@@ -181,7 +226,7 @@ abstract class Module {
 		// TODO: Lze spoustet zavislosti az na vyzadani a ne predem vse ?
 		//		-- Pokud ano, tak bude potreba poresit preposilani vystupu.
 		foreach($dependencies as & $d) {
-			if (!$d->pc_execute(& $module_refs)) {
+			if (!$d->pc_execute()) {
 				$this->status = self::FAILED;
 				break;
 			}
@@ -208,14 +253,15 @@ abstract class Module {
 
 		/* execute & evaluate forwarded outputs */
 		// TODO - nebylo by lepsi to udelat az na pozadani ?
-		//	-- ne, nebylo. Prilis by se to zeslozitilo a rezije by byla prilis velika.
+		//	-- ne, nebylo. Prilis by se to zeslozitilo a rezie by byla prilis velika.
 		//	  Lepe bude pockat az se budou resit zavislosti na pozadani
 		//	  a udelat to pri tom.
-		foreach($this->forward_list as $name => $src) {
+		foreach($this->forward_list as $name => & $src) {
 			list($src_name, $src_out) = $src;
-			$m = @$module_refs[$src_name];
+			$m = $this->pc_resolve_module_name($src_name);
 			if ($m && (isset($m->outputs[$src_out]) || isset($m->outputs['*']))) {
-				if ($m->pc_execute(& $module_refs)) {
+				$src[0] = $m;
+				if ($m->pc_execute()) {
 					$this->output_cache[$name] = $m->pc_get_output($src_out);
 				} else {
 					error_msg('Source module or output not found while forwarding to "%s.%s" from "%s.%s"!',
@@ -278,6 +324,23 @@ abstract class Module {
 		return array_key_exists($name, $this->output_cache)
 			|| array_key_exists($name, $this->outputs)
 			|| array_key_exists('*', $this->outputs);
+	}
+
+
+	final public function pc_get_namespace()
+	{
+		return $this->namespace;
+	}
+
+
+	final public function pc_dump_namespace($level = 1)
+	{
+		$str = '';
+		$indent = str_repeat('. ', $level);
+		foreach ($this->namespace as $name => $m) {
+			$str .= $indent.$name."\n".($name != 'self' && $name != 'parent' && $m ? $m->pc_dump_namespace($level + 1) : '');
+		}
+		return $str;
 	}
 
 
@@ -405,14 +468,14 @@ abstract class Module {
 	// add module to pipeline
 	final protected function pipeline_add($id, $module, $force_exec = false, $connections = array(), $context = null)
 	{
-		return $this->pipeline_controller->add_module($id, $module, $force_exec, $connections, $context === null ? $this->context : $context);
+		return $this->pipeline_controller->add_module($this, $id, $module, $force_exec, $connections, $context === null ? $this->context : $context);
 	}
 
 
 	// add modules to pipeline from parsed inifile
 	final protected function pipeline_add_from_ini($parsed_ini_with_sections, $context = null)
 	{
-		return $this->pipeline_controller->add_modules_from_ini($parsed_ini_with_sections, $context === null ? $this->context : $context);
+		return $this->pipeline_controller->add_modules_from_ini($this, $parsed_ini_with_sections, $context === null ? $this->context : $context);
 	}
 }
 

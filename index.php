@@ -136,7 +136,7 @@ $pipeline = new PipelineController();
 $pipeline->set_replacement_table(@$core_cfg['module-map']);
 
 /* Prepare starting modules */
-$pipeline->add_modules_from_ini($core_cfg, $default_context);
+$pipeline->add_modules_from_ini(null, $core_cfg, $default_context);
 
 /* Call app's init file */
 if (!empty($core_cfg['core']['app_init_file'])) {
@@ -145,6 +145,9 @@ if (!empty($core_cfg['core']['app_init_file'])) {
 
 /* Execute pipeline */
 $pipeline->start();
+
+/* dump namespaces */
+//echo '<pre style="text-align: left;">', $pipeline->dump_namespaces(), '</pre>';
 
 /* Visualize executed pipeline */
 if (!empty($core_cfg['core']['add_pipeline_graph'])) {
