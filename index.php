@@ -122,6 +122,9 @@ if (isset($core_cfg['output']['default_type'])) {
 	$template->slot_option_set('root', 'type', $core_cfg['output']['default_type']);
 }
 
+/* Start session */
+session_start();
+
 /* Initialize default context */
 $context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
 $default_context = new $context_class();
@@ -151,6 +154,9 @@ if (!empty($core_cfg['core']['add_pipeline_graph'])) {
 			'dot_name' => 'data/graphviz/pipeline-%s.%s',
 		));
 }
+
+/* End session */
+session_write_close();
 
 /* Generate output */
 $template->start();

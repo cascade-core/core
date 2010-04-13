@@ -58,6 +58,10 @@ class M_core__message extends Module {
 		'info-title' => null,
 		'info-text' => null,
 
+		// redirect - only if success
+		'redirect-url' => null,
+		'allow-redirect' => true,
+
 		'hide' => false,
 
 		'slot' => 'default',
@@ -111,11 +115,22 @@ class M_core__message extends Module {
 
 		/* show message */
 		if ($title !== '' && preg_match('/^[a-z][a-z0-9_]*$/', $type)) {
-			$this->template_add(null, 'core/message',array(
-					'type' => $type,
-					'title' => $title,
-					'text' => $text,
-				));
+			$msg_data = array(
+				'type' => $type,
+				'title' => $title,
+				'text' => $text,
+			);
+
+			$this->template_add(null, 'core/message', $msg_data);
+
+			/* redirect if success */
+			if ($type == 'success' && $this->in('allow-redirect')) {
+				$redirect_url = (string) $this->in('redirect-url');
+				if ($redirect_url) {
+					$this->template_option_set('root', 'redirect_url', $redirect_url);
+					$_SESSION['message_queue'][] = $msg_data;
+				}
+			}
 		}
 	}
 
