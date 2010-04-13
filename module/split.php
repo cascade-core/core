@@ -36,6 +36,7 @@ class M_core__split extends Module {
 	);
 
 	protected $outputs = array(
+		'done' => true,
 		'*' => true,
 	);
 
@@ -50,6 +51,8 @@ class M_core__split extends Module {
 		} else {
 			$this->out_all((array) $this->in('in'));
 		}
+
+		$this->out('done', true);
 	}
 }
 
