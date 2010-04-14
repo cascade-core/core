@@ -310,7 +310,12 @@ abstract class Module {
 
 	final public function pc_outputs()
 	{
-		return $this->output_cache + $this->outputs;
+		return array_keys($this->output_cache + $this->outputs);
+	}
+
+	final public function pc_output_cache()
+	{
+		return $this->output_cache;
 	}
 
 	final public function pc_forwarded_outputs()

@@ -237,7 +237,7 @@ class PipelineController {
 			$gv_inputs = '';
 			$inputs  = $module->pc_inputs();
 			$input_names = array();
-			$output_names = array_keys($module->pc_outputs());
+			$output_names = $module->pc_outputs();
 
 			/* connect inputs */
 			foreach ($inputs as $in => $out) {
@@ -254,10 +254,14 @@ class PipelineController {
 						$missing = true;
 					} else {
 						$missing = false;
+						$v = $out_mod->pc_output_cache();
+						$v = $v[$out_name];
+						$zero = empty($v);
+						$big = is_array($v) || is_object($v);
 					}
 
 					$gv_inputs .= "\tm_".get_ident($out_mod_id).":o_".get_ident($out_name).":e -> m_".get_ident($id).":i_".get_ident($in).':w'
-						.($missing ? " [color=red]":'').";\n";
+						.($missing ? " [color=red]":($zero ? ' [color=dimgrey,penwidth=0.8]':($big ? ' [penwidth=2]':''))).";\n";
 				}
 			}
 
