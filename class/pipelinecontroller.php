@@ -60,6 +60,16 @@ class PipelineController {
 	}
 
 
+	public function resolve_module_name($mod_name)
+	{
+		if (($m = $this->root_namespace[$mod_name])) {
+			return $m;
+		} else {
+			error_msg('Module "%s" not found in root namespace!', $mod_name);
+		}
+	}
+
+
 	public function add_module($parent, $id, $module, $force_exec, array $connections, Context $context)
 	{
 		/* check replacement table */
@@ -158,16 +168,6 @@ class PipelineController {
 	}
 
 
-	public function resolve_module_name($mod_name)
-	{
-		if (($m = $this->root_namespace[$mod_name])) {
-			return $m;
-		} else {
-			error_msg('Module "%s" not found in root namespace!', $mod_name);
-		}
-	}
-
-
 	public function dump_namespaces()
 	{
 		$str = '';
@@ -255,7 +255,7 @@ class PipelineController {
 					} else {
 						$missing = false;
 						$v = $out_mod->pc_output_cache();
-						$v = $v[$out_name];
+						$v = @$v[$out_name];
 						$zero = empty($v);
 						$big = is_array($v) || is_object($v);
 					}
@@ -313,7 +313,7 @@ class PipelineController {
 
 			/* recursively draw sub-namespaces */
 			$child_namespace = $module->pc_get_namespace();
-			if (count($child_namespace) > 2) {
+			if (!empty($child_namespace)) {
 				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $indent."\t");
 				$subgraph .= "\n"
 					.$indent."subgraph cluster_".get_ident($id)." {\n"

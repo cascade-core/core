@@ -119,10 +119,6 @@ abstract class Module {
 		$this->context = $context;
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($add_order + 99.0); // lim -> inf = 1
 
-		// namespace special names
-		$this->namespace['parent'] = $parent;
-		$this->namespace['self'] = $this;
-
 		// add common inputs
 		$this->inputs['enable'] = true;
 	}
@@ -166,7 +162,9 @@ abstract class Module {
 	final private function pc_resolve_module_name($mod_name)
 	{
 		// TODO: Make this faster!
-		if (isset($this->namespace[$mod_name])) {
+		if ($mod_name == 'parent') {
+			return $this->parent;
+		} else if (isset($this->namespace[$mod_name])) {
 			return $this->namespace[$mod_name];
 		} else if ($this->parent) {
 			return $this->parent->pc_resolve_module_name($mod_name);
