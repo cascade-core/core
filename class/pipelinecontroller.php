@@ -305,6 +305,10 @@ class PipelineController {
 					list($out_mod, $out_name) = $out;
 					$input_names[] = $in;
 
+					if (!is_object($out_mod) && ($resolved = $module->pc_resolve_module_name($out_mod))) {
+						$out_mod = $resolved;
+					}
+
 					$out_mod_id = is_object($out_mod) ? $out_mod->full_id() : $out_mod;
 
 					if (!is_object($out_mod)) {
@@ -374,6 +378,9 @@ class PipelineController {
 			/* connect forwarded outputs */
 			foreach ($module->pc_forwarded_outputs() as $name => $src) {
 				list($src_mod, $src_out) = $src;
+				if (!is_object($src_mod) && ($resolved = $module->pc_resolve_module_name($src_mod))) {
+					$src_mod = $resolved;
+				}
 				$src_mod_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
 				$gv .= "\tm_".get_ident($src_mod_id).":o_".get_ident($src_out).":e -> m_".get_ident($id).":o_".get_ident($name).':e'
 					."[color=royalblue,arrowhead=dot,weight=min];\n";

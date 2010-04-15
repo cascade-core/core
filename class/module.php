@@ -160,7 +160,7 @@ abstract class Module {
 	}
 
 
-	final private function pc_resolve_module_name($mod_name)
+	final public function pc_resolve_module_name($mod_name)
 	{
 		// TODO: Make this faster!
 		if ($mod_name == 'parent') {
