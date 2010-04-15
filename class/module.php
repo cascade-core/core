@@ -54,6 +54,7 @@ abstract class Module {
 	private $status = self::QUEUED;
 	private $output_cache = array();
 	private $forward_list = array();
+	private $execution_time = null;		// time [ms] spent in main()
 
 	private $parent = null;		// parent module
 	private $namespace = null;	// references to other modules
@@ -246,7 +247,9 @@ abstract class Module {
 		/* execute main */
 		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
 		$this->context->update_enviroment();
+		$t = microtime(TRUE);
 		$this->main();
+		$this->execution_time = (microtime(TRUE) - $t) * 1000;
 		$this->status = self::ZOMBIE;
 
 		/* execute & evaluate forwarded outputs */
@@ -333,6 +336,12 @@ abstract class Module {
 	final public function pc_get_namespace()
 	{
 		return $this->namespace;
+	}
+
+
+	final public function pc_execution_time()
+	{
+		return $this->execution_time;
 	}
 
 

@@ -35,6 +35,8 @@ class PipelineController {
 	private $add_order = 1;		// insertion serial number - slot weight modifier
 	private $replacement = array();	// module replacement table (aliases)
 	private $root_namespace = array();
+	private $execution_time = null;	// time [ms] spent in start()
+
 
 	public function __construct()
 	{
@@ -43,10 +45,12 @@ class PipelineController {
 
 	public function start()
 	{
+		$t_start = microtime(TRUE);
 		reset($this->queue);
 		while((list($id, $m) = each($this->queue))) {
 			$m->pc_execute();
 		}
+		$this->execution_time = (microtime(TRUE) - $t_start) * 1000;
 	}
 
 
@@ -178,6 +182,52 @@ class PipelineController {
 	}
 
 
+	public function get_execution_times($old_stats = null)
+	{
+		$cnt = 0;
+		$sum = 0.0;
+
+		if (is_array($old_stats)) {
+			$by_module = $old_stats['modules'];
+		} else {
+			$by_module = array();
+		}
+
+		foreach($this->modules as $m) {
+			$t = $m->pc_execution_time();
+			if ($t > 0) {
+				$cnt++;
+				$sum += $t;
+				$bm = & $by_module[$m->module_name()];
+				@$bm['sum'] += $t;		// arsort() uses first field in array
+				@$bm['cnt']++;
+				@$bm['min'] = $bm['min'] === null ? $t : min($t, $bm['min']);
+				@$bm['max'] = max($t, $bm['max']);
+			}
+		}
+
+		if (is_array($old_stats)) {
+			return array(
+				'total_time' => $this->execution_time + $old_stats['total_time'],
+				'pipeline_time' => ($this->execution_time - $sum) + $old_stats['pipeline_time'],
+				'pipeline_count' => 1 + $old_stats['pipeline_count'],
+				'modules_time' => $sum + $old_stats['modules_time'],
+				'modules_count' => $cnt + $old_stats['modules_count'],
+				'modules' => $by_module
+			);
+		} else {
+			return array(
+				'total_time' => $this->execution_time,
+				'pipeline_time' => ($this->execution_time - $sum),
+				'pipeline_count' => 1,
+				'modules_time' => $sum,
+				'modules_count' => $cnt,
+				'modules' => $by_module
+			);
+		}
+	}
+
+
 	public function export_graphviz_dot()
 	{
 		$colors = array(
@@ -296,6 +346,16 @@ class PipelineController {
 
 				$in = next($input_names);
 				$out = next($output_names);
+			}
+
+			$et = $module->pc_execution_time();
+			if ($et > 10) {
+				$gv .=   "	<tr>\n"
+					."		<td align=\"center\" colspan=\"2\">\n"
+					."			<font point-size=\"6\" color=\"dimgrey\">"
+									.sprintf('~%d ms', round($et, -log($et, 10)))."</font>\n"
+					."		</td>\n"
+					."	</tr>\n";
 			}
 
 			$gv .=	"\t\t</table>>];\n";

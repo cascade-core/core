@@ -43,6 +43,7 @@ define('DIR_APP_CLASS', 	  DIR_APP.'class/');
 define('DIR_APP_MODULE',	  DIR_APP.'module/');
 define('DIR_APP_TEMPLATE',	  DIR_APP.'template/');
 
+
 require(DIR_CORE.'utils.php');
 
 
@@ -80,10 +81,10 @@ if (isset($core_cfg['php'])) {
 }
 
 /* Enable debug logging -- a lot of messages from debug_msg() */
-define('DEBUG_LOGGING_ENABLED', !empty($core_cfg['core']['debug_logging_enabled']));
+define('DEBUG_LOGGING_ENABLED', !empty($core_cfg['debug']['debug_logging_enabled']));
 
 /* Show banner in log */
-if (!empty($core_cfg['core']['always_log_banner'])) {
+if (!empty($core_cfg['debug']['always_log_banner'])) {
 	first_msg();
 }
 
@@ -150,12 +151,17 @@ $pipeline->start();
 //echo '<pre style="text-align: left;">', $pipeline->dump_namespaces(), '</pre>';
 
 /* Visualize executed pipeline */
-if (!empty($core_cfg['core']['add_pipeline_graph'])) {
+if (!empty($core_cfg['debug']['add_pipeline_graph'])) {
 	/* Template object will render & cache image */
 	$template->add_object('_pipeline_graph', 'root', 95, 'core/pipeline_graph', array(
 			'pipeline' => $pipeline,
 			'dot_name' => 'data/graphviz/pipeline-%s.%s',
 		));
+}
+
+/* Store profiler statistics */
+if (($fn = @$core_cfg['debug']['profiler_stats_file']) !== null) {
+	file_put_contents($fn, gzcompress(serialize($pipeline->get_execution_times(unserialize(gzuncompress(file_get_contents($fn))))), 2));
 }
 
 /* End session */
