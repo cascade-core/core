@@ -87,6 +87,21 @@ function error_msg($msg)
 }
 
 
+function log_msg($msg)
+{
+	global $_utils_php__first_msg;
+
+	if ($_utils_php__first_msg) {
+		first_msg();
+	}
+
+	$args = func_get_args();
+	unset($args[0]);
+
+	error_log(vsprintf($msg, $args));
+}
+
+
 function get_ident($name)
 {
 	if ((string) $name === '') {

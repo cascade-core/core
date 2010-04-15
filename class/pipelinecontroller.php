@@ -35,7 +35,9 @@ class PipelineController {
 	private $add_order = 1;		// insertion serial number - slot weight modifier
 	private $replacement = array();	// module replacement table (aliases)
 	private $root_namespace = array();
+
 	private $execution_time = null;	// time [ms] spent in start()
+	private $memory_usage = null;	// memory used by pipeline (after minus before)
 
 
 	public function __construct()
@@ -45,12 +47,14 @@ class PipelineController {
 
 	public function start()
 	{
+		$mem_usage_before = memory_get_usage();
 		$t_start = microtime(TRUE);
 		reset($this->queue);
 		while((list($id, $m) = each($this->queue))) {
 			$m->pc_execute();
 		}
 		$this->execution_time = (microtime(TRUE) - $t_start) * 1000;
+		$this->memory_usage = memory_get_usage() - $mem_usage_before;
 	}
 
 
@@ -225,6 +229,12 @@ class PipelineController {
 				'modules' => $by_module
 			);
 		}
+	}
+
+
+	public function get_memory_usage()
+	{
+		return $this->memory_usage;
 	}
 
 

@@ -159,6 +159,11 @@ if (!empty($core_cfg['debug']['add_pipeline_graph'])) {
 		));
 }
 
+/* Log memory usage */
+if (!empty($core_cfg['debug']['log_memory_usage'])) {
+	log_msg('Pipeline memory usage: %1.3f B', $pipeline->get_memory_usage() / 1024);
+}
+
 /* Store profiler statistics */
 if (($fn = @$core_cfg['debug']['profiler_stats_file']) !== null) {
 	file_put_contents($fn, gzcompress(serialize($pipeline->get_execution_times(unserialize(gzuncompress(file_get_contents($fn))))), 2));

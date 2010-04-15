@@ -34,6 +34,7 @@ default_locale		= "cs_CZ"
 [debug]
 debug_logging_enabled	= true
 always_log_banner	= true
+log_memory_usage	= true
 add_pipeline_graph	= true
 profiler_stats_file	= "var/profiler.stats"
 
