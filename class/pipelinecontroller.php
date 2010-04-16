@@ -362,6 +362,7 @@ class PipelineController {
 				$out = next($output_names);
 			}
 
+			/*
 			$et = $module->pc_execution_time();
 			if ($et > 10) {
 				$gv .=   "	<tr>\n"
@@ -371,6 +372,7 @@ class PipelineController {
 					."		</td>\n"
 					."	</tr>\n";
 			}
+			// */
 
 			$gv .=	"\t\t</table>>];\n";
 			$gv .=	$gv_inputs;
