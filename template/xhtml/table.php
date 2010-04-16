@@ -99,10 +99,24 @@ class tpl_xhtml__core__table__text {
 		if ($value === null) {
 			return '';	// keep missing values missing
 		} else if ($fmt) {
-			return htmlspecialchars(sprintf($fmt, $value));
+			$fmt_val = htmlspecialchars(sprintf($fmt, $value));
 		} else {
-			return htmlspecialchars($value);
+			$fmt_val = htmlspecialchars($value);
 		}
+
+		if (isset($this->opts['link'])) {
+			$args = array();
+			foreach ($this->opts['link_arg'] as $a) {
+				$args[] = $row_data[$a];
+			}
+			$a = '<a href="'.vsprintf($this->opts['link'], $args).'">';
+			$_a = '</a>';
+		} else {
+			$a = '';
+			$_a = '';
+		}
+
+		return $a.$fmt_val.$_a;
 	}
 }
 
