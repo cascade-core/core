@@ -83,7 +83,7 @@ class tpl_xhtml__core__table__text {
 
 	function th()
 	{
-		echo "<th>", htmlspecialchars($this->opts['title']), "</th>\n";
+		echo "<th align=\"left\">", htmlspecialchars($this->opts['title']), "</th>\n";
 	}
 
 	function td($row_data)
