@@ -52,7 +52,10 @@ function __autoload($class)
 {
 	if ($class[0] == 'M' && $class[1] == '_') {
 		$m = strtolower(str_replace('__', '/', substr($class, 2)));
-		include(strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.php' : DIR_APP_MODULE.$m.'.php');
+		$f = strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.php' : DIR_APP_MODULE.$m.'.php';
+		if (is_readable($f)) {
+			include($f);
+		}
 	} else {
 		$f = strtolower($class).'.php';
 		$cf = DIR_CORE_CLASS.$f;

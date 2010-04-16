@@ -32,33 +32,38 @@
 class M_core__ini_proxy extends Module {
 
 	protected $inputs = array(
-		'filename' => array(),
-		'name' => null,
+		'*' => null,
 	);
 
 	protected $outputs = array(
-		'filename' => true,
-		'done' => true,
+		'*' => true,
 	);
 
 
 	public function main()
 	{
-		$name = $this->in('name');
-		$fn = $this->in('filename');
+		$m = $this->module_name();
+		$filename = ((strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.ini.php' : DIR_APP_MODULE.$m.'.ini.php'));
 
-		if ($name !== null) {
-			$fn = sprintf($fn, $name);
+		$conf = parse_ini_file($filename, TRUE);
+		if ($conf === FALSE) {
+			return;
 		}
 
-		$data = parse_ini_file($fn, TRUE);
+		$this->pipeline_add_from_ini($conf);
 
-		if ($data !== FALSE) {
-			$this->pipeline_add_from_ini($data);
+		if (isset($conf['copy-inputs'])) {
+			foreach ($conf['copy-inputs'] as $out => $in) {
+				$this->out($out, $this->in($in));
+			}
 		}
 
-		$this->out('filename', $fn);
-		$this->out('done', $data !== FALSE);
+		if (isset($conf['forward-outputs'])) {
+			foreach ($conf['forward-outputs'] as $out => $src) {
+				list($src_mod, $src_out) = explode(':', $src);
+				$this->out_forward($out, $src_mod, $src_out);
+			}
+		}
 	}
 }
 

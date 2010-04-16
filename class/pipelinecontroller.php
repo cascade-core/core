@@ -78,7 +78,7 @@ class PipelineController {
 	}
 
 
-	public function add_module($parent, $id, $module, $force_exec, array $connections, Context $context)
+	public function add_module($parent, $id, $module, $force_exec, array $connections, Context $context, $real_module = null)
 	{
 		/* check replacement table */
 		for ($step = 32; isset($this->replacement[$module]) && $step > 0; $step--) {
@@ -106,48 +106,53 @@ class PipelineController {
 		/* build class name */
 		$class = 'M_'.str_replace('/', '__', $module);
 
-		/* skip autoloader -- there are different rules */
-		if (!class_exists($class)) {
-			$m = strtolower(str_replace('__', '/', substr($class, 2)));
-			include(strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.php' : DIR_APP_MODULE.$m.'.php');
+		/* kick autoloader */
+		if (class_exists($class)) {
+			/* check permissions */
+			if (false) {
+				/* TODO */
+				return false;
+			}
 
-			if (!class_exists($class)) {
+			/* initialize module */
+			$m = new $class();
+			$m->pc_init($parent, $id, $this, $real_module !== null ? $real_module : $module, $context, $this->add_order);
+			if (!$m->pc_connect($connections, $this->modules)) {
+				error_msg('Module "%s": Can\'t connect inputs!', $id);
+				return false;
+			}
+			$this->add_order++;
+
+			/* put module to parent's namespace */
+			if ($parent) {
+				$parent->pc_register_module($m);
+			} else {
+				$this->root_namespace[$id] = $m;
+			}
+
+			/* add module to queue */
+			$this->modules[$id] = $m;
+			if ($force_exec) {
+				$this->queue[] = $m;
+			}
+
+			return $m;
+
+		} else {
+			/* class not found, check if ini file exists */
+			$f = (strncmp($module, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($module, 5) : DIR_APP_MODULE.$module).'.ini.php';
+
+			if ($module != 'core/ini_proxy' && is_file($f)) {
+				/* load core/ini_proxy for this ini file */
+				debug_msg('Loading core/ini_proxy for "%s".', $f);
+				return $this->add_module($parent, $id, 'core/ini_proxy', $force_exec, $connections, $context, $module);
+
+			} else {
 				/* module not found */
-				// todo: module not found message (alternative placeholder module?)
 				error_msg('Module "%s" not found.', $module);
 				return false;
 			}
 		}
-
-		/* check permissions */
-		if (false) {
-			/* TODO */
-			return false;
-		}
-
-		/* initialize module */
-		$m = new $class();
-		$m->pc_init($parent, $id, $this, $module, $context, $this->add_order);
-		if (!$m->pc_connect($connections, $this->modules)) {
-			error_msg('Module "%s": Can\'t connect inputs!', $id);
-			return false;
-		}
-		$this->add_order++;
-
-		/* put module to parent's namespace */
-		if ($parent) {
-			$parent->pc_register_module($m);
-		} else {
-			$this->root_namespace[$id] = $m;
-		}
-
-		/* add module to queue */
-		$this->modules[$id] = $m;
-
-		if ($force_exec) {
-			$this->queue[] = $m;
-		}
-		return $m;
 	}
 
 
@@ -385,7 +390,7 @@ class PipelineController {
 				}
 				$src_mod_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
 				$gv .= "\tm_".get_ident($src_mod_id).":o_".get_ident($src_out).":e -> m_".get_ident($id).":o_".get_ident($name).':e'
-					."[color=royalblue,arrowhead=dot,weight=min];\n";
+					."[color=royalblue,arrowhead=dot,weight=0];\n";
 			}
 
 			$gv .= "\n";
