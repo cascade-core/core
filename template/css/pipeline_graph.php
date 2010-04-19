@@ -28,27 +28,39 @@
  * SUCH DAMAGE.
  */
 
-function TPL_css__core__main($t, $id, $d, $so)
+function TPL_css__core__pipeline_graph($t, $id, $d, $so)
 {
-	header('Content-Type: text/css');
-	$expires = 60*60*24;
-	header("Pragma: public");
-	header("Cache-Control: maxage=".$expires);
-	header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+	extract($d);
+
+	// FIXME: this should not be done here
+
+	if (!is_dir(dirname($dot_name))) {
+		@mkdir(dirname($dot_name));
+	}
+
+	$dot = $pipeline->export_graphviz_dot();
+	$hash = md5($dot);
+
+	$dot_file = sprintf($dot_name, $hash, 'dot');
+	$png_file = sprintf($dot_name, $hash, 'png');
+
+	$dot_mtime = @filemtime($dot_file);
+	$png_mtime = @filemtime($png_file);
+
+	if (!$dot_mtime || !$png_mtime || $dot_mtime > $png_mtime || $png_mtime <= filemtime(__FILE__)) {
+		file_put_contents($dot_file, $dot);
+		$pipeline->exec_dot($dot, 'png', $png_file);
+	}
 
 	echo "/*\n",
-		" * ", htmlspecialchars(
-				isset($so['page_title_format'])
-					? sprintf($so['page_title_format'], @$so['page_title'])
-					: @$so['page_title']
-				), "\n",
+		" * Pipeline visualization:\n",
 		" *\n",
-		" * Generated file - do NOT edit!\n",
+		" * PNG: /", $png_file, "\n",
+		" * Dot: /", $dot_file, "\n",
 		" *\n",
 		" */\n\n";
-
-	$t->process_slot('default');
 }
+
 
 
 // vim:encoding=utf8:
