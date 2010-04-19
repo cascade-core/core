@@ -28,12 +28,11 @@
  * SUCH DAMAGE.
  */
 
-class M_core__multi_slot extends Module {
+class M_core__out__message_queue extends Module {
 
 	protected $inputs = array(
 		'slot' => 'default',
-		'slot-weight' => 50,
-		'list' => array(),
+		'slot-weight' => 20,
 	);
 
 	protected $outputs = array(
@@ -41,21 +40,12 @@ class M_core__multi_slot extends Module {
 
 	public function main()
 	{
-		$list = $this->in('list');
-
-		if (!is_array($list)) {
-			error_msg('Input "list" must contain array!');
-		} else {
-			foreach ($list as $name => $opts) {
-				if (isset($opts['slot'])) {
-					debug_msg('Adding slot "%s" into slot "%s".', $name, $opts['slot']);
-				} else {
-					debug_msg('Adding slot "%s" into default slot.', $name);
-				}
-				$this->template_add_to_slot($name, @$opts['slot'], @$opts['weight'], 'core/slot', array(
-						'name' => $name,
-					) + $opts);
+		if (is_array(@$_SESSION['message_queue'])) {
+			foreach ($_SESSION['message_queue'] as $id => $msg_data) {
+				$this->template_add($id, 'core/message', $msg_data);
 			}
+
+			unset($_SESSION['message_queue']);
 		}
 	}
 }

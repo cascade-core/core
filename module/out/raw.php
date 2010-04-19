@@ -28,29 +28,23 @@
  * SUCH DAMAGE.
  */
 
-class M_core__combine extends Module {
+class M_core__out__raw extends Module {
 
 	protected $inputs = array(
-		'*' => null,
+		'data' => array(),
+		'slot' => 'default',
+		'slot-weight' => 50,
 	);
 
-	protected $outputs = array(
-		'out' => true,
-		'done' => true,
-	);
-
-	public function main()
+	function main()
 	{
-		$out = array();
-
-		foreach ($this->input_names() as $in) {
-			$out[$in] = $this->in($in);
-		}
-
-		$this->out('out', $out);
-		$this->out('done', true);
+		$this->template_add(null, 'core/raw', array('data' => $this->in('data')));
 	}
+
 }
+
+
+
 
 // vim:encoding=utf8:
 

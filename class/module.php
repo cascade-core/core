@@ -400,6 +400,23 @@ abstract class Module {
 	}
 
 
+	// collect values from numeric inputs - works well with vsprintf()
+	final protected function collect_numeric_inputs()
+	{
+		$real_inputs = $this->input_names();
+		$virtual_cnt = count($real_inputs) - count($this->inputs);
+		$vals = array_pad(array(), $virtual_cnt, null);
+
+		foreach ($real_inputs as $in) {
+			if (is_numeric($in) && $in > 0) {
+				$vals[$in - 1] = $this->in($in);
+			}
+		}
+
+		return $vals;
+	}
+
+
 	// set value to output
 	final protected function out($name, $value)
 	{

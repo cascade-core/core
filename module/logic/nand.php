@@ -28,44 +28,28 @@
  * SUCH DAMAGE.
  */
 
-
-class M_core__load_raw extends Module {
+class M_core__logic__nand extends Module {
 
 	protected $inputs = array(
-		'filename' => array(),
-		'name' => null,
+		'*' => null,
 	);
 
 	protected $outputs = array(
-		'data' => true,
-		'filename' => true,
-		'error' => true,
-		'done' => true,
+		'out' => true,
 	);
-
 
 	public function main()
 	{
-		$name = $this->in('name');
-		$fn = $this->in('filename');
-
-		if ($name !== null) {
-			$fn = sprintf($fn, $name);
+		foreach ($this->input_names() as $i) {
+			$v = $this->in($i);
+			if (!$v) {
+				$this->out('out', true);
+				return;
+			}
 		}
-
-		$data = file_get_contents($fn);
-
-		if ($data === FALSE) {
-			$this->out('error', true);
-		} else {
-			$this->out('data', $data);
-		}
-		$this->out('filename', $fn);
-		$this->out('done', $data !== FALSE);
+		$this->out('out', false);
 	}
 }
-
-
 
 
 // vim:encoding=utf8:

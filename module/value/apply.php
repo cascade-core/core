@@ -28,22 +28,43 @@
  * SUCH DAMAGE.
  */
 
-class M_core__printf extends Module {
+class M_core__value__apply extends Module {
 
 	protected $inputs = array(
-		'format' => array(),
-		'*' => '',
+		'function' => array(),
+		'*' => null,
 	);
 
 	protected $outputs = array(
-		'text' => true,
+		'done' => true,
+		'*' => true,
 	);
 
 	public function main()
 	{
-		$in = array_map(array($this, 'in'), $this->input_names());
-		$fmt = array_shift($in);
-		$this->out('text', vsprintf($fmt, $in));
+		$func = $this->in('function');
+
+		if (!function_exists($func)) {
+			return;
+		}
+
+		foreach ($this->input_names() as $in) {
+			if ($in == 'enable' || $in == 'function') {
+				continue;
+			}
+
+			$val = $this->in($in);
+
+			if (is_array($val)) {
+				$out = array_map($func, $val);
+			} else {
+				$out = $func($val);
+			}
+
+			$this->out($in, $out);
+		}
+
+		$this->out('done', true);
 	}
 }
 

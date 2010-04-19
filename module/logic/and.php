@@ -28,25 +28,26 @@
  * SUCH DAMAGE.
  */
 
-class M_core__message_show_queue extends Module {
+class M_core__logic__and extends Module {
 
 	protected $inputs = array(
-		'slot' => 'default',
-		'slot-weight' => 20,
+		'*' => null,
 	);
 
 	protected $outputs = array(
+		'out' => true,
 	);
 
 	public function main()
 	{
-		if (is_array(@$_SESSION['message_queue'])) {
-			foreach ($_SESSION['message_queue'] as $id => $msg_data) {
-				$this->template_add($id, 'core/message', $msg_data);
+		foreach ($this->input_names() as $i) {
+			$v = $this->in($i);
+			if (!$v) {
+				$this->out('out', false);
+				return;
 			}
-
-			unset($_SESSION['message_queue']);
 		}
+		$this->out('out', true);
 	}
 }
 

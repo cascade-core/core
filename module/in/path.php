@@ -28,30 +28,48 @@
  * SUCH DAMAGE.
  */
 
-
-class M_core__and extends Module {
+class M_core__in__path extends Module {
 
 	protected $inputs = array(
-		'*' => null,
 	);
 
 	protected $outputs = array(
-		'out' => true,
+		'last' => true,
+		'depth' => true,
+		'path' => true,
+		'server' => true,
+		'*' => true,
 	);
 
 	public function main()
 	{
-		foreach ($this->input_names() as $i) {
-			$v = $this->in($i);
-			if (!$v) {
-				$this->out('out', false);
-				return;
-			}
+		global $_SERVER;
+
+		$uri = $_SERVER['REQUEST_URI'];
+
+		// get uri, explode it to array and calculate depth
+		if ($uri == '/' || $uri == '') {
+			$uri = '/';
+			$path = array();
+			$depth = 0;
+		} else {
+			$uri = rtrim($uri, '/');
+			$path = explode('/', ltrim($uri, '/'));
+			$depth = count($path);
 		}
-		$this->out('out', true);
+
+		// set outputs
+		if ($depth >= 1) {
+			$path['last'] = & $path[count($path) - 1];
+		} else {
+			$path['last'] = null;
+		}
+		$path['depth'] = & $depth;
+		$path['path'] = & $uri;
+		$path['server'] = & $_SERVER['SERVER_NAME'];
+		$this->out_all($path);
 	}
 }
 
-
 // vim:encoding=utf8:
-
+?>

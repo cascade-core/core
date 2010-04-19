@@ -28,48 +28,40 @@
  * SUCH DAMAGE.
  */
 
-class M_core__path extends Module {
+class M_core__out__slot extends Module {
 
 	protected $inputs = array(
+		'slot' => 'default',
+		'slot-weight' => 50,
+		'name' => array(),
+		'extra-class' => null,
 	);
 
 	protected $outputs = array(
-		'last' => true,
-		'depth' => true,
-		'path' => true,
-		'server' => true,
-		'*' => true,
+		'name' => true,
+		'done' => true,
 	);
 
 	public function main()
 	{
-		global $_SERVER;
+		$name = get_ident($this->in('name'));
 
-		$uri = $_SERVER['REQUEST_URI'];
+		if ($name != '') {
+			$this->out('name', $name);
+			$this->out('done', true);
 
-		// get uri, explode it to array and calculate depth
-		if ($uri == '/' || $uri == '') {
-			$uri = '/';
-			$path = array();
-			$depth = 0;
-		} else {
-			$uri = rtrim($uri, '/');
-			$path = explode('/', ltrim($uri, '/'));
-			$depth = count($path);
+			$inputs = array();
+			foreach ($this->input_names() as $in) {
+				if ($in != 'slot' && $in != 'slot-weight') {
+					$inputs[str_replace('-', '_', $in)] = $this->in($in);
+				}
+			}
+
+			$this->template_add(null, 'core/slot', $inputs);
 		}
-
-		// set outputs
-		if ($depth >= 1) {
-			$path['last'] = & $path[count($path) - 1];
-		} else {
-			$path['last'] = null;
-		}
-		$path['depth'] = & $depth;
-		$path['path'] = & $uri;
-		$path['server'] = & $_SERVER['SERVER_NAME'];
-		$this->out_all($path);
 	}
 }
 
+
 // vim:encoding=utf8:
-?>
+

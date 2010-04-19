@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__nand extends Module {
+class M_core__logic__or extends Module {
 
 	protected $inputs = array(
 		'*' => null,
@@ -42,12 +42,11 @@ class M_core__nand extends Module {
 	{
 		foreach ($this->input_names() as $i) {
 			$v = $this->in($i);
-			if (!$v) {
-				$this->out('out', true);
-				return;
+			if ($v) {
+				$this->out('out', $v);
+				break;
 			}
 		}
-		$this->out('out', false);
 	}
 }
 

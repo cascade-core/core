@@ -142,10 +142,10 @@ class PipelineController {
 			/* class not found, check if ini file exists */
 			$f = (strncmp($module, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($module, 5) : DIR_APP_MODULE.$module).'.ini.php';
 
-			if ($module != 'core/ini_proxy' && is_file($f)) {
-				/* load core/ini_proxy for this ini file */
-				debug_msg('Loading core/ini_proxy for "%s".', $f);
-				return $this->add_module($parent, $id, 'core/ini_proxy', $force_exec, $connections, $context, $module);
+			if ($module != 'core/ini/proxy' && is_file($f)) {
+				/* load core/ini/proxy for this ini file */
+				debug_msg('Loading core/ini/proxy for "%s".', $f);
+				return $this->add_module($parent, $id, 'core/ini/proxy', $force_exec, $connections, $context, $module);
 
 			} else {
 				/* module not found */

@@ -28,46 +28,46 @@
  * SUCH DAMAGE.
  */
 
-class M_core__apply extends Module {
+class M_core__out__table extends Module {
 
 	protected $inputs = array(
-		'function' => array(),
-		'*' => null,
+		'items' => array(),
+		'config' => array(),
+		'slot' => 'default',
+		'slot-weight' => 50,
 	);
 
 	protected $outputs = array(
-		'done' => true,
-		'*' => true,
 	);
+
+	private $row = 0;
+	private $items = null;
+
 
 	public function main()
 	{
-		$func = $this->in('function');
+		$this->items = $this->in('items');
+		$table = new TableView();
 
-		if (!function_exists($func)) {
-			return;
+		foreach($this->in('config') as $row => $opts) {
+			$table->add_column($opts['type'], $opts);
 		}
 
-		foreach ($this->input_names() as $in) {
-			if ($in == 'enable' || $in == 'function') {
-				continue;
-			}
+		$table->set_data_iterator_function($this, 'next_row');
+	
+		$this->template_add(null, 'core/table', $table);
+	}
 
-			$val = $this->in($in);
 
-			if (is_array($val)) {
-				$out = array_map($func, $val);
-			} else {
-				$out = $func($val);
-			}
-
-			$this->out($in, $out);
+	public function next_row()
+	{
+		if ($this->row++ == 0) {
+			reset($this->items);
 		}
-
-		$this->out('done', true);
+		list($k, $v) = each($this->items);
+		return $v;
 	}
 }
-
 
 
 // vim:encoding=utf8:

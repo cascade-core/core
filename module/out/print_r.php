@@ -28,33 +28,23 @@
  * SUCH DAMAGE.
  */
 
-class M_core__show_menu extends Module {
+class M_core__out__print_r extends Module {
 
 	protected $inputs = array(
-		'items' => null,
-		'layout' => 'tree',
-		'active-uri' => null,
-		'exact-match' => false,
+		'data' => null,
+		'title' => null,
+		'header-level' => 2,
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
 
-	protected $outputs = array(
-	);
-
-
-	public function main()
+	function main()
 	{
-		$items = $this->in('items');
-
-		if (is_array($items)) {
-			$this->template_add(null, 'core/menu', array(
-					'items' => $items,
-					'layout' => $this->in('layout'),
-					'exact_match' => $this->in('exact-match'),
-					'active_uri' => $this->in('active-uri'),
-				));
-		}
+		$this->template_add(null, 'core/print_r', array(
+				'title' => $this->in('title'),
+				'header_level' => $this->in('header-level'),
+				'data' => $this->in('data'),
+			));
 	}
 
 }

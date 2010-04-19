@@ -28,47 +28,19 @@
  * SUCH DAMAGE.
  */
 
-class M_core__show_table extends Module {
-
-	protected $inputs = array(
-		'items' => array(),
-		'config' => array(),
-		'slot' => 'default',
-		'slot-weight' => 50,
-	);
+class M_core__out__page extends Module {
 
 	protected $outputs = array(
+		'done' => true,
 	);
 
-	private $row = 0;
-	private $items = null;
-
-
-	public function main()
+	function main()
 	{
-		$this->items = $this->in('items');
-		$table = new TableView();
-
-		foreach($this->in('config') as $row => $opts) {
-			$table->add_column($opts['type'], $opts);
-		}
-
-		$table->set_data_iterator_function($this, 'next_row');
-	
-		$this->template_add(null, 'core/table', $table);
+		$this->template_add_to_slot(null, 'root', 50, 'core/main');
+		$this->out('done', true);
 	}
 
-
-	public function next_row()
-	{
-		if ($this->row++ == 0) {
-			reset($this->items);
-		}
-		list($k, $v) = each($this->items);
-		return $v;
-	}
 }
-
 
 // vim:encoding=utf8:
 

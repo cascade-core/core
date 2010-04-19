@@ -28,26 +28,25 @@
  * SUCH DAMAGE.
  */
 
-class M_core__print_r extends Module {
+class M_core__out__printf extends Module {
 
 	protected $inputs = array(
-		'data' => null,
-		'title' => null,
-		'header-level' => 2,
-		'slot' => 'default',
-		'slot-weight' => 50,
+		'format' => array(),
+		'*' => '',
 	);
 
-	function main()
-	{
-		$this->template_add(null, 'core/print_r', array(
-				'title' => $this->in('title'),
-				'header_level' => $this->in('header-level'),
-				'data' => $this->in('data'),
-			));
-	}
+	protected $outputs = array(
+		'text' => true,
+	);
 
+	public function main()
+	{
+		$in = $this->collect_numeric_inputs();
+		$fmt = array_shift($this->in('format'));
+		$this->out('text', vsprintf($fmt, $in));
+	}
 }
+
 
 
 // vim:encoding=utf8:

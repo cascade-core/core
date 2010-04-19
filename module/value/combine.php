@@ -28,40 +28,29 @@
  * SUCH DAMAGE.
  */
 
-class M_core__slot extends Module {
+class M_core__value__combine extends Module {
 
 	protected $inputs = array(
-		'slot' => 'default',
-		'slot-weight' => 50,
-		'name' => array(),
-		'extra-class' => null,
+		'*' => null,
 	);
 
 	protected $outputs = array(
-		'name' => true,
+		'out' => true,
 		'done' => true,
 	);
 
 	public function main()
 	{
-		$name = get_ident($this->in('name'));
+		$out = array();
 
-		if ($name != '') {
-			$this->out('name', $name);
-			$this->out('done', true);
-
-			$inputs = array();
-			foreach ($this->input_names() as $in) {
-				if ($in != 'slot' && $in != 'slot-weight') {
-					$inputs[str_replace('-', '_', $in)] = $this->in($in);
-				}
-			}
-
-			$this->template_add(null, 'core/slot', $inputs);
+		foreach ($this->input_names() as $in) {
+			$out[$in] = $this->in($in);
 		}
+
+		$this->out('out', $out);
+		$this->out('done', true);
 	}
 }
-
 
 // vim:encoding=utf8:
 

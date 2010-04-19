@@ -28,50 +28,36 @@
  * SUCH DAMAGE.
  */
 
-class M_core__load_ini extends Module {
+class M_core__out__menu extends Module {
 
 	protected $inputs = array(
-		'filename' => array(),
-		'name' => null,
-		'process-sections' => true,
-		'multi-output' => false,
+		'items' => null,
+		'layout' => 'tree',
+		'active-uri' => null,
+		'exact-match' => false,
+		'slot' => 'default',
+		'slot-weight' => 50,
 	);
 
 	protected $outputs = array(
-		'data' => true,
-		'filename' => true,
-		'error' => true,
-		'done' => true,
 	);
 
 
 	public function main()
 	{
-		$name = $this->in('name');
-		$fn = $this->in('filename');
+		$items = $this->in('items');
 
-		if ($name !== null) {
-			$fn = sprintf($fn, $name);
+		if (is_array($items)) {
+			$this->template_add(null, 'core/menu', array(
+					'items' => $items,
+					'layout' => $this->in('layout'),
+					'exact_match' => $this->in('exact-match'),
+					'active_uri' => $this->in('active-uri'),
+				));
 		}
-
-		$data = parse_ini_file($fn, $this->in('process-sections'));
-
-		if ($data === FALSE) {
-			$this->out('error', true);
-		} else {
-			if ($this->in('multi-output')) {
-				$this->out_all($data);
-			} else {
-				$this->out('data', $data);
-			}
-		}
-
-		$this->out('filename', $fn);
-		$this->out('done', $data !== FALSE);
 	}
+
 }
-
-
 
 
 // vim:encoding=utf8:

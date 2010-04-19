@@ -28,9 +28,12 @@
  * SUCH DAMAGE.
  */
 
-class M_core__version extends Module {
+class M_core__out__header extends Module {
 
 	protected $inputs = array(
+		'level' => 2,
+		'text' => null,
+		'option' => null,
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -40,18 +43,13 @@ class M_core__version extends Module {
 
 	public function main()
 	{
-		$core_version = parse_ini_file(DIR_CORE.'version.ini.php', TRUE);
-		$app_version  = parse_ini_file(DIR_ROOT.'version.ini.php', TRUE);
-
-		if ($core_version !== null || $app_version !== null) {
-			$this->template_add(null, 'core/version', array(
-					'core' => @$core_version['version'],
-					'app'  => @$app_version['version'],
-				));
-		}
+		$this->template_add(null, 'core/header', array(
+				'option' => $this->in('option'),
+				'text' => $this->in('text'),
+				'level' => $this->in('level'),
+			));
 	}
 }
-
 
 
 // vim:encoding=utf8:

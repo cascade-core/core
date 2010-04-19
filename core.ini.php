@@ -56,14 +56,14 @@ profiler_stats_file	= "var/profiler.stats"
 ;
 
 [module:HELLO]
-.module		= core/print_r
+.module		= core/out/print_r
 .force-exec	= true
 template	= "core/print_r"
 data		= "Hello world!"
 enable[]	= "PAGE:done"
 
 [module:PAGE]
-.module		= core/page
+.module		= core/out/page
 
 
 ; vim:encoding=utf-8:filetype=dosini:

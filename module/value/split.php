@@ -28,23 +28,33 @@
  * SUCH DAMAGE.
  */
 
-
-class M_core__show_raw extends Module {
+class M_core__value__split extends Module {
 
 	protected $inputs = array(
-		'data' => array(),
-		'slot' => 'default',
-		'slot-weight' => 50,
+		'in' => null,
+		'keys' => null,
 	);
 
-	function main()
+	protected $outputs = array(
+		'done' => true,
+		'*' => true,
+	);
+
+	public function main()
 	{
-		$this->template_add(null, 'core/raw', array('data' => $this->in('data')));
+		$keys = $this->in('keys');
+		if ($keys !== null) {
+			if (!is_array($keys)) {
+				$keys = explode(':', $keys);
+			}
+			$this->out_all((array) array_extract_keys($this->in('in'), $keys));
+		} else {
+			$this->out_all((array) $this->in('in'));
+		}
+
+		$this->out('done', true);
 	}
-
 }
-
-
 
 
 // vim:encoding=utf8:

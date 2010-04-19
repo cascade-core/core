@@ -28,8 +28,7 @@
  * SUCH DAMAGE.
  */
 
-
-class M_core__output extends Module {
+class M_core__out__output extends Module {
 
 	protected $inputs = array(
 		'template' => array(),

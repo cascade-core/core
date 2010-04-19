@@ -28,33 +28,45 @@
  * SUCH DAMAGE.
  */
 
-class M_core__split extends Module {
+class M_core__ini__proxy extends Module {
 
 	protected $inputs = array(
-		'in' => null,
-		'keys' => null,
+		'*' => null,
 	);
 
 	protected $outputs = array(
-		'done' => true,
 		'*' => true,
 	);
 
+
 	public function main()
 	{
-		$keys = $this->in('keys');
-		if ($keys !== null) {
-			if (!is_array($keys)) {
-				$keys = explode(':', $keys);
-			}
-			$this->out_all((array) array_extract_keys($this->in('in'), $keys));
-		} else {
-			$this->out_all((array) $this->in('in'));
+		$m = $this->module_name();
+		$filename = ((strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.ini.php' : DIR_APP_MODULE.$m.'.ini.php'));
+
+		$conf = parse_ini_file($filename, TRUE);
+		if ($conf === FALSE) {
+			return;
 		}
 
-		$this->out('done', true);
+		$this->pipeline_add_from_ini($conf);
+
+		if (isset($conf['copy-inputs'])) {
+			foreach ($conf['copy-inputs'] as $out => $in) {
+				$this->out($out, $this->in($in));
+			}
+		}
+
+		if (isset($conf['forward-outputs'])) {
+			foreach ($conf['forward-outputs'] as $out => $src) {
+				list($src_mod, $src_out) = explode(':', $src);
+				$this->out_forward($out, $src_mod, $src_out);
+			}
+		}
 	}
 }
+
+
 
 
 // vim:encoding=utf8:

@@ -28,27 +28,30 @@
  * SUCH DAMAGE.
  */
 
-class M_core__or extends Module {
+class M_core__devel__version extends Module {
 
 	protected $inputs = array(
-		'*' => null,
+		'slot' => 'default',
+		'slot-weight' => 50,
 	);
 
 	protected $outputs = array(
-		'out' => true,
 	);
 
 	public function main()
 	{
-		foreach ($this->input_names() as $i) {
-			$v = $this->in($i);
-			if ($v) {
-				$this->out('out', $v);
-				break;
-			}
+		$core_version = parse_ini_file(DIR_CORE.'version.ini.php', TRUE);
+		$app_version  = parse_ini_file(DIR_ROOT.'version.ini.php', TRUE);
+
+		if ($core_version !== null || $app_version !== null) {
+			$this->template_add(null, 'core/version', array(
+					'core' => @$core_version['version'],
+					'app'  => @$app_version['version'],
+				));
 		}
 	}
 }
+
 
 
 // vim:encoding=utf8:

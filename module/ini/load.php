@@ -28,29 +28,51 @@
  * SUCH DAMAGE.
  */
 
-class M_core__merge extends Module {
+class M_core__ini__load extends Module {
 
 	protected $inputs = array(
-		'*' => null,
+		'filename' => array(),
+		'name' => null,
+		'process-sections' => true,
+		'multi-output' => false,
 	);
 
 	protected $outputs = array(
-		'out' => true,
+		'data' => true,
+		'filename' => true,
+		'error' => true,
 		'done' => true,
 	);
 
+
 	public function main()
 	{
-		$out = array();
+		$name = $this->in('name');
+		$fn = $this->in('filename');
 
-		foreach ($this->input_names() as $in) {
-			$out = array_merge($out, (array) $this->in($in));
+		if ($name !== null) {
+			$fn = sprintf($fn, $name);
 		}
 
-		$this->out('out', $out);
-		$this->out('done', true);
+		$data = parse_ini_file($fn, $this->in('process-sections'));
+
+		if ($data === FALSE) {
+			$this->out('error', true);
+		} else {
+			if ($this->in('multi-output')) {
+				$this->out_all($data);
+			} else {
+				$this->out('data', $data);
+			}
+		}
+
+		$this->out('filename', $fn);
+		$this->out('done', $data !== FALSE);
 	}
 }
+
+
+
 
 // vim:encoding=utf8:
 

@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__profiler_stats extends Module {
+class M_core__devel__profiler_stats extends Module {
 
 	protected $inputs = array(
 		'filename' => array(),

@@ -28,46 +28,37 @@
  * SUCH DAMAGE.
  */
 
-
-class M_core__ini_proxy extends Module {
+class M_core__out__multi_slot extends Module {
 
 	protected $inputs = array(
-		'*' => null,
+		'slot' => 'default',
+		'slot-weight' => 50,
+		'list' => array(),
 	);
 
 	protected $outputs = array(
-		'*' => true,
 	);
-
 
 	public function main()
 	{
-		$m = $this->module_name();
-		$filename = ((strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.ini.php' : DIR_APP_MODULE.$m.'.ini.php'));
+		$list = $this->in('list');
 
-		$conf = parse_ini_file($filename, TRUE);
-		if ($conf === FALSE) {
-			return;
-		}
-
-		$this->pipeline_add_from_ini($conf);
-
-		if (isset($conf['copy-inputs'])) {
-			foreach ($conf['copy-inputs'] as $out => $in) {
-				$this->out($out, $this->in($in));
-			}
-		}
-
-		if (isset($conf['forward-outputs'])) {
-			foreach ($conf['forward-outputs'] as $out => $src) {
-				list($src_mod, $src_out) = explode(':', $src);
-				$this->out_forward($out, $src_mod, $src_out);
+		if (!is_array($list)) {
+			error_msg('Input "list" must contain array!');
+		} else {
+			foreach ($list as $name => $opts) {
+				if (isset($opts['slot'])) {
+					debug_msg('Adding slot "%s" into slot "%s".', $name, $opts['slot']);
+				} else {
+					debug_msg('Adding slot "%s" into default slot.', $name);
+				}
+				$this->template_add_to_slot($name, @$opts['slot'], @$opts['weight'], 'core/slot', array(
+						'name' => $name,
+					) + $opts);
 			}
 		}
 	}
 }
-
-
 
 
 // vim:encoding=utf8:

@@ -28,19 +28,24 @@
  * SUCH DAMAGE.
  */
 
+class M_core__value__copy extends Module {
 
-class M_core__page extends Module {
+	protected $inputs = array(
+		'*' => null,
+	);
 
 	protected $outputs = array(
 		'done' => true,
+		'*' => true,
 	);
 
-	function main()
+	public function main()
 	{
-		$this->template_add_to_slot(null, 'root', 50, 'core/main');
+		foreach ($this->input_names() as $in) {
+			$this->out($in, $this->in($in));
+		}
 		$this->out('done', true);
 	}
-
 }
 
 // vim:encoding=utf8:

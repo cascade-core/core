@@ -28,24 +28,44 @@
  * SUCH DAMAGE.
  */
 
-class M_core__set_page_title extends Module {
+
+class M_core__raw__load extends Module {
 
 	protected $inputs = array(
-		'title' => null,
-		'format' => null,
+		'filename' => array(),
+		'name' => null,
 	);
 
 	protected $outputs = array(
+		'data' => true,
+		'filename' => true,
+		'error' => true,
+		'done' => true,
 	);
+
 
 	public function main()
 	{
-		$t = $this->in('title');
-		$fmt = $this->in('format');
+		$name = $this->in('name');
+		$fn = $this->in('filename');
 
-		$this->template_set_page_title($t, $fmt);
+		if ($name !== null) {
+			$fn = sprintf($fn, $name);
+		}
+
+		$data = file_get_contents($fn);
+
+		if ($data === FALSE) {
+			$this->out('error', true);
+		} else {
+			$this->out('data', $data);
+		}
+		$this->out('filename', $fn);
+		$this->out('done', $data !== FALSE);
 	}
 }
+
+
 
 
 // vim:encoding=utf8:

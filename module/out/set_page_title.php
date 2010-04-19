@@ -28,25 +28,25 @@
  * SUCH DAMAGE.
  */
 
-class M_core__copy extends Module {
+class M_core__out__set_page_title extends Module {
 
 	protected $inputs = array(
-		'*' => null,
+		'title' => null,
+		'format' => null,
 	);
 
 	protected $outputs = array(
-		'done' => true,
-		'*' => true,
 	);
 
 	public function main()
 	{
-		foreach ($this->input_names() as $in) {
-			$this->out($in, $this->in($in));
-		}
-		$this->out('done', true);
+		$t = $this->in('title');
+		$fmt = $this->in('format');
+
+		$this->template_set_page_title($t, $fmt);
 	}
 }
+
 
 // vim:encoding=utf8:
 

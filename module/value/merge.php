@@ -28,29 +28,29 @@
  * SUCH DAMAGE.
  */
 
-class M_core__show_header extends Module {
+class M_core__value__merge extends Module {
 
 	protected $inputs = array(
-		'level' => 2,
-		'text' => null,
-		'option' => null,
-		'slot' => 'default',
-		'slot-weight' => 50,
+		'*' => null,
 	);
 
 	protected $outputs = array(
+		'out' => true,
+		'done' => true,
 	);
 
 	public function main()
 	{
-		$this->template_add(null, 'core/header', array(
-				'option' => $this->in('option'),
-				'text' => $this->in('text'),
-				'level' => $this->in('level'),
-			));
+		$out = array();
+
+		foreach ($this->input_names() as $in) {
+			$out = array_merge($out, (array) $this->in($in));
+		}
+
+		$this->out('out', $out);
+		$this->out('done', true);
 	}
 }
-
 
 // vim:encoding=utf8:
 
