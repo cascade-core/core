@@ -420,14 +420,14 @@ abstract class Module {
 	// set value to output
 	final protected function out($name, $value)
 	{
-		$this->output_cache[$name] = $value;
+		$this->output_cache[$name] = & $value;
 	}
 
 
 	// set all output values (keys are output names)
 	final protected function out_all($values)
 	{
-		$this->output_cache = $values;
+		$this->output_cache = & $values;
 	}
 
 

@@ -28,48 +28,26 @@
  * SUCH DAMAGE.
  */
 
-class M_core__in__path extends Module {
+class M_core__in__get extends Module {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'last' => true,
-		'depth' => true,
-		'path' => true,
-		'server' => true,
-		'*' => true,
+		'*' => true
 	);
 
 	public function main()
 	{
-		global $_SERVER;
+		$this->out('all', & $_GET);
+	}
 
-		$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-		// get uri, explode it to array and calculate depth
-		if ($uri == '/' || $uri == '') {
-			$uri = '/';
-			$path = array();
-			$depth = 0;
-		} else {
-			$uri = rtrim($uri, '/');
-			$path = explode('/', ltrim($uri, '/'));
-			$depth = count($path);
-		}
-
-		// set outputs
-		if ($depth >= 1) {
-			$path['last'] = & $path[count($path) - 1];
-		} else {
-			$path['last'] = null;
-		}
-		$path['depth'] = & $depth;
-		$path['path'] = & $uri;
-		$path['server'] = & $_SERVER['SERVER_NAME'];
-		$this->out_all($path);
+	public function get_output($name)
+	{
+		return @$_GET[strtoupper($name)];
 	}
 }
 
+
 // vim:encoding=utf8:
-?>
+
