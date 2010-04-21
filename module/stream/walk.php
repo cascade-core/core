@@ -28,87 +28,53 @@
  * SUCH DAMAGE.
  */
 
-$_utils_php__first_msg = true;
+class M_core__stream__walk extends Module {
 
+	protected $inputs = array(
+		'array' => array(),
+		'key_key' => false,
+		'done' => false,
+	);
 
-function first_msg()
-{
-	global $_utils_php__first_msg;
+	protected $outputs = array(
+		'iter' => true,
+	);
 
-	$_utils_php__first_msg = false;
-	debug_msg('New client from %s:%d at %s.', $_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'], strftime('%F %T', $_SERVER['REQUEST_TIME']));
-}
+	private $array;
+	private $key_key;
 
-function debug_msg($msg)
-{
-	global $_utils_php__first_msg;
+	public function main()
+	{
+		$this->array = $this->in('array');
+		$this->key_key = $this->in('key_key');
 
-	if (!DEBUG_LOGGING_ENABLED) {
-		return;
+		$this->out('iter', array($this, 'get_next'));
+
+		if (is_array($this->array)) {
+			$this->out('done', true);
+		} else {
+			error_msg('Input array is not an array!');
+			$this->array = array();
+			$this->out('done', false);
+		}
+
+		reset($this->array);
 	}
 
-	if ($_utils_php__first_msg) {
-		first_msg();
-	}
 
-	$args = func_get_args();
-	unset($args[0]);
+	public function get_next()
+	{
+		$n = each($this->array);
 
-	$trace = debug_backtrace();
+		if ($n === FALSE) {
+			return null;
+		}
 
-	if (isset($trace[1])) {
-		$t = & $trace[1];
-		error_log(@$t['class'].'::'.$t['function'].'(): Debug: '.vsprintf($msg, $args));
-	} else {
-		error_log(vsprintf($msg, $args));
-	}
-}
+		if ($this->key_key !== FALSE && is_array($n[1])) {
+			$n[1][$this->key_key] = $n[0];
+		}
 
-
-function error_msg($msg)
-{
-	global $_utils_php__first_msg;
-
-	if ($_utils_php__first_msg) {
-		first_msg();
-	}
-
-	$args = func_get_args();
-	unset($args[0]);
-
-	$trace = debug_backtrace();
-
-	if (isset($trace[1])) {
-		$t = & $trace[1];
-		error_log(@$t['class'].'::'.$t['function'].'(): Error: '.vsprintf($msg, $args));
-	} else {
-		error_log(vsprintf($msg, $args));
-	}
-}
-
-
-function log_msg($msg)
-{
-	global $_utils_php__first_msg;
-
-	if ($_utils_php__first_msg) {
-		first_msg();
-	}
-
-	$args = func_get_args();
-	unset($args[0]);
-
-	error_log(vsprintf($msg, $args));
-}
-
-
-function get_ident($name)
-{
-	if ((string) $name === '') {
-		return '';
-	} else {
-		// TODO: je potreba zachovat unikatnost
-		return preg_replace('/[^A-Za-z0-9_]/', '_', $name);
+		return $n[1];
 	}
 }
 

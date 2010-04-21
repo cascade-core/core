@@ -28,53 +28,90 @@
  * SUCH DAMAGE.
  */
 
-class M_core__out__table extends Module {
+class M_core__stream__split extends Module {
 
 	protected $inputs = array(
-		'items' => array(),
-		'config' => array(),
-		'slot' => 'default',
-		'slot-weight' => 50,
+		'iter' => array(),
+		'*' => null,
 	);
 
 	protected $outputs = array(
+		'done' => true,
+		'*' => true,
 	);
 
-	private $items = null;
+	private $iter_obj, $iter_fn;
+	private $iter_next_row = 0;
 
+	private $row = array();
+	private $end = array();
+	private $cache = array();
+	private $cache_next = 0;
 
 	public function main()
 	{
-		$this->items = $this->in('items');
-		$table = new TableView();
+		list($this->iter_obj, $this->iter_fn) = $this->in('iter');
 
-		foreach($this->in('config') as $row => $opts) {
-			$table->add_column($opts['type'], $opts);
+		if (!is_object($this->iter_obj) || !isset($this->iter_fn)) {
+			return;
 		}
 
-		if (is_array($this->items) && count($this->items) == 2 && is_object($this->items[0]) && is_string($this->items[1])) {
-			debug_msg('Iterator mode');
-			$table->set_data_iterator_function($this, 'next_row_iter');
+		$this->row_count = $this->collect_numeric_inputs();
+
+		$begin = 0;
+		foreach($this->row_count as $k => $count) {
+			$ki = 'iter_'.$k;
+			$this->row[$ki] = $begin;
+			$this->out($k + 1, array($this, $ki));
+
+			if ($count === '*') {
+				$this->end[$ki] = TRUE;
+				break;
+			} else {
+				$this->end[$ki] = $begin + $count;
+				$begin += $count;
+			}
+		}
+	}
+
+
+	/* iterator */
+	public function __call($k, $args)
+	{
+		$iter_fn = $this->iter_fn;	// PHP bug
+		$row = & $this->row[$k];
+
+		if ($row >= $this->end[$k] && $this->end[$k] !== TRUE) {
+			/* end */
+			return null;
+
+		} else if ($row == $this->iter_next_row) {
+			/* next row is correct row */
+			$row++;
+			$this->iter_next_row++;
+			return $this->iter_obj->$iter_fn();
+
+		} else if ($row < $this->iter_next_row) {
+			/* wanted row is cached */
+			$v = $this->cache[$row];
+			unset($this->cache[$row]);
+			$row++;
+			return $v;
+
 		} else {
-			debug_msg('Array mode');
-			$table->set_data_iterator_function($this, 'next_row_array');
+			/* wanted row is far in future */
+			while ($this->iter_next_row < $row) {
+				if (($this->cache[$this->iter_next_row] = $this->iter_obj->$iter_fn()) !== NULL) {
+					$this->iter_next_row++;
+				} else {
+					/* out of future */
+					return null;
+				}
+			}
+			$row++;
+			$this->iter_next_row++;
+			return $this->iter_obj->$iter_fn();
 		}
-	
-		$this->template_add(null, 'core/table', $table);
-	}
-
-
-	public function next_row_iter()
-	{
-		$get_next = $this->items[1];
-		return $this->items[0]->$get_next();
-	}
-
-
-	public function next_row_array()
-	{
-		list($k, $v) = each($this->items);
-		return $v;
 	}
 }
 

@@ -35,10 +35,12 @@ function TPL_xhtml__core__table($t, $id, $table, $so)
 	echo "<table id=\"".htmlspecialchars($id)."\" class=\"table\">\n";
 
 	/* prepare renderers */
-	foreach ($table->columns() as $col) {
+	foreach ($table->columns() as $c => $col) {
 		$cn = __FUNCTION__.'__'.$col[0];
 		if (class_exists($cn)) {
 			$col_renderer[] = new $cn($col[1]);
+		} else {
+			error_msg('%s: Unknown column type "%s"', $c, $col[0]);
 		}
 	}
 
@@ -78,7 +80,9 @@ class tpl_xhtml__core__table__text {
 
 	function col()
 	{
-		echo "<col />\n";
+		echo "<col ",
+			(isset($this->opts['width']) ? ' width="'.htmlspecialchars($this->opts['width']).'"' : ''),
+			"/>\n";
 	}
 
 	function th()
