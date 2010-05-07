@@ -97,8 +97,11 @@ class PipelineController {
 			return false;
 		}
 
+		/* build full ID */
+		$full_id = ($parent ? $parent->id().'.' : '').$id;
+
 		/* check for duplicate IDs */
-		if (array_key_exists($id, $this->modules)) {
+		if (array_key_exists($full_id, $this->modules)) {
 			error_msg('Module ID "%s" already exists in pipeline!', $id);
 			return false;
 		}
@@ -116,7 +119,7 @@ class PipelineController {
 
 			/* initialize module */
 			$m = new $class();
-			$m->pc_init($parent, $id, $this, $real_module !== null ? $real_module : $module, $context, $this->add_order);
+			$m->pc_init($parent, $id, $full_id, $this, $real_module !== null ? $real_module : $module, $context, $this->add_order);
 			if (!$m->pc_connect($connections, $this->modules)) {
 				error_msg('Module "%s": Can\'t connect inputs!', $id);
 				return false;

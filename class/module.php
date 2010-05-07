@@ -109,12 +109,12 @@ abstract class Module {
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($parent, $id, $pipeline_controller, $module_name, $context, $add_order)
+	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $module_name, $context, $add_order)
 	{
 		// basic init
 		$this->id = $id;
 		$this->parent = $parent;
-		$this->full_id = ($parent ? $parent->id().'.' : '').$id;
+		$this->full_id = $full_id;
 		$this->pipeline_controller = $pipeline_controller;
 		$this->module_name = $module_name;
 		$this->context = $context;
