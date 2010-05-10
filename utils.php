@@ -113,5 +113,19 @@ function get_ident($name)
 }
 
 
+function format_bytes($bytes)
+{
+	static $units = array(
+		array( ' B', 1),
+		array(' KB', 1024.),
+		array(' MB', 1048576.),
+		array(' GB', 1073741824.),
+		array(' TB', 1099511627776.),
+	);
+	$u = & $units[(int) log($bytes, 2) / 10];
+	return round($bytes / $u[1], 2).$u[0];
+}
+
+
 // vim:encoding=utf8:
 
