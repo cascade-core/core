@@ -42,6 +42,7 @@ class M_core__devel__profiler_stats extends Module {
 
 	private $modules_stats, $pipeline_stats;
 	private $stats_row = 0;
+	private $pct_base = 0;
 
 	public function main()
 	{
@@ -54,6 +55,11 @@ class M_core__devel__profiler_stats extends Module {
 		$table->add_column('text', array(
 				'title'  => 'Module',
 				'key'    => 'module',
+			));
+		$table->add_column('number', array(
+				'title'  => 'Total time [%]',
+				'key'    => 'sum_pct',
+				'format' => '%1.1f',
 			));
 		$table->add_column('number', array(
 				'title'  => 'Count',
@@ -89,11 +95,15 @@ class M_core__devel__profiler_stats extends Module {
 	{
 		switch ($this->stats_row++) {
 			case 0:
+				$this->pct_base = $this->pipeline_stats['total_time'];
 				return array(
 					'module' => '∑',
 					'sum' => $this->pipeline_stats['total_time'],
-					'cnt' => null,
-					'avg' => null,
+					'sum_pct' => 100 * $this->pipeline_stats['total_time'] / $this->pct_base,
+					'cnt' => $this->pipeline_stats['pipeline_count'],
+					'avg' => $this->pipeline_stats['pipeline_count']
+							? $this->pipeline_stats['total_time'] / $this->pipeline_stats['pipeline_count']
+							: null,
 					'min' => null,
 					'max' => null,
 				);
@@ -102,6 +112,7 @@ class M_core__devel__profiler_stats extends Module {
 				return array(
 					'module' => 'Pipeline controller',
 					'sum' => $this->pipeline_stats['pipeline_time'],
+					'sum_pct' => 100 * $this->pipeline_stats['pipeline_time'] / $this->pct_base,
 					'cnt' => $this->pipeline_stats['pipeline_count'],
 					'avg' => $this->pipeline_stats['pipeline_count']
 							? $this->pipeline_stats['pipeline_time'] / $this->pipeline_stats['pipeline_count']
@@ -116,6 +127,7 @@ class M_core__devel__profiler_stats extends Module {
 				if ((list($key, $row) = each($this->modules_stats))) {
 					$row['module'] = $key;
 					$row['avg'] = $row['cnt'] ? (float) $row['sum'] / $row['cnt'] : null;
+					$row['sum_pct'] = 100 * $row['sum'] / $this->pct_base;
 					return $row;
 				} else {
 					return null;
