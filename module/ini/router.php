@@ -1,0 +1,96 @@
+<?php
+/*
+ * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the author nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+class M_core__ini__router extends Module {
+
+	protected $inputs = array(
+		'path' => null,
+		'config' => array(),
+	);
+
+	protected $outputs = array(
+		'*' => true,
+	);
+
+
+	public function main()
+	{
+		// load config
+		$conf = parse_ini_file($this->in('config'), TRUE);
+		if ($conf === FALSE) {
+			return;
+		}
+
+		// get current path
+		$uri_path = $this->in('path');
+		if ($uri_path == null) {
+			$uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+		}
+		$path = explode('/', rtrim($uri_path, '/'));
+
+		// match rules one by one
+		foreach($conf as $mask => $args) {
+			$m = explode('/', rtrim($mask, '/'));
+
+			// check length (quickly drop wrong path)
+			if (count($m) != count($path)) {
+				continue;
+			}
+
+			// compare fragments
+			for ($i = 0; $i < count($m); $i++) {
+				if (@$m[$i][0] == '$') {
+					// variable - match anything
+					$a = substr($m[$i], 1);
+					$args[$a] = $path[$i];
+				} else if ($m[$i] != $path[$i]) {
+					break;
+				}
+			}
+			if ($i < count($m)) {
+				// match failed
+				continue;
+			}
+
+			// match found
+			debug_msg("Matched rule [%s]", $mask);
+			$this->out_all($args);
+			$this->out('done', true);
+			$this->out('no-match', false);
+			return;
+		}
+
+		// no match
+		debug_msg("No rule matched!");
+		$this->out('done', false);
+		$this->out('no-match', true);
+	}
+}
+
