@@ -58,9 +58,10 @@ class M_core__ini__router extends Module {
 		// match rules one by one
 		foreach($conf as $mask => $args) {
 			$m = explode('/', rtrim($mask, '/'));
+			$last = end($m);
 
 			// check length (quickly drop wrong path)
-			if (count($m) != count($path)) {
+			if ($last != '**' ? count($m) != count($path) : count($m) - 1 > count($path)) {
 				continue;
 			}
 
@@ -70,7 +71,13 @@ class M_core__ini__router extends Module {
 					// variable - match anything
 					$a = substr($m[$i], 1);
 					$args[$a] = $path[$i];
+				} else if ($i == count($m) - 1 && $m[$i] == '**') {
+					// last part is '**' -- copy tail and finish
+					$args['path_tail'] = array_slice($path, $i);
+					$i = count($m);
+					break;
 				} else if ($m[$i] != $path[$i]) {
+					// fail
 					break;
 				}
 			}
