@@ -41,6 +41,7 @@ profiler_stats_file	= "var/profiler.stats"
 ; default output configuration
 [output]
 ;default_type		= "xhtml"
+default_type		= "html5"
 
 ; constants set by define(strtoupper(key), value)
 [define]
@@ -66,5 +67,5 @@ enable[]	= "PAGE:done"
 .module		= core/out/page
 
 
-; vim:encoding=utf-8:filetype=dosini:
+; vim:filetype=dosini:
 
