@@ -55,6 +55,14 @@ class M_core__ini__router extends Module {
 		}
 		$path = explode('/', rtrim($uri_path, '/'));
 
+		// default args
+		if (array_key_exists('#', $conf)) {
+			$defaults = $conf['#'];
+			unset($conf['#']);
+		} else {
+			$defaults = array();
+		}
+
 		// match rules one by one
 		foreach($conf as $mask => $args) {
 			$m = explode('/', rtrim($mask, '/'));
@@ -88,16 +96,16 @@ class M_core__ini__router extends Module {
 
 			// match found
 			debug_msg("Matched rule [%s]", $mask);
-			$this->out_all($args);
+			$this->out_all(array_merge($defaults, $args));
 			$this->out('done', true);
-			$this->out('no-match', false);
+			$this->out('no_match', false);
 			return;
 		}
 
 		// no match
 		debug_msg("No rule matched!");
 		$this->out('done', false);
-		$this->out('no-match', true);
+		$this->out('no_match', true);
 	}
 }
 
