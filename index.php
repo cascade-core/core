@@ -159,6 +159,7 @@ if (!empty($core_cfg['debug']['add_pipeline_graph'])) {
 	$template->add_object('_pipeline_graph', 'root', 95, 'core/pipeline_graph', array(
 			'pipeline' => $pipeline,
 			'dot_name' => 'data/graphviz/pipeline-%s.%s',
+			'link_only' => ($core_cfg['debug']['add_pipeline_graph'] == 'link'),
 		));
 }
 

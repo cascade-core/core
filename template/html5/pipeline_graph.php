@@ -52,15 +52,21 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 		$pipeline->exec_dot($dot, 'png', $png_file);
 	}
 
-	echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
-		"\t<hr>\n",
-		"\t<h2>Pipeline</h2>\n",
-		"\t<div><small>[ ",
-			"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
-			" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
-			" ]</small></div>\n",
-		"\t<img src=\"", htmlspecialchars('/'.$png_file), "\" />\n",
-		"</div>\n";
-	//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
+	if ($d['link_only']) {
+		echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_link\">",
+			"<a target=\"_blank\" href=\"", htmlspecialchars('/'.$png_file), "\">Pipeline graph</a>",
+			"</div>\n";
+	} else {
+		echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
+			"\t<hr>\n",
+			"\t<h2>Pipeline</h2>\n",
+			"\t<div><small>[ ",
+				"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
+				" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
+				" ]</small></div>\n",
+			"\t<img src=\"", htmlspecialchars('/'.$png_file), "\" />\n",
+			"</div>\n";
+		//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
+	}
 }
 
