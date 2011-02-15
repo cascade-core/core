@@ -121,6 +121,12 @@ if (isset($core_cfg['template']['engine-class'])) {
 	$template = new Template();
 }
 
+/* fix $_GET from lighttpd */
+if (!empty($core_cfg['core']['fix_lighttpd_get']) && strstr($_SERVER['REQUEST_URI'],'?')) {
+	$_SERVER['QUERY_STRING'] = preg_replace('#^.*?\?#','',$_SERVER['REQUEST_URI']);
+	parse_str($_SERVER['QUERY_STRING'], $_GET);
+}
+
 /* set default output type */
 if (isset($core_cfg['output']['default_type'])) {
 	$template->slot_option_set('root', 'type', $core_cfg['output']['default_type']);

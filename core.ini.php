@@ -29,6 +29,7 @@ ignore_repeated_errors	= true
 default_locale		= "cs_CZ"
 ;context_class		= Context
 ;app_init_file		= app/init.php
+;fix_lighttpd_get	= true
 
 ; debug tools
 [debug]
