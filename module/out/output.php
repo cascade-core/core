@@ -31,15 +31,25 @@
 class M_core__out__output extends Module {
 
 	protected $inputs = array(
-		'template' => array(),
-		'data' => null,
+		'template' => array(),	// template to use
+		'data' => false,	// if false, all inputs are forwarded, otherwise only content of this one
+		'*' => null,		// all inputs are forwarded to template if input 'data' is false
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
 
 	function main()
 	{
-		$this->template_add(null, $this->in('template'), $this->in('data'));
+		$data = $this->in('data');
+
+		if ($data === false) {
+			$data = array();
+			foreach ($this->input_names() as $i) {
+				$data[$i] = $this->in($i);
+			}
+		}
+
+		$this->template_add(null, $this->in('template'), $data);
 	}
 
 }
