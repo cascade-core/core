@@ -44,7 +44,7 @@ class M_core__in__post extends Module {
 
 	public function get_output($name)
 	{
-		return @$_POST[strtoupper($name)];
+		return @$_POST[$name];
 	}
 }
 
