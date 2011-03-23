@@ -124,8 +124,8 @@ class M_core__out__message extends Module {
 
 			/* redirect if success */
 			if ($type == 'success' && $this->in('allow-redirect')) {
-				$redirect_url = (string) $this->in('redirect-url');
-				if ($redirect_url) {
+				$redirect_url = vsprintf($this->in('redirect-url'), $in_vals);
+				if ($redirect_url != '') {
 					$this->template_option_set('root', 'redirect_url', $redirect_url);
 					$_SESSION['message_queue'][] = $msg_data;
 				}
