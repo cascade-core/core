@@ -28,15 +28,17 @@
  * SUCH DAMAGE.
  */
 
-class M_core__ini__router extends Module {
+class M_core__ini__router_links extends Module {
 
 	protected $inputs = array(
 		'path' => null,
 		'config' => array(),
+		'title_output' => 'title',
 	);
 
 	protected $outputs = array(
-		'*' => true,
+		'links' => true,
+		'done' => true,
 	);
 
 
@@ -48,12 +50,8 @@ class M_core__ini__router extends Module {
 			return;
 		}
 
-		// get current path
-		$uri_path = $this->in('path');
-		if ($uri_path == null) {
-			$uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-		}
-		$path = explode('/', rtrim($uri_path, '/'));
+		$links = array();
+		$title_key = $this->in('title_output');
 
 		// default args
 		if (array_key_exists('#', $conf)) {
@@ -63,51 +61,28 @@ class M_core__ini__router extends Module {
 			$defaults = array();
 		}
 
-		// match rules one by one
-		foreach($conf as $mask => $args) {
-			$m = explode('/', rtrim($mask, '/'));
-			$last = end($m);
-
-			// check length (quickly drop wrong path)
-			if ($last != '**' ? count($m) != count($path) : count($m) - 1 > count($path)) {
-				continue;
-			}
-
-			// compare fragments
-			for ($i = 0; $i < count($m); $i++) {
-				if (@$m[$i][0] == '$') {
-					// variable - match anything
-					$a = substr($m[$i], 1);
-					$args[$a] = $path[$i];
-				} else if ($i == count($m) - 1 && $m[$i] == '**') {
-					// last part is '**' -- copy tail and finish
-					$args['path_tail'] = array_slice($path, $i);
-					$i = count($m);
-					break;
-				} else if ($m[$i] != $path[$i]) {
-					// fail
-					break;
+		// build list
+		foreach ($conf as $link => $outputs) {
+			if (strstr($link, '/$') == FALSE && preg_match('/\/\*\*$/', $link) == FALSE) {
+				if (array_key_exists($title_key, $outputs)) {
+					$title = $outputs[$title_key];
+				} else {
+					$title = @ $defaults[$title_key];
 				}
+				if ($title == '') {
+					$title = $link;
+				}
+				$links[] = array(
+					'link' => $link,
+					'title' => $title,
+				);
 			}
-			if ($i < count($m)) {
-				// match failed
-				continue;
-			}
-
-			// match found
-			debug_msg("Matched rule [%s]", $mask);
-			$this->out_all(array_merge($defaults, $args));
-			$this->out('done', true);
-			$this->out('path', $uri_path);
-			$this->out('no_match', false);
-			return;
 		}
 
-		// no match
-		debug_msg("No rule matched!");
-		$this->out('done', false);
-		$this->out('path', $uri_path);
-		$this->out('no_match', true);
+		sort($links);
+
+		$this->out('links', $links);
+		$this->out('done', true);
 	}
 }
 
