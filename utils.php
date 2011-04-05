@@ -38,7 +38,7 @@ function first_msg()
 	$_utils_php__first_msg = false;
 	debug_msg('New client from %s:%d at %s, requesting "%s"',
 			$_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'],
-			strftime('%F %T', $_SERVER['REQUEST_TIME']),
+			strftime('%Y-%m-%d %H:%M:%S', $_SERVER['REQUEST_TIME']),
 			$_SERVER['REQUEST_URI']);
 }
 
