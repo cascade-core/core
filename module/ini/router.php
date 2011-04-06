@@ -33,6 +33,7 @@ class M_core__ini__router extends Module {
 	protected $inputs = array(
 		'path' => null,
 		'config' => array(),
+		'canonize_path' => true,
 	);
 
 	protected $outputs = array(
@@ -52,8 +53,25 @@ class M_core__ini__router extends Module {
 		$uri_path = $this->in('path');
 		if ($uri_path == null) {
 			$uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+			$orig_uri_path = $uri_path;
+		} else {
+			$orig_uri_path = false;
 		}
-		$path = explode('/', rtrim($uri_path, '/'));
+
+		// normalize current path
+		if ($uri_path != '/') {
+			$uri_path = rtrim($uri_path, '/');
+		}
+		$uri_path = preg_replace('/\/+/', '/', $uri_path);
+
+		// if normalized does not match original, redirect and do not set outputs
+		if ($this->in('canonize_path') && $orig_uri_path !== $uri_path && $_SERVER['REQUEST_METHOD'] == 'GET') {
+			$this->template_option_set('root', 'redirect_url', $uri_path);
+			$this->out('done', false);
+			return;
+		}
+
+		$path = explode('/', $uri_path);
 
 		// default args
 		if (array_key_exists('#', $conf)) {
