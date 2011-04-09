@@ -58,11 +58,13 @@ class M_core__ini__router extends Module {
 			$orig_uri_path = false;
 		}
 
-		// normalize current path
-		if ($uri_path != '/') {
-			$uri_path = rtrim($uri_path, '/');
-		}
+		// normalize current path and get fragments
+		$uri_path = rtrim($uri_path, '/');
 		$uri_path = preg_replace('/\/+/', '/', $uri_path);
+		$path = explode('/', $uri_path);
+		if ($uri_path == '') {
+			$uri_path = '/';
+		}
 
 		// if normalized does not match original, redirect and do not set outputs
 		if ($this->in('canonize_path') && $orig_uri_path !== $uri_path && $_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -70,8 +72,6 @@ class M_core__ini__router extends Module {
 			$this->out('done', false);
 			return;
 		}
-
-		$path = explode('/', $uri_path);
 
 		// default args
 		if (array_key_exists('#', $conf)) {
