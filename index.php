@@ -135,6 +135,11 @@ if (isset($core_cfg['output']['default_type'])) {
 /* Start session */
 session_start();
 
+/* Call app's init file */
+if (!empty($core_cfg['core']['app_init_file'])) {
+	require(DIR_ROOT.$core_cfg['core']['app_init_file']);
+}
+
 /* Initialize default context */
 $context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
 $default_context = new $context_class();
@@ -147,11 +152,6 @@ $pipeline->set_replacement_table(@$core_cfg['module-map']);
 
 /* Prepare starting modules */
 $pipeline->add_modules_from_ini(null, $core_cfg, $default_context);
-
-/* Call app's init file */
-if (!empty($core_cfg['core']['app_init_file'])) {
-	require(DIR_ROOT.$core_cfg['core']['app_init_file']);
-}
 
 /* Execute pipeline */
 $pipeline->start();

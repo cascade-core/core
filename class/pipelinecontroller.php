@@ -91,6 +91,12 @@ class PipelineController {
 			return false;
 		}
 
+		/* check permissions */
+		if (!$context->is_allowed($module)) {
+			error_msg('Permission denied to module %s.', $module);
+			return false;
+		}
+
 		/* check malformed IDs */
 		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
 			error_msg('Invalid module ID: %s', $id);

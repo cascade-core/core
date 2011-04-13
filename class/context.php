@@ -79,6 +79,13 @@ class Context {
 	public function get_template_engine() {
 		return $this->template_engine;
 	}
+
+
+	/* Security: check if module is allowed before pipeline controller loads it */
+	public function is_allowed($module_name)
+	{
+		return true;
+	}
 }
 
 
