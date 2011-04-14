@@ -72,14 +72,19 @@ class M_core__ini__router_links extends Module {
 				if ($title == '') {
 					$title = $link;
 				}
-				$links[] = array(
-					'link' => $link,
-					'title' => $title,
-				);
+
+				$parent = & $links;
+				$link_parts = explode('/', $link);
+				$parent_parts = array_slice($link_parts, 1, -1);
+				$this_part = end($link_parts);
+				foreach($parent_parts as $part) {
+					$parent = & $parent[$part]['children'];
+				}
+
+				$parent[$this_part]['link']  = $link;
+				$parent[$this_part]['title'] = $title;
 			}
 		}
-
-		sort($links);
 
 		$this->out('links', $links);
 		$this->out('done', true);
