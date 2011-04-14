@@ -97,7 +97,7 @@ class tpl_html5__core__table__text {
 
 	function fmt_value($row_data)
 	{
-		$value = & $row_data[$this->opts['key']];
+		$value = $row_data[$this->opts['key']];
 		$fmt = @$this->opts['format'];
 
 		if ($value === null) {
