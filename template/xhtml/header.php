@@ -43,9 +43,15 @@ function TPL_xhtml__core__header($t, $id, $d, $so)
 
 	$tag = 'h'.$level;
 
-	echo "<$tag id=\"", htmlspecialchars($id), "\">",
-		htmlspecialchars($str),
-		"</$tag>\n";
+	echo "<$tag id=\"", htmlspecialchars($id), "\">";
+	if ($anchor != '') {
+		echo	'<a name="', htmlspecialchars($anchor), '">',
+			htmlspecialchars($str),
+			'</a>';
+	} else {
+		echo htmlspecialchars($str);
+	}
+	echo "</$tag>\n";
 }
 
 
