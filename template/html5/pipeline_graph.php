@@ -53,7 +53,14 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 	}
 
 
-	switch ($d['style']) {
+	// autodetect graph style
+	if ((int) $d['style'] === 1) {
+		$style = class_exists('NDebug') ? 'nette' : 'image';
+	} else {
+		$style = $d['style'];
+	}
+
+	switch ($style) {
 		case false:
 			// no link
 			break;
