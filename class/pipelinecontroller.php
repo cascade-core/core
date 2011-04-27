@@ -70,7 +70,7 @@ class PipelineController {
 
 	public function resolve_module_name($mod_name)
 	{
-		if (($m = $this->root_namespace[$mod_name])) {
+		if (($m = @$this->root_namespace[$mod_name])) {
 			return $m;
 		} else {
 			error_msg('Module "%s" not found in root namespace!', $mod_name);
