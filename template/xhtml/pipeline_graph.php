@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2010, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-function TPL_xhtml__core__pipeline_graph($t, $id, $d, $so)
+function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 {
 	extract($d);
 
@@ -52,17 +52,66 @@ function TPL_xhtml__core__pipeline_graph($t, $id, $d, $so)
 		$pipeline->exec_dot($dot, 'png', $png_file);
 	}
 
-	echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
-		"\t<hr />\n",
-		"\t<h2>Pipeline</h2>\n",
-		"\t<div><small>[ ",
-			"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
-			" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
-			" ]</small></div>\n",
-		"\t<img src=\"", htmlspecialchars('/'.$png_file), "\" />\n",
-		"</div>\n";
-	//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
-}
 
-// vim:encoding=utf8:
+	// autodetect graph style
+	if ((int) $d['style'] === 1) {
+		$style = class_exists('NDebug') ? 'nette' : 'image';
+	} else {
+		$style = $d['style'];
+	}
+
+	switch ($style) {
+		case false:
+			// no link
+			break;
+
+		case 'link':
+			echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_link\">",
+				"<a target=\"_blank\" href=\"", htmlspecialchars('/'.$png_file), "\">Pipeline graph</a>",
+				"</div>\n";
+			break;
+
+		default:
+		case 'image':
+			echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
+				"\t<hr/>\n",
+				"\t<h2>Pipeline</h2>\n",
+				"\t<div><small>[ ",
+					"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
+					" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
+					" ]</small></div>\n",
+				"\t<img src=\"", htmlspecialchars('/'.$png_file), "\" />\n",
+				"</div>\n";
+			//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
+			break;
+
+		case 'nette':
+			class PipelineGraphPanelWidget implements IDebugPanel
+			{
+				var $id;
+				var $png_file;
+
+				function __construct($id, $png_file)
+				{
+					$this->id = $id;
+					$this->png_file = $png_file;
+				}
+
+				function getTab() {
+					return '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAABGdBTUEAALGPC/xhBQAAAAxQTFRFAAAAREREzP+q////JSI+0AAAAAF0Uk5TAEDm2GYAAAABYktHRACIBR1IAAAAN0lEQVQI12MIDWBgYMiaACPqrzoAiQtAIjTAMRQoELoSSDCCib8g7l+IRNYEBwYIAdUBkgMaBQDJKhInhoRorQAAAABJRU5ErkJggg==" alt="" /> Pipeline';
+				}
+
+				function getPanel() {
+					return '<h1>Pipeline Graph</h1><div class="nette-inner"><img src="'.htmlspecialchars('/'.$this->png_file).'"></div>';
+				}
+
+				function getId() {
+					return $this->id;
+				}
+			}
+			$plgpw = new PipelineGraphPanelWidget($id, $png_file);
+			NDebug::addPanel($plgpw);
+			break;
+	}
+}
 
