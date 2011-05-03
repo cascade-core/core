@@ -42,7 +42,10 @@ define('FILE_APP_CONFIG',	  DIR_APP.'core.ini.php');
 define('DIR_APP_CLASS', 	  DIR_APP.'class/');
 define('DIR_APP_MODULE',	  DIR_APP.'module/');
 define('DIR_APP_TEMPLATE',	  DIR_APP.'template/');
+define('FILE_DEVEL_CONFIG',	DIR_ROOT.'core.devel.ini.php');
 
+/* Check if this is development environment */
+define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
 
 require(DIR_CORE.'utils.php');
 
@@ -74,6 +77,11 @@ if (is_readable(FILE_APP_CONFIG)) {
 	$core_cfg = parse_ini_file(FILE_APP_CONFIG, true);
 } else {
 	$core_cfg = parse_ini_file(FILE_CORE_CONFIG, true);
+}
+
+/* Load debugging overrides */
+if (DEVELOPMENT_ENVIRONMENT && is_readable(FILE_DEVEL_CONFIG) && function_exists('array_replace_recursive')) {
+	$core_cfg = array_replace_recursive($core_cfg, parse_ini_file(FILE_DEVEL_CONFIG, true));
 }
 
 /* Load php.ini options */
