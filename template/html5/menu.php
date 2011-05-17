@@ -53,7 +53,8 @@ function tpl_html5__core__menu__label($id, $item)
 {
 	$label = isset($item['label']) ? $item['label'] : @$item['title'];
 	if (isset($item['link'])) {
-		echo "<a href=\"", htmlspecialchars($item['link']), "\">", htmlspecialchars($label), "</a>";
+		echo "<a href=\"", str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($item['link'])),
+				"\">", htmlspecialchars($label), "</a>";
 	} else {
 		echo "<span>", htmlspecialchars($label), "</span>";
 	}

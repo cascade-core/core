@@ -113,7 +113,7 @@ class tpl_html5__core__table__text {
 			foreach ($this->opts['link_arg'] as $a) {
 				$args[] = $row_data[$a];
 			}
-			$a = '<a href="'.vsprintf($this->opts['link'], $args).'">';
+			$a = '<a href="'.str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars(vsprintf($this->opts['link'], $args))).'">';
 			$_a = '</a>';
 		} else {
 			$a = '';
