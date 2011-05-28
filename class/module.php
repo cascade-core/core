@@ -201,14 +201,18 @@ abstract class Module {
 				@list($mod_name, $mod_out) = $out;
 
 				// connect to output
-				if (!($m = $this->pc_resolve_module_name($mod_name))) {
-					error_msg('Can\'t connect inputs -- module "%s" not found!', $mod_name);
+				if ($mod_name === null || $mod_out === null) {
+					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of module "%s" is not defined!',
+							$this->module_name(), $in, $this->id());
+					$this->status = self::FAILED;
+				} else if (!($m = $this->pc_resolve_module_name($mod_name))) {
+					error_msg('%s: Can\'t connect inputs -- module "%s" not found!', $this->module_name(), $mod_name);
 					$this->status = self::FAILED;
 				} else if (isset($m->outputs[$mod_out]) || isset($m->outputs['*'])) {
 					$dependencies[$m->full_id()] = $m;
 					$out[0] = $m;
 				} else {
-					error_msg('Can\'t connect input "%s.%s" to "%s.%s" !',
+					error_msg('Can\'t connect input "%s:%s" to "%s:%s" !',
 							$this->id, $in, $mod_name, $mod_out);
 					$this->status = self::FAILED;
 				}
