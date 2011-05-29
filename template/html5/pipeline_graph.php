@@ -43,6 +43,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
 	$png_file = sprintf($dot_name, $hash, 'png');
+	debug_msg('Pipeline graph file: %s', $png_file);
 
 	$dot_mtime = @filemtime($dot_file);
 	$png_mtime = @filemtime($png_file);
