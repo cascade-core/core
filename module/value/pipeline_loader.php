@@ -28,29 +28,34 @@
  * SUCH DAMAGE.
  */
 
-class M_core__value__pipeline_multi_loader extends Module {
+class M_core__value__pipeline_loader extends Module {
 
 	protected $inputs = array(
-		'list' => array(),		// array of names
-		'name' => null,			// format string for sprintf(name, list[i])
+		'*' => null,
 	);
 
 	protected $outputs = array(
-		'*' => true,
 		'done' => true,
 	);
 
 
 	public function main()
 	{
-		$name = $this->in('name');
-
-		foreach ((array) $this->in('list') as $i) {
-			$mod = $name !== null ? sprintf($name, $i) : $i;
-			$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i);
-			$this->pipeline_add($id, $mod, true, array(
-					'enable' => array('parent', 'done'),
-				));
+		foreach ((array) $this->input_names() as $i) {
+			$mod = $this->in($i);
+			if (is_array($mod)) {
+				foreach ($mod as $m => $mod2) {
+					$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i.'_'.$m);
+					$this->pipeline_add($id, $mod2, true, array(
+							'enable' => array('parent', 'done'),
+						));
+				}
+			} else if ($mod) {
+				$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i);
+				$this->pipeline_add($id, $mod, true, array(
+						'enable' => array('parent', 'done'),
+					));
+			}
 		}
 		$this->out('done', true);
 	}
