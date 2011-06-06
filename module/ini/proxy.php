@@ -57,6 +57,17 @@ class M_core__ini__proxy extends Module {
 			}
 		}
 
+		if (isset($conf['outputs'])) {
+			foreach ($conf['outputs'] as $out => $src) {
+				if (is_array($src)) {
+					list($src_mod, $src_out) = explode(':', $src[0]);
+					$this->out_forward($out, $src_mod, $src_out);
+				} else {
+					$this->out($out, $src);
+				}
+			}
+		}
+
 		if (isset($conf['forward-outputs'])) {
 			foreach ($conf['forward-outputs'] as $out => $src) {
 				list($src_mod, $src_out) = explode(':', $src);
