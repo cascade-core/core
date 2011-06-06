@@ -45,8 +45,11 @@ function TPL_html5__core__header($t, $id, $d, $so)
 
 	echo "<$tag id=\"", htmlspecialchars($id), "\">";
 
-	if ($anchor != '') {
-		echo	'<a name="', htmlspecialchars($anchor), '">',
+	if ($anchor != '' || $link != '') {
+		echo	'<a',
+				$anchor != '' ? ' name="'.htmlspecialchars($anchor).'"' : '',
+				$link != '' ? ' href="'.htmlspecialchars($link).'"' : '',
+			'>',
 			htmlspecialchars($str),
 			'</a>';
 	} else {

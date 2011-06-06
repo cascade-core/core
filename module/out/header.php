@@ -33,6 +33,7 @@ class M_core__out__header extends Module {
 	protected $inputs = array(
 		'level' => 2,
 		'text' => null,
+		'link' => null,
 		'anchor' => null,
 		'option' => null,
 		'slot' => 'default',
@@ -47,6 +48,7 @@ class M_core__out__header extends Module {
 		$this->template_add(null, 'core/header', array(
 				'option' => $this->in('option'),
 				'text' => $this->in('text'),
+				'link' => $this->in('link'),
 				'anchor' => $this->in('anchor'),
 				'level' => $this->in('level'),
 			));
