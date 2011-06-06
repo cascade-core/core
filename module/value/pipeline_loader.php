@@ -35,7 +35,7 @@ class M_core__value__pipeline_loader extends Module {
 	);
 
 	protected $outputs = array(
-		'done' => true,
+		'*' => true,
 	);
 
 
@@ -49,12 +49,14 @@ class M_core__value__pipeline_loader extends Module {
 					$this->pipeline_add($id, $mod2, true, array(
 							'enable' => array('parent', 'done'),
 						));
+					$this->out_forward($id, $id, 'done');
 				}
 			} else if ($mod) {
 				$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i);
 				$this->pipeline_add($id, $mod, true, array(
 						'enable' => array('parent', 'done'),
 					));
+				$this->out_forward($id, $id, 'done');
 			}
 		}
 		$this->out('done', true);
