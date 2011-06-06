@@ -61,6 +61,9 @@ class M_core__out__message extends Module {
 		'redirect-url' => null,
 		'allow-redirect' => true,
 
+		// http-status
+		'http-status' => null,
+
 		'hide' => false,
 
 		'slot' => 'default',
@@ -110,6 +113,16 @@ class M_core__out__message extends Module {
 		}
 		if (!empty($in_vals)) {
 			$text = vsprintf($text, $in_vals);
+		}
+
+		/* http status */
+		$http_status_code = (int) $this->in('http-status-code');
+		if ($http_status_code) {
+			$this->template_option_set('root', 'http_status_code', $http_status_code);
+			$http_status_message = $this->in('http_status_message');
+			if ($http_status_message) {
+				$this->template_option_set('root', 'http_status_message', $http_status_message);
+			}
 		}
 
 		/* show message */
