@@ -398,8 +398,8 @@ class PipelineController {
 					$src_mod = $resolved;
 				}
 				$src_mod_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
-				$gv .= "\tm_".get_ident($src_mod_id).":o_".get_ident($src_out).":e -> m_".get_ident($id).":o_".get_ident($name).':e'
-					."[color=royalblue,arrowhead=dot,weight=0];\n";
+				$gv .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_mod_id).":o_".get_ident($src_out).":e"
+					."[color=royalblue,arrowhead=dot,arrowtail=none,dir=both,weight=0];\n";
 			}
 
 			$gv .= "\n";
