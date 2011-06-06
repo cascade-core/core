@@ -46,7 +46,12 @@ class M_core__devel__profiler_stats extends Module {
 
 	public function main()
 	{
-		$stats = unserialize(gzuncompress(file_get_contents($this->in('filename'))));
+		$data = file_get_contents($this->in('filename'));
+		if ($data === FALSE) {
+			return;
+		}
+
+		$stats = unserialize(gzuncompress($data));
 		$this->pipeline_stats = $stats;
 		$this->modules_stats = & $this->pipeline_stats['modules'];
 		arsort($this->modules_stats);
@@ -88,6 +93,8 @@ class M_core__devel__profiler_stats extends Module {
 		$table->set_data_iterator_function($this, 'next_stat');
 	
 		$this->template_add(null, 'core/table', $table);
+
+		$this->out('done', true);
 	}
 
 
