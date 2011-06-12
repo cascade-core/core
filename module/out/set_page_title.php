@@ -32,6 +32,7 @@ class M_core__out__set_page_title extends Module {
 
 	protected $inputs = array(
 		'title' => null,
+		'title-fallback' => null,
 		'format' => null,
 	);
 
@@ -42,6 +43,10 @@ class M_core__out__set_page_title extends Module {
 	{
 		$t = $this->in('title');
 		$fmt = $this->in('format');
+
+		if ($t == '') {
+			$t = $this->in('title-fallback');
+		}
 
 		$this->template_set_page_title($t, $fmt);
 	}
