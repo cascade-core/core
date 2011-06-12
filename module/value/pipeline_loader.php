@@ -32,6 +32,7 @@ class M_core__value__pipeline_loader extends Module {
 
 	protected $inputs = array(
 		'*' => null,
+		'output-forward' => 'done',
 	);
 
 	protected $outputs = array(
@@ -41,22 +42,25 @@ class M_core__value__pipeline_loader extends Module {
 
 	public function main()
 	{
+		$output_forward = $this->in('output-forward');
+		if (!is_array($output_forward)) {
+			$output_forward = preg_split('/[^a-zA-Z0-9_-]+/', $output_forward, -1, PREG_SPLIT_NO_EMPTY);
+		}
+
 		foreach ((array) $this->input_names() as $i) {
+			if ($i == 'output-forward') {
+				continue;
+			}
+
 			$mod = $this->in($i);
-			if (is_array($mod)) {
-				foreach ($mod as $m => $mod2) {
-					$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i.'_'.$m);
-					$this->pipeline_add($id, $mod2, true, array(
-							'enable' => array('parent', 'done'),
-						));
-					$this->out_forward($id, $id, 'done');
-				}
-			} else if ($mod) {
-				$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i);
-				$this->pipeline_add($id, $mod, true, array(
+			foreach ((array) $mod as $m => $mod2) {
+				$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i.'_'.$m);
+				$this->pipeline_add($id, $mod2, true, array(
 						'enable' => array('parent', 'done'),
 					));
-				$this->out_forward($id, $id, 'done');
+				foreach ($output_forward as $out) {
+					$this->out_forward($id.'_'.$out, $id, $out);
+				}
 			}
 		}
 		$this->out('done', true);
