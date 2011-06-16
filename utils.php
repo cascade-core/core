@@ -130,5 +130,124 @@ function format_bytes($bytes)
 }
 
 
-// vim:encoding=utf8:
+function template_format($template, array $values, $escaping_function = htmlspecialchars)
+{
+	$available_functions = array(
+		'sprintf' => sprintf,
+		'strftime' => strftime,
+		'date' => strftime,
+		'time' => strftime,
+	);
+
+	$tokens = preg_split('/({)'
+				.'([a-zA-Z0-9_.-]+)'				// symbol name
+				.'(?:'
+					.'([:%])([a-zA-Z0-9_}]*)'		// function name
+					."(?:([:])((?:[^}\\\\]|\\\\.)*))?"	// format string
+				.')?'
+				.'(})/',
+			$template, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+
+	$status = 0;		// Current status of parser
+	$append = 0;		// Append value to result after token is processed ?
+	$result = array();
+
+	foreach($tokens as $token) {
+		switch ($status) {
+			// text around
+			case 0:
+				if ($token === '{') {
+					$status = 10;
+					$function = null;
+					$fmt = null;
+				} else {
+					$result[] = $token;
+				}
+				break;
+
+			// first part
+			case 10:
+				$key = $token;
+				$status = 20;
+				break;
+
+			// first separator
+			case 20:
+				if ($token === '}') {
+					// end
+					$append = true;
+					$status = 0;
+				} else if ($token === '%') {
+					$function = sprintf;
+					$status = 51;
+				} else if ($token === ':') {
+					$status = 30;
+				} else {
+					return FALSE;
+				}
+				break;
+
+			// format function
+			case 30:
+				if (array_key_exists($token, $available_functions)) {
+					$function = $available_functions[$token];
+				} else {
+					$function = null;
+				}
+				$status = 40;
+				break;
+
+			// second separator
+			case 40:
+				if ($token === ':') {
+					$status = 50;
+				} else if ($token === '}') {
+					$append = true;
+					$status = 0;
+				} else {
+					return FALSE;
+				}
+				break;
+
+			// format string
+			case 50:
+				$fmt = preg_replace("/\\\\(.)/", "\\1", $token);
+				$status = 90;
+				break;
+
+			// format string, prepend %
+			case 51:
+				$fmt = '%'.str_replace(array('\\\\', '\:', '\}'), array('\\', ':', '}'), $token);
+				$status = 90;
+				break;
+
+			// end
+			case 90:
+				if ($token === '}') {
+					$append = true;
+					$status = 0;
+				} else {
+					return FALSE;
+				}
+				break;
+		}
+
+		if ($append) {
+			$append = false;
+			if (!array_key_exists($key, $values)) {
+				$v = '{?'.$key.'?}';
+			} else if ($function !== null) {
+				$v = $function($fmt, $values[$key]);
+			} else {
+				$v = $values[$key];
+			}
+			if ($escaping_function) {
+				$result[] = $escaping_function($v);
+			} else {
+				$result[] = $v;
+			}
+		}
+	}
+	return join('', $result);
+}
 
