@@ -379,7 +379,7 @@ abstract class Module {
 			$ref = & $this->inputs['*'];
 		} else {
 			// or fail
-			error_msg('Input "%s" is not defined!', $name);
+			error_msg('%s: Input "%s" is not defined!', $this->module_name(), $name);
 			return null;
 		}
 
@@ -424,7 +424,11 @@ abstract class Module {
 	// set value to output
 	final protected function out($name, $value)
 	{
-		$this->output_cache[$name] = & $value;
+		if (array_key_exists($name, $this->outputs) || array_key_exists('*', $this->outputs)) {
+			$this->output_cache[$name] = & $value;
+		} else {
+			error_msg('%s: Output "%s" does not exist!', $this->module_name(), $name);
+		}
 	}
 
 
