@@ -38,21 +38,43 @@ class M_core__out__output extends Module {
 		'slot-weight' => 50,
 	);
 
+	protected $outputs = array(
+	);
+
+	protected $template = null;	// Used instead of template input
+
+
 	function main()
 	{
-		$data = $this->in('data');
+		if ($this->template === null) {
 
-		if ($data === false) {
+			// Template is not set, use 'template' and 'data'
+			// inputs. If 'data' input is false, forward everything
+			// to template.
+
+			$data = $this->in('data');
+			if ($data === false) {
+				$data = array();
+				foreach ($this->input_names() as $i) {
+					$data[$i] = $this->in($i);
+				}
+			}
+
+			$this->template_add(null, $this->in('template'), $data);
+
+		} else {
+
+			// Template is set, ignore 'template' and 'data' inputs
+			// and forward everything to template.
+
 			$data = array();
 			foreach ($this->input_names() as $i) {
 				$data[$i] = $this->in($i);
 			}
+
+			$this->template_add(null, $this->template, $data);
+
 		}
-
-		$this->template_add(null, $this->in('template'), $data);
 	}
-
 }
-
-// vim:encoding=utf8:
 
