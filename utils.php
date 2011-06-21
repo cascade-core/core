@@ -130,13 +130,13 @@ function format_bytes($bytes)
 }
 
 
-function template_format($template, array $values, $escaping_function = htmlspecialchars)
+function template_format($template, array $values, $escaping_function = 'htmlspecialchars')
 {
 	$available_functions = array(
-		'sprintf' => sprintf,
-		'strftime' => strftime,
-		'date' => strftime,
-		'time' => strftime,
+		'sprintf'	=> 'sprintf',
+		'strftime'	=> 'strftime',
+		'date'		=> 'strftime',
+		'time'		=> 'strftime',
 	);
 
 	$tokens = preg_split('/({)'
