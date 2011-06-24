@@ -41,12 +41,12 @@
  *	.module		= core/ini/router
  *	config		= app/routes.ini.php
  *
- *	[module:doc]
+ *	[module:doc_index]
  *	.module		= "core/devel/doc/index"
  *	.force-exec	= true
  *	enable[]	= "router:index"
  *
- *	[module:doc]
+ *	[module:doc_show]
  *	.module		= "core/devel/doc/show"
  *	.force-exec	= true
  *	module[]	= "router:path_tail"

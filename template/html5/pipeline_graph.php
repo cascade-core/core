@@ -38,19 +38,25 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 		@mkdir(dirname($dot_name));
 	}
 
-	$dot = $pipeline->export_graphviz_dot();
+	$dot = $pipeline->export_graphviz_dot($link);
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
 	$png_file = sprintf($dot_name, $hash, 'png');
+	$map_file = sprintf($dot_name, $hash, 'map');
 	debug_msg('Pipeline graph file: %s', $png_file);
 
 	$dot_mtime = @filemtime($dot_file);
 	$png_mtime = @filemtime($png_file);
+	$map_mtime = @filemtime($png_file);
 
-	if (!$dot_mtime || !$png_mtime || $dot_mtime > $png_mtime || $png_mtime <= filemtime(__FILE__)) {
+	if (!$dot_mtime || !$png_mtime || !$map_mtime
+			|| $dot_mtime > $png_mtime || $dot_mtime > $map_mtime
+			|| $png_mtime <= filemtime(__FILE__) || $map_mtime <= filemtime(__FILE__))
+	{
 		file_put_contents($dot_file, $dot);
 		$pipeline->exec_dot($dot, 'png', $png_file);
+		$pipeline->exec_dot($dot, 'cmapx', $map_file);
 	}
 
 
@@ -81,7 +87,10 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 					"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
 					" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
 					" ]</small></div>\n",
-				"\t<img src=\"", htmlspecialchars('/'.$png_file), "\" />\n",
+				str_replace(array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""'),
+					array('<map id="pipeline_graph_map" name="pipeline_graph_map">', ''),
+					file_get_contents(DIR_ROOT.$map_file)),
+				'<img src="', htmlspecialchars('/'.$png_file), '" usemap="pipeline_graph_map">',
 				"</div>\n";
 			//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
 			break;
@@ -91,11 +100,13 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 			{
 				var $id;
 				var $png_file;
+				var $map_file;
 
-				function __construct($id, $png_file)
+				function __construct($id, $png_file, $map_file)
 				{
 					$this->id = $id;
 					$this->png_file = $png_file;
+					$this->map_file = $map_file;
 				}
 
 				function getTab() {
@@ -103,14 +114,19 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 				}
 
 				function getPanel() {
-					return '<h1>Pipeline Graph</h1><div class="nette-inner"><img src="'.htmlspecialchars('/'.$this->png_file).'"></div>';
+					return '<h1>Pipeline Graph</h1><div class="nette-inner">'
+							.str_replace(array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""'),
+								array('<map id="pipeline_graph_map" name="pipeline_graph_map">', ''),
+								file_get_contents(DIR_ROOT.$this->map_file))
+							.'<img src="'.htmlspecialchars('/'.$this->png_file).'" usemap="pipeline_graph_map">'
+							.'</div>';
 				}
 
 				function getId() {
 					return $this->id;
 				}
 			}
-			$plgpw = new PipelineGraphPanelWidget($id, $png_file);
+			$plgpw = new PipelineGraphPanelWidget($id, $png_file, $map_file);
 			NDebug::addPanel($plgpw);
 			break;
 	}

@@ -180,6 +180,7 @@ if (!empty($core_cfg['debug']['add_pipeline_graph'])) {
 			'pipeline' => $pipeline,
 			'dot_name' => 'data/graphviz/pipeline-%s.%s',
 			'style' => @$core_cfg['debug']['add_pipeline_graph'],
+			'link' => @$core_cfg['debug']['pipeline_graph_link'],
 		));
 }
 

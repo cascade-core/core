@@ -252,7 +252,7 @@ class PipelineController {
 	}
 
 
-	public function export_graphviz_dot()
+	public function export_graphviz_dot($doc_link)
 	{
 		$colors = array(
 			Module::QUEUED   => '#eeeeee',	// grey
@@ -274,7 +274,7 @@ class PipelineController {
 			."	subgraph [ shape=none, color=blueviolet, fontcolor=blueviolet, fontsize=9, fontname=\"sans\" ];\n"
 			."\n";
 
-		list($clusters, $specs) = $this->export_graphviz_dot_namespace($this->root_namespace, $colors);
+		list($clusters, $specs) = $this->export_graphviz_dot_namespace($this->root_namespace, $colors, $doc_link);
 		$gv .= $clusters;
 		$gv .= $specs;
 		$gv .= "}\n";
@@ -282,7 +282,7 @@ class PipelineController {
 		return $gv;
 	}
 
-	private function export_graphviz_dot_namespace($namespace, $colors, $indent = "\t")
+	private function export_graphviz_dot_namespace($namespace, $colors, $doc_link, $indent = "\t")
 	{
 		$missing_modules = array();
 		$gv = '';
@@ -299,7 +299,8 @@ class PipelineController {
 
 			/* add module header */
 			$subgraph .= $indent."m_".get_ident($id).";\n";
-			$gv .=	 "\tm_".get_ident($id)." [label=<<table border=\"1\" cellborder=\"0\" cellspacing=\"0\">\n"
+			$gv .=	 "\tm_".get_ident($id)." [URL=\"".sprintf($doc_link, $module->module_name())."\",target=\"_blank\","
+						."label=<<table border=\"1\" cellborder=\"0\" cellspacing=\"0\">\n"
 				."	<tr>\n"
 				."		<td bgcolor=\"".$colors[$module->status()]."\" colspan=\"2\">\n"
 				."			<font face=\"sans bold\">".htmlspecialchars($module->id())."</font><br/>\n"
@@ -407,7 +408,7 @@ class PipelineController {
 			/* recursively draw sub-namespaces */
 			$child_namespace = $module->pc_get_namespace();
 			if (!empty($child_namespace)) {
-				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $indent."\t");
+				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link, $indent."\t");
 				$subgraph .= "\n"
 					.$indent."subgraph cluster_".get_ident($id)." {\n"
 					.$indent."\tlabel = \"".$id."\";\n\n"

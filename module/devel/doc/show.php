@@ -70,8 +70,8 @@ class M_core__devel__doc__show extends Module {
 
 			$this->start();
 
-			NDebug::barDump($this->data, 'Loaded data');
-			NDebug::barDump(array_map(function($t) { if (is_array($t)) { $t[0] = token_name($t[0]); } return $t; }, $this->tokens), 'Tokens');
+			//NDebug::barDump($this->data, 'Loaded data');
+			//NDebug::barDump(array_map(function($t) { if (is_array($t)) { $t[0] = token_name($t[0]); } return $t; }, $this->tokens), 'Tokens');
 
 			$this->template_add(null, 'core/doc/show', array(
 					'module' => $module,
