@@ -50,12 +50,18 @@ define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
 require(DIR_CORE.'utils.php');
 
 
+/* Get module's file from it's name */
+function get_module_filename($module)
+{
+	return strncmp($module, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($module, 5).'.php' : DIR_APP_MODULE.$module.'.php';
+}
+
 /* Class autoloader */
 function __autoload($class)
 {
 	if ($class[0] == 'M' && $class[1] == '_') {
 		$m = strtolower(str_replace('__', '/', substr($class, 2)));
-		$f = strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.php' : DIR_APP_MODULE.$m.'.php';
+		$f = get_module_filename($m);
 		if (is_readable($f)) {
 			include($f);
 		}
