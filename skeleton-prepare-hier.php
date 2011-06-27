@@ -44,6 +44,7 @@ $dirs = array(
 	'app/class',
 	'app/font',
 	'app/icon',
+	'plugin',
 	'data',
 	'var',
 );
