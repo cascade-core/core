@@ -39,7 +39,7 @@ class M_core__in__post extends Module {
 
 	public function main()
 	{
-		$this->out('all', & $_POST);
+		$this->out('all', $_POST);
 	}
 
 	public function get_output($name)
@@ -47,7 +47,4 @@ class M_core__in__post extends Module {
 		return @$_POST[$name];
 	}
 }
-
-
-// vim:encoding=utf8:
 

@@ -39,7 +39,7 @@ class M_core__in__get extends Module {
 
 	public function main()
 	{
-		$this->out('all', & $_GET);
+		$this->out('all', $_GET);
 	}
 
 	public function get_output($name)
@@ -47,7 +47,4 @@ class M_core__in__get extends Module {
 		return @$_GET[strtoupper($name)];
 	}
 }
-
-
-// vim:encoding=utf8:
 
