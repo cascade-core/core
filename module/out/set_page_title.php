@@ -52,6 +52,3 @@ class M_core__out__set_page_title extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

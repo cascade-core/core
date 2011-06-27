@@ -78,6 +78,3 @@ class M_core__stream__walk extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

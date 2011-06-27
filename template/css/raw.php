@@ -33,6 +33,3 @@ function TPL_css__core__raw($t, $id, $d, $so)
 	echo $d['data'];
 }
 
-
-// vim:encoding=utf8:
-

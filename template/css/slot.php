@@ -49,6 +49,3 @@ function TPL_css__core__slot($t, $id, $d, $so)
 	$t->process_slot($name);
 }
 
-
-// vim:encoding=utf8:
-

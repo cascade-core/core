@@ -43,8 +43,3 @@ class M_core__out__raw extends Module {
 
 }
 
-
-
-
-// vim:encoding=utf8:
-

@@ -115,6 +115,3 @@ class M_core__stream__split extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

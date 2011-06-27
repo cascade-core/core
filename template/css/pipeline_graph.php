@@ -61,7 +61,3 @@ function TPL_css__core__pipeline_graph($t, $id, $d, $so)
 		" */\n\n";
 }
 
-
-
-// vim:encoding=utf8:
-

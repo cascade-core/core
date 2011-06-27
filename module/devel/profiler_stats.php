@@ -143,6 +143,3 @@ class M_core__devel__profiler_stats extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

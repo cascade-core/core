@@ -52,7 +52,3 @@ class M_core__devel__version extends Module {
 	}
 }
 
-
-
-// vim:encoding=utf8:
-

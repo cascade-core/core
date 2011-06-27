@@ -59,6 +59,3 @@ class M_core__out__menu extends Module {
 
 }
 
-
-// vim:encoding=utf8:
-

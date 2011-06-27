@@ -69,7 +69,3 @@ eof;
 
 }
 
-
-
-// vim:encoding=utf8:
-

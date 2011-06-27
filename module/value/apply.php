@@ -68,7 +68,3 @@ class M_core__value__apply extends Module {
 	}
 }
 
-
-
-// vim:encoding=utf8:
-

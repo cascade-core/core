@@ -72,6 +72,3 @@ if (!file_exists('./.gitignore')) {
 	file_put_contents('./.gitignore', "./data\n./var\n");
 }
 
-
-// vim:encoding=utf8:
-

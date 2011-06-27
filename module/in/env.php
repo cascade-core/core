@@ -48,6 +48,3 @@ class M_core__in__env extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

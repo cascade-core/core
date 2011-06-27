@@ -71,5 +71,3 @@ class M_core__in__path extends Module {
 	}
 }
 
-// vim:encoding=utf8:
-?>

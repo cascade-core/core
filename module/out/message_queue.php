@@ -50,6 +50,3 @@ class M_core__out__message_queue extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

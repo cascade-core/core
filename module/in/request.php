@@ -48,6 +48,3 @@ class M_core__in__request extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

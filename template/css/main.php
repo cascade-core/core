@@ -50,6 +50,3 @@ function TPL_css__core__main($t, $id, $d, $so)
 	$t->process_slot('default');
 }
 
-
-// vim:encoding=utf8:
-

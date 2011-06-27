@@ -60,6 +60,3 @@ class M_core__out__multi_slot extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

@@ -149,6 +149,3 @@ class M_core__out__message extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

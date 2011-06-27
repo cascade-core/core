@@ -54,6 +54,3 @@ class M_core__prefix__split extends Module {
 
 }
 
-
-// vim:encoding=utf8:
-

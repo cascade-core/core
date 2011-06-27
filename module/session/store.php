@@ -56,6 +56,3 @@ class M_core__session__store extends Module {
 
 }
 
-
-// vim:encoding=utf8:
-

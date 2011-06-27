@@ -88,6 +88,3 @@ class Context {
 	}
 }
 
-
-// vim:encoding=utf8:
-

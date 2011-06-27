@@ -51,6 +51,3 @@ class M_core__logic__and extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

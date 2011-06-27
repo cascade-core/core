@@ -77,8 +77,3 @@ class M_core__ini__proxy extends Module {
 	}
 }
 
-
-
-
-// vim:encoding=utf8:
-

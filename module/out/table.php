@@ -78,6 +78,3 @@ class M_core__out__table extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

@@ -65,8 +65,3 @@ class M_core__raw__load extends Module {
 	}
 }
 
-
-
-
-// vim:encoding=utf8:
-

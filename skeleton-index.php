@@ -46,6 +46,3 @@
 /* bootstrap core */
 require(defined('DIR_CORE') ? DIR_CORE.'index.php' : './core/index.php');
 
-
-// vim:encoding=utf8:
-

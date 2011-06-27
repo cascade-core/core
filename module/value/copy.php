@@ -48,5 +48,3 @@ class M_core__value__copy extends Module {
 	}
 }
 
-// vim:encoding=utf8:
-

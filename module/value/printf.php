@@ -47,7 +47,3 @@ class M_core__out__printf extends Module {
 	}
 }
 
-
-
-// vim:encoding=utf8:
-

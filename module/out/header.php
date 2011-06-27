@@ -55,6 +55,3 @@ class M_core__out__header extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

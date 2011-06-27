@@ -57,6 +57,3 @@ class M_core__session__load extends Module {
 
 }
 
-
-// vim:encoding=utf8:
-

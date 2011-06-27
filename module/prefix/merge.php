@@ -62,6 +62,3 @@ class M_core__prefix__merge extends Module {
 	}
 }
 
-
-// vim:encoding=utf8:
-

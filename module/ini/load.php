@@ -71,8 +71,3 @@ class M_core__ini__load extends Module {
 	}
 }
 
-
-
-
-// vim:encoding=utf8:
-

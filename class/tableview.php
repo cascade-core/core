@@ -63,6 +63,3 @@ class TableView {
 	}
 }
 
-
-// vim:encoding=utf8:
-

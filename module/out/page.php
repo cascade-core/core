@@ -42,5 +42,3 @@ class M_core__out__page extends Module {
 
 }
 
-// vim:encoding=utf8:
-

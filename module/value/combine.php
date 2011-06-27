@@ -52,5 +52,3 @@ class M_core__value__combine extends Module {
 	}
 }
 
-// vim:encoding=utf8:
-
