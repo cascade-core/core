@@ -85,9 +85,13 @@ class M_core__devel__doc__index extends Module {
 	public function main()
 	{
 		$prefixes = array(
-			'' => DIR_APP_MODULE,
-			'core/' => DIR_CORE_MODULE,
+			'' => DIR_APP.DIR_MODULE,
+			'core' => DIR_CORE.DIR_MODULE,
 		);
+
+		foreach (get_plugin_list() as $plugin) {
+			$prefixes[$plugin] = DIR_PLUGIN.$plugin.'/'.DIR_MODULE;
+		}
 
 		$modules = array();
 
@@ -109,7 +113,7 @@ class M_core__devel__doc__index extends Module {
 
 	private function scan_directory($directory, $prefix, $subdir = '', & $list = array())
 	{
-		$dir_name = rtrim($directory, '/').$subdir;
+		$dir_name = $directory.$subdir;
 		$d = opendir($dir_name);
 		if (!$d) {
 			return $list;
@@ -126,7 +130,7 @@ class M_core__devel__doc__index extends Module {
 			if (is_dir($file)) {
 				$this->scan_directory($directory, $prefix, $module, $list);
 			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $module)) {
-				$list[] = $prefix.preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $module);
+				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $module);
 			}
 		}
 
