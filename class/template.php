@@ -75,11 +75,8 @@ class Template {
 
 	function load_template($output_type, $template_name, $function_name, $indent = '')
 	{
-		if (strncmp($template_name, 'core/', 5) == 0) {
-			$f = DIR_CORE_TEMPLATE.$output_type.'/'.substr($template_name, 5).'.php';
-		} else {
-			$f = DIR_APP_TEMPLATE.$output_type.'/'.$template_name.'.php';
-		}
+		$f = get_template_filename($output_type, $template_name);
+
 		if (is_readable($f)) {
 			debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
 			include $f;

@@ -42,7 +42,7 @@ class M_core__ini__proxy extends Module {
 	public function main()
 	{
 		$m = $this->module_name();
-		$filename = ((strncmp($m, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($m, 5).'.ini.php' : DIR_APP_MODULE.$m.'.ini.php'));
+		$filename = get_module_filename($m, '.ini.php');
 
 		$conf = parse_ini_file($filename, TRUE);
 		if ($conf === FALSE) {

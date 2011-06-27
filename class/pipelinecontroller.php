@@ -117,11 +117,6 @@ class PipelineController {
 
 		/* kick autoloader */
 		if (class_exists($class)) {
-			/* check permissions */
-			if (false) {
-				/* TODO */
-				return false;
-			}
 
 			/* initialize module */
 			$m = new $class();
@@ -149,7 +144,7 @@ class PipelineController {
 
 		} else {
 			/* class not found, check if ini file exists */
-			$f = (strncmp($module, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($module, 5) : DIR_APP_MODULE.$module).'.ini.php';
+			$f = get_module_filename($module, '.ini.php');
 
 			if ($module != 'core/ini/proxy' && is_file($f)) {
 				/* load core/ini/proxy for this ini file */

@@ -33,16 +33,18 @@
  */
 define('DIR_ROOT',		dirname(dirname(__FILE__)).'/');
 define('DIR_CORE',		DIR_ROOT.'core/');
-define('FILE_CORE_CONFIG',	  DIR_CORE.'core.ini.php');
-define('DIR_CORE_CLASS',	  DIR_CORE.'class/');
-define('DIR_CORE_MODULE',	  DIR_CORE.'module/');
-define('DIR_CORE_TEMPLATE',	  DIR_CORE.'template/');
 define('DIR_APP',		DIR_ROOT.'app/');
-define('FILE_APP_CONFIG',	  DIR_APP.'core.ini.php');
-define('DIR_APP_CLASS', 	  DIR_APP.'class/');
-define('DIR_APP_MODULE',	  DIR_APP.'module/');
-define('DIR_APP_TEMPLATE',	  DIR_APP.'template/');
+define('DIR_PLUGIN',		DIR_ROOT.'plugin/');
+
+/* Config files */
+define('FILE_CORE_CONFIG',	DIR_CORE.'core.ini.php');
+define('FILE_APP_CONFIG',	DIR_APP.'core.ini.php');
 define('FILE_DEVEL_CONFIG',	DIR_ROOT.'core.devel.ini.php');
+
+/* Use with get_module_filename() */
+define('DIR_CLASS',		'class/');
+define('DIR_MODULE',		'module/');
+define('DIR_TEMPLATE',		'template/');
 
 /* Check if this is development environment */
 define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
@@ -50,33 +52,106 @@ define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
 require(DIR_CORE.'utils.php');
 
 
-/* Get module's file from it's name */
-function get_module_filename($module)
+/* Get plugin list */
+function get_plugin_list()
 {
-	return strncmp($module, 'core/', 5) == 0 ? DIR_CORE_MODULE.substr($module, 5).'.php' : DIR_APP_MODULE.$module.'.php';
+	global $plugin_list;
+
+	/* $plugin_list contains everything in plugin directory. It is not
+	 * filtered becouse PipelineController will not allow ugly module names
+	 * to be loaded. */
+
+	return array_filter(array_keys($plugin_list), function($module) {
+			/* Same as module name check in PipelineController */
+			return !(!is_string($module) || strpos($module, '.') !== FALSE || !ctype_graph($module));
+		});
+}
+
+/* Get module's file from it's name */
+function get_module_filename($module, $extension = '.php')
+{
+	global $plugin_list;
+
+	@ list($head, $tail) = explode('/', $module, 2);
+
+	/* Core */
+	if ($head == 'core') {
+		return DIR_CORE.DIR_MODULE.$tail.$extension;
+	}
+
+	/* Plugins */
+	if ($tail !== null && isset($plugin_list[$head])) {
+		return DIR_PLUGIN.$head.'/'.DIR_MODULE.$tail.$extension;
+	}
+
+	/* Application */
+	return DIR_APP.DIR_MODULE.$module.$extension;
+}
+
+/* Get template's file from it's name */
+function get_template_filename($output_type, $template_name, $extension = '.php')
+{
+	global $plugin_list;
+
+	@ list($head, $tail) = explode('/', $template_name, 2);
+
+	/* Core */
+	if ($head == 'core') {
+		return DIR_CORE.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
+	}
+
+	/* Plugins */
+	if ($tail !== null && isset($plugin_list[$head])) {
+		return DIR_PLUGIN.$head.'/'.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
+	}
+
+	/* Application */
+	return DIR_APP.DIR_TEMPLATE.$output_type.'/'.$template_name.$extension;
 }
 
 /* Class autoloader */
 function __autoload($class)
 {
-	if ($class[0] == 'M' && $class[1] == '_') {
-		$m = strtolower(str_replace('__', '/', substr($class, 2)));
+	global $plugin_list;
+
+	$lc_class = strtolower($class);
+	@ list($head, $tail) = explode("\\", $lc_class, 2);
+
+	/* Module */
+	if ($tail === null && $class[0] == 'M' && $class[1] == '_') {
+		$m = str_replace('__', '/', substr($lc_class, 2));
 		$f = get_module_filename($m);
-		if (is_readable($f)) {
+		if (file_exists($f)) {
 			include($f);
 		}
-	} else {
-		$f = strtolower($class).'.php';
-		$cf = DIR_CORE_CLASS.$f;
-		$af = DIR_APP_CLASS.$f;
+		return;
+	}
 
-		if (is_readable($cf)) {
-			include($cf);
-		} else if (is_readable($af)) {
-			include($af);
+	/* Plugin (by namespace) */
+	if ($tail !== null && isset($plugin_list[$head])) {
+		$f = DIR_PLUGIN.$head.'/'.DIR_CLASS.str_replace("\\", '/', $tail).'.php';
+		if (file_exists($f)) {
+			include($f);
 		}
+		return;
+	}
+
+	/* Core */
+	$f = str_replace("\\", '/', strtolower($class)).'.php';
+	$cf = DIR_CORE.DIR_CLASS.$f;
+	if (file_exists($cf)) {
+		include($cf);
+		return;
+	}
+
+	/* Application */
+	$af = DIR_APP.DIR_CLASS.$f;
+	if (file_exists($af)) {
+		include($af);
+		return;
 	}
 }
+
 
 /* Load core configuration */
 if (is_readable(FILE_APP_CONFIG)) {
@@ -115,6 +190,9 @@ if (isset($core_cfg['define'])) {
 		define(strtoupper($k), $v);
 	}
 }
+
+/* Scan plugins */
+$plugin_list = array_flip(scandir(DIR_PLUGIN));
 
 /* Initialize iconv */
 if (function_exists('iconv_set_encoding')) {
