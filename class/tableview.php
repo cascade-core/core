@@ -31,6 +31,7 @@
 class TableView {
 
 	private $columns;
+	private $data_array;
 	private $data_iterator;
 
 	public function __construct()
@@ -49,6 +50,12 @@ class TableView {
 		$this->data_iterator = array($iterator_object, $iterator_func);
 	}
 
+	public function set_data($data)
+	{
+		$this->data_array = $data;
+		reset($this->data_array);
+	}
+
 
 	public function columns()
 	{
@@ -59,7 +66,12 @@ class TableView {
 	public function get_next_row_data()
 	{
 		$method = $this->data_iterator[1];
-		return $this->data_iterator[0]->$method();
+		if ($method !== null) {
+			return $this->data_iterator[0]->$method();
+		} else {
+			list($k, $v) = each($this->data_array);
+			return $v;
+		}
 	}
 }
 
