@@ -28,7 +28,9 @@
  * SUCH DAMAGE.
  */
 
-class M_core__out__set_page_title extends Module {
+class M_core__out__set_page_title extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
 		'title' => null,

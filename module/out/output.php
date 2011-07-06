@@ -28,7 +28,9 @@
  * SUCH DAMAGE.
  */
 
-class M_core__out__output extends Module {
+class M_core__out__output extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
 		'template' => array(),	// template to use

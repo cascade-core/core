@@ -28,7 +28,9 @@
  * SUCH DAMAGE.
  */
 
-class M_core__out__menu extends Module {
+class M_core__out__menu extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
 		'items' => null,

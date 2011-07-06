@@ -136,7 +136,7 @@ class PipelineController {
 
 			/* add module to queue */
 			$this->modules[$id] = $m;
-			if ($force_exec) {
+			if ($force_exec === null ? $class::force_exec : $force_exec) {
 				$this->queue[] = $m;
 			}
 
@@ -166,7 +166,7 @@ class PipelineController {
 		foreach ($parsed_ini_with_sections as $section => $opts) {
 			@list($keyword, $id) = explode(':', $section, 2);
 			if ($keyword == 'module' && isset($id) && @($module = $opts['.module']) !== null) {
-				$force_exec = !empty($opts['.force-exec']);
+				$force_exec = @ $opts['.force-exec'];
 
 				/* drop module options and keep only connections */
 				unset($opts['.module']);

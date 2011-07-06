@@ -28,7 +28,9 @@
  * SUCH DAMAGE.
  */
 
-class M_core__out__page extends Module {
+class M_core__out__page extends Module
+{
+	const force_exec = true;
 
 	protected $outputs = array(
 		'done' => true,

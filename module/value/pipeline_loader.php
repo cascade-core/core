@@ -28,7 +28,9 @@
  * SUCH DAMAGE.
  */
 
-class M_core__value__pipeline_loader extends Module {
+class M_core__value__pipeline_loader extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
 		'*' => null,

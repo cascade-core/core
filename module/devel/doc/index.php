@@ -69,7 +69,9 @@
  *
  */
 
-class M_core__devel__doc__index extends Module {
+class M_core__devel__doc__index extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
 		'link' => '/doc/%s',

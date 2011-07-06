@@ -37,6 +37,11 @@ abstract class Module {
 	const DISABLED = 0x04;
 	const FAILED   = 0x08;
 
+	// Default value of 'force_exec' flag when adding this module into
+	// pipeline (not when calling add_module() from this class).
+	// This is used when force_exec arg. is null (or not set at all).
+	const force_exec = false;
+
 	public static $STATUS_NAMES = array(
 		self::QUEUED   => 'queued',
 		self::RUNNING  => 'running',
@@ -44,7 +49,6 @@ abstract class Module {
 		self::DISABLED => 'disabled',
 		self::FAILED   => 'failed',
 	);
-
 
 	private $id, $full_id;
 	private $pipeline_controller;
@@ -503,7 +507,7 @@ abstract class Module {
 
 
 	// add module to pipeline
-	final protected function pipeline_add($id, $module, $force_exec = false, $connections = array(), $context = null)
+	final protected function pipeline_add($id, $module, $force_exec = null, $connections = array(), $context = null)
 	{
 		return $this->pipeline_controller->add_module($this, $id, $module, $force_exec, $connections, $context === null ? $this->context : $context);
 	}

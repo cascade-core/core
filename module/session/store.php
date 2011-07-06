@@ -28,7 +28,9 @@
  * SUCH DAMAGE.
  */
 
-class M_core__session__store extends Module {
+class M_core__session__store extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
 		'key' => array(),

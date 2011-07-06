@@ -33,7 +33,9 @@
  *
  */
 
-class M_core__devel__doc__show extends Module {
+class M_core__devel__doc__show extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
 		'module' => array(),
@@ -77,6 +79,7 @@ class M_core__devel__doc__show extends Module {
 					'module' => $module,
 					'filename' => $filename,
 					'class_header' => $this->data['class_header'],
+					'force_exec' => $this->data['force_exec'],
 					'inputs' => $this->data['inputs'],
 					'outputs' => $this->data['outputs'],
 					'description' => $this->data['description'],
@@ -197,18 +200,41 @@ class M_core__devel__doc__show extends Module {
 				}
 			} else if ($depth == 1) {
 				// root depth
-				if (is_array($t) && $t[0] == T_VARIABLE) {
-					$var = $t[1];
-					if ($var == '$inputs') {
-						$this->read_inputs();
-					} else if ($var == '$outputs') {
-						$this->read_outputs();
+				if (is_array($t)) {
+					if ($t[0] == T_VARIABLE) {
+						$var = $t[1];
+						if ($var == '$inputs') {
+							$this->read_inputs();
+						} else if ($var == '$outputs') {
+							$this->read_outputs();
+						}
+					} else if ($t[0] == T_STRING) {
+						if ($t[1] == 'force_exec') {
+							$this->read_force_exec();
+						}
 					}
 				}
 			}
 		}
 	}
 
+
+	private function read_force_exec()
+	{
+		$str = "\tconst force_exec";
+
+		while (($t = current($this->tokens))) {
+			next($this->tokens);
+
+			$str .= is_array($t) ? $t[1] : $t;
+
+			if ($t == ';') {
+				break;
+			}
+		}
+
+		$this->data['force_exec'] = $str;
+	}
 
 	private function read_inputs()
 	{

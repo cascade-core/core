@@ -59,6 +59,12 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 	}
 	echo "</div>\n";
 
+	// Force exec
+	echo "<div class=\"force_exec\">\n",
+		"<h3>", _('Force Exec flag'), "</h3>\n",
+		"<pre>", htmlspecialchars($force_exec), "</pre>\n",
+		"</div>\n";
+
 	// Inputs
 	echo "<div class=\"inputs\">\n",
 		"<h3>", _('Inputs'), "</h3>\n",
