@@ -39,12 +39,12 @@ class M_core__in__request extends Module {
 
 	public function main()
 	{
-		$this->out('all', & $_REQUEST);
+		$this->out('all', $_REQUEST);
 	}
 
 	public function get_output($name)
 	{
-		return @$_REQUEST[strtoupper($name)];
+		return @ $_REQUEST[$name];
 	}
 }
 
