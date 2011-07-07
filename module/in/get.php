@@ -44,7 +44,7 @@ class M_core__in__get extends Module {
 
 	public function get_output($name)
 	{
-		return @$_GET[strtoupper($name)];
+		return @$_GET[$name];
 	}
 }
 
