@@ -45,8 +45,10 @@ function TPL_html5__core__table($t, $id, $table, $so)
 	}
 
 	/* columns */
+	$column_count = 0;
 	foreach ($col_renderer as $col) {
 		$col->col();
+		$column_count += $col->column_span();
 	}
 
 	/* header */
@@ -56,10 +58,46 @@ function TPL_html5__core__table($t, $id, $table, $so)
 	}
 	echo "</tr>\n</thead>\n";
 
+	/* footer */
+	if ($table->show_footer) {
+		echo "<tfoot>\n<tr>\n";
+		foreach ($col_renderer as $col) {
+			$col->th();
+		}
+		echo "</tr>\n";
+
+		$actions = $table->get_actions();
+		if (!empty($actions)) {
+			echo "<tr>\n<td class=\"action_bar\" colspan=\"", $column_count, "\">";
+			$first = true;
+			foreach ($actions as $action => $opts) {
+				if ($first) {
+					echo "<big>&#11025;</big> ";
+					$first = false;
+				} else {
+					echo " | ";
+				}
+				echo "<a class=\"", htmlspecialchars($action), "\" data-action=\"", htmlspecialchars($action), "\" ",
+						"href=\"", isset($opts['href']) ? htmlspecialchars($opts['href']) : '#', "\">",
+						htmlspecialchars($opts['label']), "</a>";
+			}
+			echo "</td>\n</tr>\n";
+		}
+		echo "</tfoot>\n";
+	}
+
 	/* data */
 	echo "<tbody>\n";
 	while (($row_data = $table->get_next_row_data())) {
-		echo "<tr>\n";
+		$row_attr = '';
+		$fn = $table->row_data;
+		if (is_callable($fn)) {
+			foreach($fn($row_data) as $k => $v) {
+				$row_attr .= ' data-'.$k.'="'.htmlspecialchars($v).'"';
+			}
+		}
+
+		echo "<tr", $row_attr, ">\n";
 		foreach ($col_renderer as $col) {
 			$col->td($row_data);
 		}
@@ -72,10 +110,26 @@ function TPL_html5__core__table($t, $id, $table, $so)
 
 class tpl_html5__core__table__text {
 	protected $opts;
+	protected $th_attr = '';
+	protected $td_attr = '';
 	
 	function __construct($opts)
 	{
 		$this->opts = $opts;
+
+		if (!empty($this->opts['class'])) {
+			$this->th_attr .= ' class="'.htmlspecialchars($this->opts['class']).'"';
+			$this->td_attr .= ' class="'.htmlspecialchars($this->opts['class']).'"';
+		}
+		if (!empty($this->opts['nowrap'])) {
+			$this->td_attr .= ' nowrap';
+		}
+	}
+
+
+	function column_span()
+	{
+		return 1;
 	}
 
 	function col()
@@ -93,12 +147,12 @@ class tpl_html5__core__table__text {
 			$title = '';
 		}
 
-		echo "<th align=\"left\"", $title, ">", nl2br(htmlspecialchars(@$this->opts['title'])), "</th>\n";
+		echo "<th", $this->th_attr, " align=\"left\"", $title, ">", nl2br(htmlspecialchars(@$this->opts['title'])), "</th>\n";
 	}
 
 	function td($row_data)
 	{
-		echo "<td ", !empty($this->opts['nowrap']) ? ' nowrap' : '', ">", $this->fmt_value($row_data), "</td>\n";
+		echo "<td", $this->td_attr, ">", $this->fmt_value($row_data), "</td>\n";
 	}
 
 	function fmt_value($row_data)
@@ -131,24 +185,34 @@ class tpl_html5__core__table__text {
 		if ($value === null) {
 			return '';	// keep missing values missing
 		} else if ($fmt) {
-			$fmt_val = htmlspecialchars(sprintf($fmt, $value));
+			if (is_callable($fmt)) {
+				$fmt_val = htmlspecialchars($fmt($value));
+			} else {
+				$fmt_val = htmlspecialchars(sprintf($fmt, $value));
+			}
 		} else {
 			$fmt_val = htmlspecialchars($value);
 		}
 
 		if (isset($this->opts['link'])) {
-			$args = array();
-			foreach ($this->opts['link_arg'] as $a) {
-				$args[] = $row_data[$a];
+			if (is_callable($this->opts['link'])) {
+				$href = $this->opts['link']($row_data);
+			} else {
+				$args = array();
+				foreach ($this->opts['link_arg'] as $a) {
+					$args[] = $row_data[$a];
+				}
+				$href = vsprintf($this->opts['link'], $args);
 			}
-			$a = '<a href="'.str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars(vsprintf($this->opts['link'], $args))).'">';
-			$_a = '</a>';
-		} else {
-			$a = '';
-			$_a = '';
+
+			if ($href != '') {
+				return '<a href="'.str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($href)).'">'
+					.$fmt_val
+					.'</a>';
+			}
 		}
 
-		return $a.$fmt_val.$_a;
+		return $fmt_val;
 	}
 }
 
@@ -156,12 +220,12 @@ class tpl_html5__core__table__number extends tpl_html5__core__table__text {
 
 	function th()
 	{
-		echo "<th align=\"right\">", htmlspecialchars($this->opts['title']), "</th>\n";
+		echo "<th", $this->th_attr, " align=\"right\">", htmlspecialchars($this->opts['title']), "</th>\n";
 	}
 
 	function td($row_data)
 	{
-		echo "<td align=\"right\">", $this->fmt_value($row_data), "</td>\n";
+		echo "<td", $this->td_attr, " align=\"right\">", $this->fmt_value($row_data), "</td>\n";
 	}
 }
 
@@ -179,7 +243,7 @@ class tpl_html5__core__table__checkbox extends tpl_html5__core__table__text {
 
 	function td($row_data)
 	{
-		echo "<td><input type=\"checkbox\" name=\"", $this->fmt_value($row_data), "\"></td>\n";
+		echo "<td", $this->td_attr, "><input type=\"checkbox\" value=\"", $this->fmt_value($row_data), "\" tabindex=\"1\"></td>\n";
 	}
 
 }

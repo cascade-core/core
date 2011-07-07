@@ -31,8 +31,14 @@
 class TableView {
 
 	private $columns;
+	private $actions;	// Links shown in footer
 	private $data_array;
 	private $data_iterator;
+
+	public  $show_footer;	// bool
+	public  $row_data;	// callable, returns array($k => $v) which will
+				// be added to <tr> element as data-$k="$v"
+
 
 	public function __construct()
 	{
@@ -42,6 +48,18 @@ class TableView {
 	public function add_column($type, $opts)
 	{
 		$this->columns[] = array($type, $opts);
+	}
+
+
+	public function add_action($name, $opts)
+	{
+		$this->actions[$name] = $opts;
+	}
+
+
+	public function get_actions()
+	{
+		return $this->actions;
 	}
 
 
