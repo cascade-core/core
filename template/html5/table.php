@@ -152,7 +152,16 @@ class tpl_html5__core__table__text {
 
 	function td($row_data)
 	{
-		echo "<td", $this->td_attr, ">", $this->fmt_value($row_data), "</td>\n";
+		$title = null;
+		if (isset($this->opts['tooltip'])) {
+			if (is_callable($this->opts['tooltip'])) {
+				$title = $this->opts['tooltip']($row_data);
+			} else {
+				$title = $this->opts['tooltip'];
+			}
+		}
+		echo "<td", $this->td_attr, $title != '' ? ' title="'.htmlspecialchars($title).'"' : '', ">",
+			$this->fmt_value($row_data), "</td>\n";
 	}
 
 	function fmt_value($row_data)
@@ -218,14 +227,11 @@ class tpl_html5__core__table__text {
 
 class tpl_html5__core__table__number extends tpl_html5__core__table__text {
 
-	function th()
+	function __construct($opts)
 	{
-		echo "<th", $this->th_attr, " align=\"right\">", htmlspecialchars($this->opts['title']), "</th>\n";
-	}
-
-	function td($row_data)
-	{
-		echo "<td", $this->td_attr, " align=\"right\">", $this->fmt_value($row_data), "</td>\n";
+		parent::__construct();
+		$this->td_attr .= ' align="right"';
+		$this->th_attr .= ' align="right"';
 	}
 }
 
