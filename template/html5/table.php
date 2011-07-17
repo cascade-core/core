@@ -72,7 +72,6 @@ function TPL_html5__core__table($t, $id, $table, $so)
 			$first = true;
 			foreach ($actions as $action => $opts) {
 				if ($first) {
-					echo "<big>&#11025;</big> ";
 					$first = false;
 				} else {
 					echo " | ";
