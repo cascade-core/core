@@ -228,7 +228,7 @@ class tpl_html5__core__table__number extends tpl_html5__core__table__text {
 
 	function __construct($opts)
 	{
-		parent::__construct();
+		parent::__construct($opts);
 		$this->td_attr .= ' align="right"';
 		$this->th_attr .= ' align="right"';
 	}
