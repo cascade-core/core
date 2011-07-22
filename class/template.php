@@ -154,6 +154,9 @@ class Template {
 		return;
 		// */
 
+		/* Show core's name in header */
+		header('X-Powered-By: Dynamic Pipeline', TRUE);		// FIXME
+
 		/* send custom status code & message */
 		$code    = @$this->slot_options['root']['http_status_code'];
 		$message = @$this->slot_options['root']['http_status_message'];
@@ -165,7 +168,7 @@ class Template {
 		$redirect_url = @$this->slot_options['root']['redirect_url'];
 		if ($redirect_url) {
 			debug_msg('Redirecting to "%s"', $redirect_url);
-			header('Location: '.$redirect_url);
+			header('Location: '.$redirect_url, TRUE, $code != 200 ? $code : 301);
 			return;
 		}
 

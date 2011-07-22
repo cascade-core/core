@@ -64,7 +64,8 @@ class M_core__out__message extends Module
 		'allow-redirect' => true,
 
 		// http-status
-		'http-status' => null,
+		'http-status-code' => null,
+		'http-status-message' => null,
 
 		'hide' => false,
 
@@ -121,7 +122,7 @@ class M_core__out__message extends Module
 		$http_status_code = (int) $this->in('http-status-code');
 		if ($http_status_code) {
 			$this->template_option_set('root', 'http_status_code', $http_status_code);
-			$http_status_message = $this->in('http_status_message');
+			$http_status_message = $this->in('http-status-message');
 			if ($http_status_message) {
 				$this->template_option_set('root', 'http_status_message', $http_status_message);
 			}
