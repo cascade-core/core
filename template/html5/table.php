@@ -221,11 +221,15 @@ class tpl_html5__core__table__text {
 			if (is_callable($this->opts['link'])) {
 				$href = $this->opts['link']($row_data);
 			} else {
-				$args = array();
-				foreach ($this->opts['link_arg'] as $a) {
-					$args[] = $row_data[$a];
+				if (isset($this->opts['link_arg'])) {
+					$args = array();
+					foreach ($this->opts['link_arg'] as $a) {
+						$args[] = $row_data[$a];
+					} 
+					$href = vsprintf($this->opts['link'], $args);
+				} else {
+					$href = $this->opts['link'];
 				}
-				$href = vsprintf($this->opts['link'], $args);
 			}
 
 			if ($href != '') {
