@@ -191,7 +191,7 @@ class tpl_html5__core__table__text {
 		$fmt = @$this->opts['format'];
 
 		if ($value === null) {
-			return '';	// keep missing values missing
+			$fmt_val = null;	// keep missing values missing
 		} else if ($fmt) {
 			if (is_callable($fmt)) {
 				$fmt_val = htmlspecialchars($fmt($value));
@@ -214,9 +214,20 @@ class tpl_html5__core__table__text {
 			}
 
 			if ($href != '') {
-				return '<a href="'.str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($href)).'">'
-					.$fmt_val
-					.'</a>';
+				if ($fmt_val === null) {
+					if (empty($this->opts['link_empty'])) {
+						return '';
+					} else {
+						return '<a href="'.str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($href)).'"'
+							.' class="empty">'
+							.'&nbsp;'
+							.'</a>';
+					}
+				} else {
+					return '<a href="'.str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($href)).'">'
+						.$fmt_val
+						.'</a>';
+				}
 			}
 		}
 
