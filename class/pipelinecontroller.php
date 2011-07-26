@@ -92,8 +92,12 @@ class PipelineController {
 		}
 
 		/* check permissions */
-		if (!$context->is_allowed($module)) {
-			error_msg('Permission denied to module %s.', $module);
+		if (!$context->is_allowed($module, $details)) {
+			if ($details != '') {
+				error_msg('Permission denied to module %s (%s).', $module, $details);
+			} else {
+				error_msg('Permission denied to module %s.', $module);
+			}
 			return false;
 		}
 
