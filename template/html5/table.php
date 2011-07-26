@@ -159,7 +159,22 @@ class tpl_html5__core__table__text {
 				$title = $this->opts['tooltip'];
 			}
 		}
-		echo "<td", $this->td_attr, $title != '' ? ' title="'.htmlspecialchars($title).'"' : '', ">",
+
+		if (isset($this->opts['data'])) {
+			$data = '';
+			if (is_callable($this->opts['data'])) {
+				$data_array = $this->opts['data']($row_data);
+			} else {
+				$data_array = $this->opts['data'];
+			}
+			foreach ($data_array as $k => $v) {
+				$data .= ' data-'.htmlspecialchars($k).'="'.htmlspecialchars($v).'"';
+			}
+		} else {
+			$data = '';
+		}
+
+		echo "<td", $this->td_attr, $title != '' ? ' title="'.htmlspecialchars($title).'"' : '', $data, ">",
 			$this->fmt_value($row_data), "</td>\n";
 	}
 
