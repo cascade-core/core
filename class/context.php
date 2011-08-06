@@ -82,8 +82,9 @@ class Context {
 
 
 	/* Security: check if module is allowed before pipeline controller loads it */
-	public function is_allowed($module_name)
+	public function is_allowed($module_name, & $details = null)
 	{
+		// Return false if access should be denied and set $details to string with explanation.
 		return true;
 	}
 }

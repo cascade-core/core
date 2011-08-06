@@ -78,7 +78,7 @@ class PipelineController {
 	}
 
 
-	public function add_module($parent, $id, $module, $force_exec, array $connections, Context $context, $real_module = null)
+	public function add_module($parent, $id, $module, $force_exec, array $connections, Context $context, & $errors = null, $real_module = null)
 	{
 		/* check replacement table */
 		for ($step = 32; isset($this->replacement[$module]) && $step > 0; $step--) {
@@ -88,6 +88,11 @@ class PipelineController {
 		/* check module name */
 		if (!is_string($module) || strpos($module, '.') !== FALSE || !ctype_graph($module)) {
 			error_msg('Invalid module name: %s', $module);
+			$errors[] = array(
+				'error'   => 'Invalid module name.',
+				'id'      => $id,
+				'module'  => $module,
+			);
 			return false;
 		}
 
@@ -98,12 +103,23 @@ class PipelineController {
 			} else {
 				error_msg('Permission denied to module %s.', $module);
 			}
+			$errors[] = array(
+				'error'   => 'Permission denied.',
+				'id'      => $id,
+				'module'  => $module,
+				'details' => $details,
+			);
 			return false;
 		}
 
 		/* check malformed IDs */
 		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
 			error_msg('Invalid module ID: %s', $id);
+			$errors[] = array(
+				'error'   => 'Invalid module ID.',
+				'id'      => $id,
+				'module'  => $module,
+			);
 			return false;
 		}
 
@@ -113,6 +129,11 @@ class PipelineController {
 		/* check for duplicate IDs */
 		if (array_key_exists($full_id, $this->modules)) {
 			error_msg('Module ID "%s" already exists in pipeline!', $id);
+			$errors[] = array(
+				'error'   => 'Module ID already exists in pipeline.',
+				'id'      => $id,
+				'module'  => $module,
+			);
 			return false;
 		}
 
@@ -127,6 +148,12 @@ class PipelineController {
 			$m->pc_init($parent, $id, $full_id, $this, $real_module !== null ? $real_module : $module, $context, $this->add_order);
 			if (!$m->pc_connect($connections, $this->modules)) {
 				error_msg('Module "%s": Can\'t connect inputs!', $id);
+				$errors[] = array(
+					'error'   => 'Can\'t connect inputs.',
+					'id'      => $id,
+					'module'  => $module,
+					'inputs'  => $connections,
+				);
 				return false;
 			}
 			$this->add_order++;
@@ -153,18 +180,23 @@ class PipelineController {
 			if ($module != 'core/ini/proxy' && is_file($f)) {
 				/* load core/ini/proxy for this ini file */
 				debug_msg('Loading core/ini/proxy for "%s".', $f);
-				return $this->add_module($parent, $id, 'core/ini/proxy', $force_exec, $connections, $context, $module);
+				return $this->add_module($parent, $id, 'core/ini/proxy', $force_exec, $connections, $context, $errors, $module);
 
 			} else {
 				/* module not found */
 				error_msg('Module "%s" not found.', $module);
+				$errors[] = array(
+					'error'   => 'Module not found.',
+					'id'      => $id,
+					'module'  => $module,
+				);
 				return false;
 			}
 		}
 	}
 
 
-	public function add_modules_from_ini($parent, $parsed_ini_with_sections, Context $context)
+	public function add_modules_from_ini($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
 	{
 		/* walk thru ini and take 'module:*' sections */
 		foreach ($parsed_ini_with_sections as $section => $opts) {
@@ -183,7 +215,7 @@ class PipelineController {
 					}
 				}
 
-				$this->add_module($parent, $id, $module, $force_exec, $opts, $context);
+				$this->add_module($parent, $id, $module, $force_exec, $opts, $context, $errors);
 			}
 		}
 	}

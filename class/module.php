@@ -60,9 +60,12 @@ abstract class Module {
 	private $forward_list = array();
 	private $execution_time = null;		// time [ms] spent in main()
 
-	private $parent = null;		// parent module
-	private $namespace = null;	// references to other modules
+	private $parent = null;			// parent module
+	private $namespace = null;		// references to other modules
 	protected $context;
+
+	private $pipeline_errors = array();	// list of errors received from pipeline controller
+
 
 	// list of inputs and their default values
 	protected $inputs = array(
@@ -509,14 +512,27 @@ abstract class Module {
 	// add module to pipeline
 	final protected function pipeline_add($id, $module, $force_exec = null, $connections = array(), $context = null)
 	{
-		return $this->pipeline_controller->add_module($this, $id, $module, $force_exec, $connections, $context === null ? $this->context : $context);
+		$this->pipeline_errors = array();
+		return $this->pipeline_controller->add_module($this, $id, $module, $force_exec, $connections,
+				$context === null ? $this->context : $context,
+				$this->pipeline_errors);
 	}
 
 
 	// add modules to pipeline from parsed inifile
 	final protected function pipeline_add_from_ini($parsed_ini_with_sections, $context = null)
 	{
-		return $this->pipeline_controller->add_modules_from_ini($this, $parsed_ini_with_sections, $context === null ? $this->context : $context);
+		$this->pipeline_errors = array();
+		return $this->pipeline_controller->add_modules_from_ini($this, $parsed_ini_with_sections,
+				$context === null ? $this->context : $context,
+				$this->pipeline_errors);
+	}
+
+
+	// get errors from pipeline controller (errors can occur when pipeline_add or pipeline_add_from_ini is called)
+	final public function pipeline_get_errors()
+	{
+		return $this->pipeline_errors;
 	}
 }
 
