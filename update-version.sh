@@ -47,15 +47,18 @@ get_origin()
 
 print_version()
 {
-	cd $2
+	if [ -d "$2" ]
+	then
+		cd "$2"
 
-	echo "[$1]"
-	echo "version = \"`get_version`\""
-	echo "date    = \"`get_date`\""
-	echo "origin  = \"`get_origin`\""
-	echo
+		echo "[$1]"
+		echo "version = \"`get_version`\""
+		echo "date    = \"`get_date`\""
+		echo "origin  = \"`get_origin`\""
+		echo
 
-	cd "$OLDPWD"
+		cd "$OLDPWD"
+	fi
 }
 
 

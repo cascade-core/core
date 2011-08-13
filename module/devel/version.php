@@ -48,17 +48,42 @@ class M_core__devel__version extends Module
 	{
 		$version_file = DIR_ROOT.'var/version.ini.php';
 		$version_mtime = @filemtime($version_file);
+		$git_ref = '.git/refs/heads';
 
-		if (!$version_mtime || $version_mtime < @filemtime(DIR_ROOT.'.git/refs/heads')) {
-			system("core/update-version.sh");
+		$format = $this->in('format');
+
+		// Check if version.ini needs update
+		if (!$version_mtime || $version_mtime < @filemtime(DIR_ROOT.$git_ref)) {
+			// Short format needs only app version, so do not check everything
+			$need_update = true;
+		} else if ($format != 'short') {
+			// If format is not 'short', check core and all plugins
+			if ($version_mtime < @filemtime(DIR_CORE.$git_ref)) {
+				$need_update = true;
+			} else {
+				foreach (get_plugin_list() as $plugin) {
+					if ($version_mtime < @filemtime(DIR_PLUGIN.$plugin.'/'.$git_ref)) {
+						$need_update = true;
+						break;
+					}
+				}
+			}
 		}
 
+		// Update version.ini
+		if ($need_update) {
+			system("core/update-version.sh");
+			touch($version_file);	// be sure that file is created even if script failed
+		}
+
+		// Get version data
 		$version = parse_ini_file($version_file, TRUE);
 
+		// Show version (if present)
 		if (!empty($version)) {
 			$this->template_add(null, 'core/version', array(
 					'version' => $version,
-					'format'  => $this->in('format'),
+					'format'  => $format,
 					'link'    => $this->in('link'),
 					'prefix'  => $this->in('prefix'),
 					'suffix'  => $this->in('suffix'),
