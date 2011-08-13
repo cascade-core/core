@@ -48,23 +48,27 @@ class M_core__devel__version extends Module
 	{
 		$version_file = DIR_ROOT.'var/version.ini.php';
 		$version_mtime = @filemtime($version_file);
-		$git_ref = '.git/refs/heads';
 
 		$format = $this->in('format');
 
 		// Check if version.ini needs update
-		if (!$version_mtime || $version_mtime < @filemtime(DIR_ROOT.$git_ref)) {
+		if (!$version_mtime || $this->is_git_repo_newer($version_mtime, DIR_ROOT)) {
 			// Short format needs only app version, so do not check everything
 			$need_update = true;
 		} else if ($format != 'short') {
 			// If format is not 'short', check core and all plugins
-			if ($version_mtime < @filemtime(DIR_CORE.$git_ref)) {
+			if ($this->is_git_repo_newer($version_mtime, DIR_CORE)) {
 				$need_update = true;
 			} else {
-				foreach (get_plugin_list() as $plugin) {
-					if ($version_mtime < @filemtime(DIR_PLUGIN.$plugin.'/'.$git_ref)) {
-						$need_update = true;
-						break;
+				if ($version_mtime < filemtime(DIR_PLUGIN)) {
+					// new, deleted or renamed module
+					$need_update = true;
+				} else {
+					foreach (get_plugin_list() as $plugin) {
+						if ($this->is_git_repo_newer($version_mtime, DIR_PLUGIN.$plugin.'/')) {
+							$need_update = true;
+							break;
+						}
 					}
 				}
 			}
@@ -88,6 +92,26 @@ class M_core__devel__version extends Module
 					'prefix'  => $this->in('prefix'),
 					'suffix'  => $this->in('suffix'),
 				));
+		}
+	}
+
+	private function is_git_repo_newer($ref_mtime, $basedir)
+	{
+		$head_file = $basedir.'.git/HEAD';
+
+		if ($ref_mtime < @filemtime($head_file)) {
+			return true;
+		}
+
+		$head = @ file_get_contents($head_file);
+
+		if ($head === FALSE) {
+			return false;
+		}
+		if (sscanf($head, 'ref: %s', $ref_file) == 1) {
+			return $ref_mtime < @filemtime($basedir.'.git/'.$ref_file);
+		} else {
+			return false;
 		}
 	}
 }
