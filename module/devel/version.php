@@ -42,6 +42,7 @@ class M_core__devel__version extends Module
 	);
 
 	protected $outputs = array(
+		'done' => true,
 	);
 
 	public function main()
@@ -92,6 +93,7 @@ class M_core__devel__version extends Module
 					'prefix'  => $this->in('prefix'),
 					'suffix'  => $this->in('suffix'),
 				));
+			$this->out('done', true);
 		}
 	}
 
