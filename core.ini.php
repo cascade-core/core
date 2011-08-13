@@ -72,9 +72,29 @@ config		= core/routes.ini.php
 data		= "<p>Hello world!</p><p>Look at <a href='/doc'>documentation</a>!</p>"
 enable[]	= "router:hello"
 
+[module:doc_index_hd]
+.module		= "core/out/header"
+text		= "Documentation Index"
+level		= 1
+enable[]	= "version:done"
+slot-weight	= 10
+
 [module:doc_index]
 .module		= "core/devel/doc/index"
 .force-exec	= true
+slot-weight	= 60
+enable[]	= "router:index"
+
+[module:version_hd]
+.module		= "core/out/header"
+text		= "Version"
+enable[]	= "version:done"
+slot-weight	= 30
+
+[module:version]
+.module		= "core/devel/version"
+format		= "details"
+slot-weight	= 40
 enable[]	= "router:index"
 
 [module:doc_show]
