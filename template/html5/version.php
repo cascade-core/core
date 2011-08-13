@@ -57,7 +57,7 @@ function TPL_html5__core__version($t, $id, $d, $so)
 		// show everything in table
 		case 'full':
 
-			echo "<table>\n";
+			echo "<table class=\"table\">\n";
 			echo "<col width=\"20%\">";
 			foreach ($version as $part => $ver) {
 				echo "<tr><th colspan=\"2\">";
