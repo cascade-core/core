@@ -35,6 +35,7 @@ function TPL_html5__core__version($t, $id, $d, $so)
 	echo "<div id=\"", htmlspecialchars($id), "\" class=\"version_info\">\n";
 
 	switch ($format) {
+		// show only version string
 		default:
 		case 'short':
 			echo htmlspecialchars($prefix);
@@ -49,7 +50,13 @@ function TPL_html5__core__version($t, $id, $d, $so)
 			echo htmlspecialchars($suffix), "\n";
 			break;
 
+		// show selected fields in table
 		case 'details':
+			$fields = array('version', 'date');
+
+		// show everything in table
+		case 'full':
+
 			echo "<table>\n";
 			echo "<col width=\"20%\">";
 			foreach ($version as $part => $ver) {
@@ -63,14 +70,14 @@ function TPL_html5__core__version($t, $id, $d, $so)
 				}
 				echo "</th></tr>\n";
 
-				foreach ($ver as $k => $v) {
-					if ($v == '') {
+				foreach (isset($fields) ? $fields : array_keys($ver) as $k) {
+					if ($ver[$k] == '') {
 						continue;
 					}
 					echo "<tr>";
 					echo "<td align=\"right\">";
 					printf(_('%s%s:'), htmlspecialchars(strtoupper($k[0])), htmlspecialchars(substr($k, 1)));
-					echo "</td><td>", htmlspecialchars($v), "</td>";
+					echo "</td><td>", htmlspecialchars($ver[$k]), "</td>";
 					echo "</tr>\n";
 				}
 			}
