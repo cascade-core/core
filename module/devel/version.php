@@ -33,6 +33,10 @@ class M_core__devel__version extends Module
 	const force_exec = true;
 
 	protected $inputs = array(
+		'format' => 'short',	// 'short' = only app version, 'details' = everything
+		'link' => null,		// when 'short' format, link to this url
+		'prefix' => null,	// when 'short' format, prepend this string (some delimiter or so)
+		'suffix' => null,	// when 'short' format, append this string (some delimiter or so)
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -42,13 +46,22 @@ class M_core__devel__version extends Module
 
 	public function main()
 	{
-		$core_version = parse_ini_file(DIR_CORE.'version.ini.php', TRUE);
-		$app_version  = parse_ini_file(DIR_ROOT.'version.ini.php', TRUE);
+		$version_file = DIR_ROOT.'var/version.ini.php';
+		$version_mtime = @filemtime($version_file);
 
-		if ($core_version !== null || $app_version !== null) {
+		if (!$version_mtime || $version_mtime < @filemtime(DIR_ROOT.'.git/refs/heads')) {
+			system("core/update-version.sh");
+		}
+
+		$version = parse_ini_file($version_file, TRUE);
+
+		if (!empty($version)) {
 			$this->template_add(null, 'core/version', array(
-					'core' => @$core_version['version'],
-					'app'  => @$app_version['version'],
+					'version' => $version,
+					'format'  => $this->in('format'),
+					'link'    => $this->in('link'),
+					'prefix'  => $this->in('prefix'),
+					'suffix'  => $this->in('suffix'),
 				));
 		}
 	}

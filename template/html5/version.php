@@ -30,17 +30,52 @@
 
 function TPL_html5__core__version($t, $id, $d, $so)
 {
-	$core = (string) $d['core']['version'];
-	$app  = (string) $d['app']['version'];
+	extract($d);
 
 	echo "<div id=\"", htmlspecialchars($id), "\" class=\"version_info\">\n";
 
-	if ($app != '') {
-		echo "<div>app: <code>", htmlspecialchars($app), "</code></div>\n";
-	}
+	switch ($format) {
+		default:
+		case 'short':
+			echo htmlspecialchars($prefix);
+			if ($link) {
+				echo "<a href=\"", htmlspecialchars($link), "\">";
+			}
+			echo "<code title=\"", htmlspecialchars($version['app']['date']), "\">",
+					htmlspecialchars($version['app']['version']), "</code>";
+			if ($link) {
+				echo "</a>";
+			}
+			echo htmlspecialchars($suffix), "\n";
+			break;
 
-	if ($core) {
-		echo "<div>core: <code>", htmlspecialchars($core), "</code></div>\n";
+		case 'details':
+			echo "<table>\n";
+			echo "<col width=\"20%\">";
+			foreach ($version as $part => $ver) {
+				echo "<tr><th colspan=\"2\">";
+				if ($part == 'app') {
+					echo _('Application');
+				} else if ($part == 'core') {
+					echo _('Core');
+				} else if (strncmp($part, 'plugin:', 7) == 0) {
+					printf(_('Plugin %s'), substr($part, 7));
+				}
+				echo "</th></tr>\n";
+
+				foreach ($ver as $k => $v) {
+					if ($v == '') {
+						continue;
+					}
+					echo "<tr>";
+					echo "<td align=\"right\">";
+					printf(_('%s%s:'), htmlspecialchars(strtoupper($k[0])), htmlspecialchars(substr($k, 1)));
+					echo "</td><td>", htmlspecialchars($v), "</td>";
+					echo "</tr>\n";
+				}
+			}
+			echo "</table>\n";
+			break;
 	}
 
 	echo "</div>\n";
