@@ -53,6 +53,7 @@ class M_core__devel__version extends Module
 		$format = $this->in('format');
 
 		// Check if version.ini needs update
+		$need_update = false;
 		if (!$version_mtime || $this->is_git_repo_newer($version_mtime, DIR_ROOT)) {
 			// Short format needs only app version, so do not check everything
 			$need_update = true;
