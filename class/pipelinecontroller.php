@@ -171,7 +171,7 @@ class PipelineController {
 				$this->queue[] = $m;
 			}
 
-			return $m;
+			return true;
 
 		} else {
 			/* class not found, check if ini file exists */
