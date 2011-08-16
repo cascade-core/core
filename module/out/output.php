@@ -41,6 +41,7 @@ class M_core__out__output extends Module
 	);
 
 	protected $outputs = array(
+		'done' => true,
 	);
 
 	protected $template = null;	// Used instead of template input
@@ -77,6 +78,8 @@ class M_core__out__output extends Module
 			$this->template_add(null, $this->template, $data);
 
 		}
+
+		$this->out('done', true);
 	}
 }
 
