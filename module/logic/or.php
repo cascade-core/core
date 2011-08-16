@@ -36,17 +36,23 @@ class M_core__logic__or extends Module {
 
 	protected $outputs = array(
 		'out' => true,
+		'not' => true,
 	);
 
 	public function main()
 	{
+		$y = false;
+
 		foreach ($this->input_names() as $i) {
 			$v = $this->in($i);
 			if ($v) {
-				$this->out('out', $v);
+				$y = $v;
 				break;
 			}
 		}
+
+		$this->out('out', $y);
+		$this->out('not', !$y);
 	}
 }
 
