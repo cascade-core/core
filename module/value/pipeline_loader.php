@@ -34,6 +34,7 @@ class M_core__value__pipeline_loader extends Module
 
 	protected $inputs = array(
 		'*' => null,
+		'module-fmt' => null,
 		'output-forward' => 'done',
 	);
 
@@ -44,28 +45,37 @@ class M_core__value__pipeline_loader extends Module
 
 	public function main()
 	{
+		$all_ok = true;
+		$any_ok = false;
+
+		$module_fmt = $this->in('module-fmt');
 		$output_forward = $this->in('output-forward');
 		if (!is_array($output_forward)) {
 			$output_forward = preg_split('/[^a-zA-Z0-9_-]+/', $output_forward, -1, PREG_SPLIT_NO_EMPTY);
 		}
 
 		foreach ((array) $this->input_names() as $i) {
-			if ($i == 'output-forward') {
+			if ($i == 'output-forward' || $i == 'module-fmt') {
 				continue;
 			}
 
 			$mod = $this->in($i);
 			foreach ((array) $mod as $m => $mod2) {
 				$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i.'_'.$m);
-				$this->pipeline_add($id, $mod2, true, array(
-						'enable' => array('parent', 'done'),
+				$module = $this->pipeline_add($id, $module_fmt !== null ? sprintf($module_fmt, $mod2) : $mod2, true, array(
+						//'enable' => array('parent', 'done'),
 					));
-				foreach ($output_forward as $out) {
-					$this->out_forward($id.'_'.$out, $id, $out);
+				if ($module !== false) {
+					$any_ok = true;
+					foreach ($output_forward as $out) {
+						$this->out_forward($id.'_'.$out, $id, $out);
+					}
+				} else {
+					$all_ok = false;
 				}
 			}
 		}
-		$this->out('done', true);
+		$this->out('done', $all_ok && $any_ok);
 	}
 }
 
