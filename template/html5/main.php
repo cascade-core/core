@@ -39,7 +39,7 @@ function TPL_html5__core__main($t, $id, $d, $so)
 					? sprintf($so['page_title_format'], @$so['page_title'])
 					: @$so['page_title']
 				)."</title>\n";
-	echo "\t<meta http-equiv=\"content-type\" content=\"application/xhtml+xml; charset=utf-8\">\n";
+	echo "\t<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n";
 	$t->process_slot('html_head');
 	echo "</head>\n";
 	
