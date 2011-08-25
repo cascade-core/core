@@ -32,36 +32,53 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 {
 	extract($d);
 
+	// if $title_fmt does not start with '{a}' and end with '{/a}', wrap it with span
+	if ($title_fmt !== null && (strncmp($title_fmt, '{a}', 3) != 0 || substr($title_fmt, -4) != '{/a}')) {
+		$title_fmt = '<span>'.$title_fmt.'</span>';
+	}
+
 	switch ($layout) {
 		default:
 		case 'tree':
 			echo "<ul id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
-			tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match);
+			tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt);
 			echo "</ul>\n";
 			break;
 
 		case 'row':
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
-			tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match);
+			tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt);
 			echo "</div>\n";
 			break;
 	}
 }
 
 
-function tpl_html5__core__menu__label($id, $item)
+function tpl_html5__core__menu__label($id, $item, $title_fmt)
 {
-	$label = isset($item['label']) ? $item['label'] : @$item['title'];
-	if (isset($item['link'])) {
-		echo "<a href=\"", str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($item['link'])),
-				"\">", htmlspecialchars($label), "</a>";
+	if ($title_fmt !== null) {
+		if (isset($item['link'])) {
+			$open =  "<a href=\"".str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($item['link']))."\">";
+			$close = "</a>";
+		} else {
+			$open =  "<span>";
+			$close = "</span>";
+		}
+		$arg = array('a' => $open, '/a' => $close);
+		echo template_format($title_fmt, $item, 'htmlspecialchars', $arg);
 	} else {
-		echo "<span>", htmlspecialchars($label), "</span>";
+		$label = isset($item['label']) ? $item['label'] : @$item['title'];
+		if (isset($item['link'])) {
+			echo "<a href=\"", str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($item['link'])),
+					"\">", htmlspecialchars($label), "</a>";
+		} else {
+			echo "<span>", htmlspecialchars($label), "</span>";
+		}
 	}
 }
 
 
-function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match)
+function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt)
 {
 	foreach ($items as $i => $item) {
 
@@ -88,12 +105,12 @@ function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match)
 		}
 
 		/* show label */
-		tpl_html5__core__menu__label($id, $item);
+		tpl_html5__core__menu__label($id, $item, $title_fmt);
 
 		/* recursively show children */
 		if (isset($item['children'])) {
 			echo "\n<ul>\n";
-			tpl_html5__core__menu__tree($id, $item['children'], $active_uri, $exact_match);
+			tpl_html5__core__menu__tree($id, $item['children'], $active_uri, $exact_match, $title_fmt);
 			echo "</ul>\n";
 		}
 
@@ -102,7 +119,7 @@ function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match)
 }
 
 
-function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $first = true)
+function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt, $first = true)
 {
 	foreach ($items as $i => $item) {
 		/* is link active ? */
@@ -135,13 +152,13 @@ function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $fir
 		}
 
 		/* show label */
-		tpl_html5__core__menu__label($id, $item);
+		tpl_html5__core__menu__label($id, $item, $title_fmt);
 
 		echo "</span>";
 
 		/* recursively show children */
 		if (isset($item['children'])) {
-			tpl_html5__core__menu__tree($id, $item['children'], $active_uri, $exact_match, false);
+			tpl_html5__core__menu__row($id, $item['children'], $active_uri, $exact_match, false);
 		}
 
 	}

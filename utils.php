@@ -130,7 +130,7 @@ function format_bytes($bytes)
 }
 
 
-function template_format($template, array $values, $escaping_function = 'htmlspecialchars')
+function template_format($template, array $values, $escaping_function = 'htmlspecialchars', array $raw_values = array())
 {
 	$available_functions = array(
 		'sprintf'	=> 'sprintf',
@@ -140,7 +140,7 @@ function template_format($template, array $values, $escaping_function = 'htmlspe
 	);
 
 	$tokens = preg_split('/({)'
-				.'([a-zA-Z0-9_.-]+)'				// symbol name
+				."(\\/?[a-zA-Z0-9_.-]+)"			// symbol name
 				.'(?:'
 					.'([:%])([a-zA-Z0-9_}]*)'		// function name
 					."(?:([:])((?:[^}\\\\]|\\\\.)*))?"	// format string
@@ -234,18 +234,31 @@ function template_format($template, array $values, $escaping_function = 'htmlspe
 
 		if ($append) {
 			$append = false;
-			if (!array_key_exists($key, $values)) {
-				$v = '{?'.$key.'?}';
-			} else if ($function !== null) {
-				$v = $function($fmt, $values[$key]);
-			} else {
+
+			// get value
+			if (array_key_exists($key, $raw_values)) {
+				$v = $raw_values[$key];
+				$raw = true;
+			} else if (array_key_exists($key, $values)) {
 				$v = $values[$key];
-			}
-			if ($escaping_function) {
-				$result[] = $escaping_function($v);
+				$raw = false;
 			} else {
-				$result[] = $v;
+				// key not found, do not append it
+				$result[] = '{?'.$key.'?}';
+				continue;
 			}
+
+			// apply $function
+			if ($function !== null) {
+				$v = $function($fmt, $v);
+			}
+
+			// apply $escaping_function
+			if ($escaping_function && !$raw) {
+				$v = $escaping_function($v);
+			}
+
+			$result[] = $v;
 		}
 	}
 	return join('', $result);

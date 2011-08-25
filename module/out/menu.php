@@ -34,9 +34,10 @@ class M_core__out__menu extends Module
 
 	protected $inputs = array(
 		'items' => null,
-		'layout' => 'tree',
+		'layout' => 'tree',		// tree or row
 		'active-uri' => null,
 		'exact-match' => false,
+		'title-fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -53,6 +54,7 @@ class M_core__out__menu extends Module
 			$this->template_add(null, 'core/menu', array(
 					'items' => $items,
 					'layout' => $this->in('layout'),
+					'title_fmt' => $this->in('title-fmt'),
 					'exact_match' => $this->in('exact-match'),
 					'active_uri' => $this->in('active-uri'),
 				));
