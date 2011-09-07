@@ -32,6 +32,7 @@ class Context {
 
 	private $locale = DEFAULT_LOCALE;
 	private $template_engine = null;
+	private $auth = null;
 
 	private static $last_context_enviroment = false;
 
@@ -81,11 +82,32 @@ class Context {
 	}
 
 
+	/****************************************************************************
+	 *	Authentication & Autorisation
+	 */
+	
+	public function set_auth(IAuth $auth)
+	{
+		$this->auth = $auth;
+	}
+
+
+	public function get_auth()
+	{
+		return $this->auth;
+	}
+
+
 	/* Security: check if module is allowed before pipeline controller loads it */
 	public function is_allowed($module_name, & $details = null)
 	{
 		// Return false if access should be denied and set $details to string with explanation.
-		return true;
+		if ($this->auth) {
+			return $this->auth->is_allowed($module_name, $details);
+		} else {
+			// If there is no Auth object, allow everything
+			return true;
+		}
 	}
 }
 

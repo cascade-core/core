@@ -238,6 +238,13 @@ $default_context = new $context_class();
 $default_context->set_locale(DEFAULT_LOCALE);
 $default_context->set_template_engine($template);
 
+/* Initialize Auth object (if set) */
+if (!empty($core_cfg['core']['auth_class'])) {
+	$auth_class = $core_cfg['core']['auth_class'];
+	$auth = new $auth_class();
+	$default_context->set_auth($auth);
+}
+
 /* Initialize pipeline controller */
 $pipeline = new PipelineController();
 $pipeline->set_replacement_table(@$core_cfg['module-map']);
