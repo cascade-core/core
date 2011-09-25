@@ -40,6 +40,9 @@ function TPL_html5__core__main($t, $id, $d, $so)
 					: @$so['page_title']
 				)."</title>\n";
 	echo "\t<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n";
+	if ($d['css_link'] !== null) {
+		echo "\t<link rel=\"stylesheet\" href=\"", htmlspecialchars($d['css_link']), "\" type=\"text/css\">\n";
+	}
 	$t->process_slot('html_head');
 	echo "</head>\n";
 	
