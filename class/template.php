@@ -154,20 +154,27 @@ class Template {
 		return;
 		// */
 
+		$redirect_url = @$this->slot_options['root']['redirect_url'];
+
 		/* Show core's name in header */
 		header('X-Powered-By: Dynamic Pipeline', TRUE);		// FIXME
 
-		/* send custom status code & message */
-		$code    = @$this->slot_options['root']['http_status_code'];
-		$message = @$this->slot_options['root']['http_status_message'];
-		$code    = $code >= 100 && $code < 600 ? $code : 200;
+		/* Send custom status code & message */
+		if ($redirect_url) {
+			$code    = @$this->slot_options['root']['redirect_code'];
+			$message = @$this->slot_options['root']['redirect_message'];
+			$code    = $code >= 300 && $code < 400 ? $code : 301;
+		} else {
+			$code    = @$this->slot_options['root']['http_status_code'];
+			$message = @$this->slot_options['root']['http_status_message'];
+			$code    = $code >= 100 && $code < 600 ? $code : 200;
+		}
 		$message = $message ? $message : $this->get_http_status_message($code);
 		header(sprintf('HTTP/1.1 '.$code.' '.$message));
 
 		/* process redirect (no output, headers only) */
-		$redirect_url = @$this->slot_options['root']['redirect_url'];
 		if ($redirect_url) {
-			debug_msg('Redirecting to "%s"', $redirect_url);
+			debug_msg('Redirecting to "%s" (%d %s)', $redirect_url, $code, $message);
 			header('Location: '.$redirect_url, TRUE, $code != 200 ? $code : 301);
 			return;
 		}

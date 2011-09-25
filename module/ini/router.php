@@ -58,6 +58,9 @@ class M_core__ini__router extends Module {
 			$orig_uri_path = false;
 		}
 
+		// have slash at the end ?
+		$have_last_slash = $uri_path != '/' && substr($uri_path, -1) == '/';
+
 		// normalize current path and get fragments
 		$uri_path = rtrim($uri_path, '/');
 		$uri_path = preg_replace('/\/+/', '/', $uri_path);
@@ -67,8 +70,12 @@ class M_core__ini__router extends Module {
 		}
 
 		// if normalized does not match original, redirect and do not set outputs
-		if ($this->in('canonize_path') && $orig_uri_path !== $uri_path && $_SERVER['REQUEST_METHOD'] == 'GET') {
-			$this->template_option_set('root', 'redirect_url', $uri_path);
+		if ($orig_uri_path !== false && $this->in('canonize_path')
+				&& ($have_last_slash ? $orig_uri_path != $uri_path.'/' : $orig_uri_path != $uri_path)
+				&& $_SERVER['REQUEST_METHOD'] == 'GET')
+		{
+			//dump('redirect to:', $have_last_slash ? $uri_path.'/' : $uri_path, 'from:', $orig_uri_path);
+			$this->template_option_set('root', 'redirect_url', $have_last_slash ? $uri_path.'/' : $uri_path);
 			$this->out('done', false);
 			return;
 		}

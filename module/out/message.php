@@ -110,6 +110,10 @@ class M_core__out__message extends Module
 			$title = vsprintf($title, $in_vals);
 		}
 
+		if ($title == '' || !preg_match('/^[a-z][a-z0-9_]*$/', $type)) {
+			return;
+		}
+
 		/* get text */
 		if (($text = (string) $this->in($type.'-text')) == '') {
 			$text = $this->in('text');
@@ -129,24 +133,21 @@ class M_core__out__message extends Module
 		}
 
 		/* show message */
-		if ($title !== '' && preg_match('/^[a-z][a-z0-9_]*$/', $type)) {
-			$msg_data = array(
-				'type' => $type,
-				'title' => $title,
-				'text' => $text,
-			);
+		$msg_data = array(
+			'type' => $type,
+			'title' => $title,
+			'text' => $text,
+		);
+		$this->template_add(null, 'core/message', $msg_data);
 
-			$this->template_add(null, 'core/message', $msg_data);
-
-			/* redirect if success */
-			if ($type == 'success' && $this->in('allow-redirect')) {
-				$redirect_url = vsprintf($this->in('redirect-url'), $in_vals);
-				if ($redirect_url != '') {
-					$redirect_anchor = vsprintf($this->in('redirect-anchor'), $in_vals);
-					$this->template_option_set('root', 'redirect_url',
-						$redirect_anchor ? $redirect_url.'#'.$redirect_anchor : $redirect_url);
-					$_SESSION['message_queue'][] = $msg_data;
-				}
+		/* redirect if success */
+		if ($type == 'success' && $this->in('allow-redirect')) {
+			$redirect_url = vsprintf($this->in('redirect-url'), $in_vals);
+			if ($redirect_url != '') {
+				$redirect_anchor = vsprintf($this->in('redirect-anchor'), $in_vals);
+				$this->template_option_set('root', 'redirect_url',
+					$redirect_anchor ? $redirect_url.'#'.$redirect_anchor : $redirect_url);
+				$_SESSION['message_queue'][] = $msg_data;
 			}
 		}
 	}
