@@ -52,7 +52,7 @@ class M_core__ini__router extends Module {
 		// get current path
 		$uri_path = $this->in('path');
 		if ($uri_path == null) {
-			$uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+			$uri_path = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 			$orig_uri_path = $uri_path;
 		} else {
 			$orig_uri_path = false;
