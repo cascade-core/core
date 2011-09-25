@@ -39,6 +39,8 @@ class M_core__out__set_page_title extends Module
 	);
 
 	protected $outputs = array(
+		'title' => true,
+		'done' => true,
 	);
 
 	public function main()
@@ -51,6 +53,9 @@ class M_core__out__set_page_title extends Module
 		}
 
 		$this->template_set_page_title($t, $fmt);
+
+		$this->out('title', $t);
+		$this->out('done', true);
 	}
 }
 
