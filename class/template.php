@@ -54,6 +54,7 @@ class Template {
 		if (is_array($value)) {
 			error_msg('Slot option must not be array!');
 		} else {
+			debug_msg('Setting slot option "%s" of slot "%s" = "%s"', $option, $slot, $value);
 			$this->slot_options[$slot][$option] = $value;
 		}
 	}
@@ -113,9 +114,10 @@ class Template {
 
 			/* special option 'type' sets output type */
 			if (isset($options['type'])) {
-				$output_type = trim(preg_replace('/[^a-z0-9_]+/', '_', strtolower($options['type'])), '_');
-				if ($output_type == '') {
-					$output_type = $last_output_type;
+				$new_output_type = trim(preg_replace('/[^a-z0-9_]+/', '_', strtolower($options['type'])), '_');
+				if ($new_output_type != '' && $new_output_type != $output_type) {
+					debug_msg(' %s Output type changed to "%s" ...', $indent, $new_output_type);
+					$output_type = $new_output_type;
 				}
 			}
 
