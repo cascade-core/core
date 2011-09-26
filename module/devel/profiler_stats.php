@@ -33,7 +33,7 @@ class M_core__devel__profiler_stats extends Module
 	const force_exec = true;
 
 	protected $inputs = array(
-		'filename' => array(),
+		'filename' => '{DIR_ROOT}/var/profiler.stats',
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -48,7 +48,7 @@ class M_core__devel__profiler_stats extends Module
 
 	public function main()
 	{
-		$data = file_get_contents($this->in('filename'));
+		$data = file_get_contents(template_format($this->in('filename'), get_defined_constants(), null));
 		if ($data === FALSE) {
 			return;
 		}

@@ -33,6 +33,7 @@ class M_core__devel__version extends Module
 	const force_exec = true;
 
 	protected $inputs = array(
+		'filename' => '{DIR_ROOT}var/version.ini.php',
 		'format' => 'short',	// 'short' = only app version, 'details' = everything
 		'link' => null,		// when 'short' format, link to this url
 		'prefix' => null,	// when 'short' format, prepend this string (some delimiter or so)
@@ -47,7 +48,7 @@ class M_core__devel__version extends Module
 
 	public function main()
 	{
-		$version_file = DIR_ROOT.'var/version.ini.php';
+		$version_file = template_format($this->in('filename'), get_defined_constants(), null);
 		$version_mtime = @filemtime($version_file);
 
 		$format = $this->in('format');
