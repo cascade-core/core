@@ -91,7 +91,7 @@ class Template {
 	function process_slot($slot_name)
 	{
 		static $options = array();
-		static $output_type = 'xhtml';
+		static $output_type = null;
 
 		$indent = str_repeat(' .', $this->current_slot_depth);
 		$this->current_slot_depth++;
@@ -179,6 +179,18 @@ class Template {
 			debug_msg('Redirecting to "%s" (%d %s)', $redirect_url, $code, $message);
 			header('Location: '.$redirect_url, TRUE, $code != 200 ? $code : 301);
 			return;
+		}
+
+		/* check if type is set */
+		if (!isset($this->slot_options['root']['type'])) {
+			error_msg('Output type is not specified!');
+			return;
+		}
+
+		/* load init.php */
+		$init_filename = get_template_filename($this->slot_options['root']['type'], 'init');
+		if (file_exists($init_filename)) {
+			include $init_filename;
 		}
 
 		/* process root slot */
