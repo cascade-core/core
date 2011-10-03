@@ -96,6 +96,13 @@ function TPL_html5__core__table($t, $id, $table, $so)
 			}
 		}
 
+		$row_class = $table->get_row_class();
+		if (is_callable($row_class)) {
+			$row_attr .= ' class="'.htmlspecialchars($row_class($row_data)).'"';
+		} else if ($row_class != '') {
+			$row_attr .= ' class="'.htmlspecialchars($row_class).'"';
+		}
+
 		echo "<tr", $row_attr, ">\n";
 		foreach ($col_renderer as $col) {
 			$col->td($row_data);

@@ -56,6 +56,16 @@ class TableView {
 		$this->actions[$name] = $opts;
 	}
 
+	public function set_row_class($class)
+	{
+		$this->row_class = $class;
+	}
+
+	public function get_row_class()
+	{
+		return $this->row_class;
+	}
+
 
 	public function get_actions()
 	{
