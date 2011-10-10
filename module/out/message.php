@@ -62,6 +62,7 @@ class M_core__out__message extends Module
 		// redirect - only if success
 		'redirect-url' => null,
 		'allow-redirect' => true,
+		'quiet-redirect' => false,
 
 		// http-status
 		'http-status-code' => null,
@@ -147,7 +148,10 @@ class M_core__out__message extends Module
 				$redirect_anchor = vsprintf($this->in('redirect-anchor'), $in_vals);
 				$this->template_option_set('root', 'redirect_url',
 					$redirect_anchor ? $redirect_url.'#'.$redirect_anchor : $redirect_url);
-				$_SESSION['message_queue'][] = $msg_data;
+
+				if (!$this->in('quiet-redirect')) {
+					$_SESSION['message_queue'][] = $msg_data;
+				}
 			}
 		}
 	}
