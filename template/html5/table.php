@@ -32,7 +32,7 @@ function TPL_html5__core__table($t, $id, $table, $so)
 {
 	$col_renderer = array();
 
-	echo "<table id=\"".htmlspecialchars($id)."\" class=\"table\">\n";
+	echo "<table id=\"".htmlspecialchars($id)."\" class=\"table", (($c = $table->get_table_class()) ? ' '.str_replace('/', '__', $c) : ''), "\">\n";
 
 	/* prepare renderers */
 	foreach ($table->columns() as $c => $col) {

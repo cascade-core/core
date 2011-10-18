@@ -30,6 +30,7 @@
 
 class TableView {
 
+	private $class;
 	private $columns;
 	private $actions;	// Links shown in footer
 	private $data_array;
@@ -54,6 +55,16 @@ class TableView {
 	public function add_action($name, $opts)
 	{
 		$this->actions[$name] = $opts;
+	}
+
+	public function set_table_class($class)
+	{
+		$this->class = $class;
+	}
+
+	public function get_table_class()
+	{
+		return $this->class;
 	}
 
 	public function set_row_class($class)
