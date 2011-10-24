@@ -43,16 +43,10 @@ class M_core__ini__router extends Module {
 
 	public function main()
 	{
-		// load config
-		$conf = parse_ini_file($this->in('config'), TRUE);
-		if ($conf === FALSE) {
-			return;
-		}
-
 		// get current path
 		$uri_path = $this->in('path');
 		if ($uri_path == null) {
-			$uri_path = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+			$uri_path = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 			$orig_uri_path = $uri_path;
 		} else {
 			$orig_uri_path = false;
@@ -64,7 +58,6 @@ class M_core__ini__router extends Module {
 		// normalize current path and get fragments
 		$uri_path = rtrim($uri_path, '/');
 		$uri_path = preg_replace('/\/+/', '/', $uri_path);
-		$path = explode('/', $uri_path);
 		if ($uri_path == '') {
 			$uri_path = '/';
 		}
@@ -80,6 +73,32 @@ class M_core__ini__router extends Module {
 			return;
 		}
 
+		$args = $this->route($uri_path);
+
+		if ($args !== false) {
+			// match found
+			$this->out_all($args);
+			$this->out('done', true);
+			$this->out('path', $uri_path);
+			$this->out('no_match', false);
+		} else {
+			// no match
+			debug_msg("No route matched!");
+			$this->out('done', false);
+			$this->out('path', $uri_path);
+			$this->out('no_match', true);
+		}
+	}
+
+
+	protected function route($path)
+	{
+		// load config
+		$conf = parse_ini_file($this->in('config'), TRUE);
+		if ($conf === FALSE) {
+			return false;
+		}
+
 		// default args
 		if (array_key_exists('#', $conf)) {
 			$defaults = $conf['#'];
@@ -88,51 +107,51 @@ class M_core__ini__router extends Module {
 			$defaults = array();
 		}
 
+		$path = explode('/', rtrim($path, '/'));
+
 		// match rules one by one
 		foreach($conf as $mask => $args) {
-			$m = explode('/', rtrim($mask, '/'));
-			$last = end($m);
+			if ($mask[0] == '!') {
+				$m = explode(':', substr($mask, 1));
+				dump($m);
+			} else {
+				$m = explode('/', rtrim($mask, '/'));
+				$last = end($m);
 
-			// check length (quickly drop wrong path)
-			if ($last != '**' ? count($m) != count($path) : count($m) - 1 > count($path)) {
-				continue;
-			}
-
-			// compare fragments
-			for ($i = 0; $i < count($m); $i++) {
-				if (@$m[$i][0] == '$') {
-					// variable - match anything
-					$a = substr($m[$i], 1);
-					$args[$a] = $path[$i];
-				} else if ($i == count($m) - 1 && $m[$i] == '**') {
-					// last part is '**' -- copy tail and finish
-					$args['path_tail'] = array_slice($path, $i);
-					$i = count($m);
-					break;
-				} else if ($m[$i] != $path[$i]) {
-					// fail
-					break;
+				// check length (quickly drop wrong path)
+				if ($last != '**' ? count($m) != count($path) : count($m) - 1 > count($path)) {
+					continue;
 				}
-			}
-			if ($i < count($m)) {
-				// match failed
-				continue;
+
+				// compare fragments
+				for ($i = 0; $i < count($m); $i++) {
+					if (@$m[$i][0] == '$') {
+						// variable - match anything
+						$a = substr($m[$i], 1);
+						$args[$a] = $path[$i];
+					} else if ($i == count($m) - 1 && $m[$i] == '**') {
+						// last part is '**' -- copy tail and finish
+						$args['path_tail'] = array_slice($path, $i);
+						$i = count($m);
+						break;
+					} else if ($m[$i] != $path[$i]) {
+						// fail
+						break;
+					}
+				}
+				if ($i < count($m)) {
+					// match failed
+					continue;
+				}
 			}
 
 			// match found
 			debug_msg("Matched rule [%s]", $mask);
-			$this->out_all(array_merge($defaults, $args));
-			$this->out('done', true);
-			$this->out('path', $uri_path);
-			$this->out('no_match', false);
-			return;
+			return array_merge($defaults, $args);
 		}
 
 		// no match
-		debug_msg("No rule matched!");
-		$this->out('done', false);
-		$this->out('path', $uri_path);
-		$this->out('no_match', true);
+		return false;
 	}
 }
 
