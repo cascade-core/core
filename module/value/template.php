@@ -31,13 +31,12 @@
 class M_core__value__template extends Module {
 
 	protected $inputs = array(
-		'template' => array(),
 		'escaping-fn' => null,
 		'*' => '',
 	);
 
 	protected $outputs = array(
-		'text' => true,
+		'*' => true,
 		'done' => true,
 	);
 
@@ -45,12 +44,21 @@ class M_core__value__template extends Module {
 	{
 		$inputs = $this->input_names();
 		$values = array();
+		$fmt_strings = array();
 
 		foreach ($inputs as $in) {
-			$values[$in] = $this->in($in);
+			if (strncmp($in, 'fmt_', 4) == 0) {
+				$fmt_strings[substr($in, 4)] = $this->in($in);
+			} else if ($in != 'escaping-fn') {
+				$values[$in] = $this->in($in);
+			}
 		}
 
-		$this->out('text', template_format($this->in('template'), $values, $this->in('escaping-fn')));
+		$esc_fn = $this->in('escaping-fn');
+
+		foreach ($fmt_strings as $name => $fmt) {
+			$this->out($name, template_format($fmt, $values, $esc_fn));
+		}
 		$this->out('done', true);
 	}
 }
