@@ -50,12 +50,13 @@ class M_core__devel__version extends Module
 	{
 		$version_file = template_format($this->in('filename'), get_defined_constants(), null);
 		$version_mtime = @filemtime($version_file);
+		$version_size = @filesize($version_size);
 
 		$format = $this->in('format');
 
 		// Check if version.ini needs update
 		$need_update = false;
-		if (!$version_mtime || $this->is_git_repo_newer($version_mtime, DIR_ROOT)) {
+		if (!$version_mtime || ($version_size < 10 && $version_mtime + 28800 < time()) || $this->is_git_repo_newer($version_mtime, DIR_ROOT)) {
 			// Short format needs only app version, so do not check everything
 			$need_update = true;
 		} else if ($format != 'short') {
