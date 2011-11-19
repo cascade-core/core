@@ -47,7 +47,13 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 	// Location
 	if ($is_local && isset($filename)) {
 		echo "<div class=\"location\"><small>";
-		printf(_('Location: <a href="open://%s"><tt>%s</tt></a>'), htmlspecialchars($filename), htmlspecialchars($filename));
+		$prefix = htmlspecialchars(DIR_ROOT);
+		$prefix_len = strlen($prefix);
+		$html_filename = htmlspecialchars($filename);
+
+		printf(_('Location: <a href="open://%s"><tt>%s</tt></a>'),
+				htmlspecialchars($filename),
+				strncmp($prefix, $html_filename, $prefix_len) == 0 ? '&hellip;/'.substr($html_filename, $prefix_len) : $html_filename);
 		echo "</small></div>\n";
 	}
 
