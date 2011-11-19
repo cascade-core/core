@@ -111,6 +111,13 @@ abstract class Module {
 		return $this->status;
 	}
 
+
+	final public function get_pipeline_controller()
+	{
+		return $this->pipeline_controller;
+	}
+
+
 	/****************************************************************************
 	 *	Part of Pipeline Controller
 	 */
@@ -450,6 +457,21 @@ abstract class Module {
 	final protected function out_forward($name, $source_module, $source_name)
 	{
 		$this->forward_list[$name] = array($source_module, $source_name);
+	}
+
+
+	// list all visible module names already in pipeline (for debugging only)
+	final public function visible_module_names()
+	{
+		$m = $this;
+		$names = $this->pipeline_controller->root_namespace_module_names();
+
+		while ($m && $m->namespace) {
+			$names = array_merge($names, array_keys($m->namespace));
+			$m = $m->parent;
+		}
+
+		return $names;
 	}
 
 

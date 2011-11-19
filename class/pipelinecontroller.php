@@ -68,6 +68,12 @@ class PipelineController {
 	}
 
 
+	public function get_replacement_table()
+	{
+		return $this->replacement;
+	}
+
+
 	public function resolve_module_name($mod_name)
 	{
 		if (($m = @$this->root_namespace[$mod_name])) {
@@ -75,6 +81,12 @@ class PipelineController {
 		} else {
 			error_msg('Module "%s" not found in root namespace!', $mod_name);
 		}
+	}
+
+
+	public function root_namespace_module_names()
+	{
+		return array_keys($this->root_namespace);
 	}
 
 
@@ -283,7 +295,7 @@ class PipelineController {
 	}
 
 
-	public function export_graphviz_dot($doc_link)
+	public function export_graphviz_dot($doc_link, $whitelist = array())
 	{
 		$colors = array(
 			Module::QUEUED   => '#eeeeee',	// grey
@@ -300,12 +312,13 @@ class PipelineController {
 			."#\n"
 			."digraph structs {\n"
 			."	rankdir = LR;\n"
+			."	bgcolor = transparent;\n"
 			."	edge [ arrowtail=none, arrowhead=normal, arrowsize=0.6 ];\n"
 			."	node [ shape=none, fontsize=7, fontname=\"sans\" ];\n"
 			."	subgraph [ shape=none, color=blueviolet, fontcolor=blueviolet, fontsize=9, fontname=\"sans\" ];\n"
 			."\n";
 
-		list($clusters, $specs) = $this->export_graphviz_dot_namespace($this->root_namespace, $colors, $doc_link);
+		list($clusters, $specs) = $this->export_graphviz_dot_namespace($this->root_namespace, $colors, $doc_link, array_flip($whitelist));
 		$gv .= $clusters;
 		$gv .= $specs;
 		$gv .= "}\n";
@@ -313,7 +326,7 @@ class PipelineController {
 		return $gv;
 	}
 
-	private function export_graphviz_dot_namespace($namespace, $colors, $doc_link, $indent = "\t")
+	private function export_graphviz_dot_namespace($namespace, $colors, $doc_link, $whitelist = array(), $indent = "\t")
 	{
 		$missing_modules = array();
 		$gv = '';
@@ -331,7 +344,7 @@ class PipelineController {
 			/* add module header */
 			$subgraph .= $indent."m_".get_ident($id).";\n";
 			$gv .=	 "\tm_".get_ident($id)." [URL=\"".sprintf($doc_link, $module->module_name())."\",target=\"_blank\","
-						."label=<<table border=\"1\" cellborder=\"0\" cellspacing=\"0\">\n"
+						."label=<<table border=\"1\" bgcolor=\"#ffffff\" cellborder=\"0\" cellspacing=\"0\">\n"
 				."	<tr>\n"
 				."		<td bgcolor=\"".$colors[$module->status()]."\" colspan=\"2\">\n"
 				."			<font face=\"sans bold\">".htmlspecialchars($module->id())."</font><br/>\n"
@@ -357,12 +370,14 @@ class PipelineController {
 
 					$out_mod_id = is_object($out_mod) ? $out_mod->full_id() : $out_mod;
 
+					$missing = true;
+					$zero = true;
+					$big = false;
+
 					if (!is_object($out_mod)) {
 						$missing_modules[$out_mod] = true;
-						$missing = true;
-					} else if (!$out_mod->pc_output_exists($out_name)) {
-						$missing = true;
-					} else {
+						$missing = !array_key_exists($out_mod, $whitelist);
+					} else if ($out_mod->pc_output_exists($out_name)) {
 						$missing = false;
 						$v = $out_mod->pc_output_cache();
 						$v = @$v[$out_name];
@@ -439,7 +454,7 @@ class PipelineController {
 			/* recursively draw sub-namespaces */
 			$child_namespace = $module->pc_get_namespace();
 			if (!empty($child_namespace)) {
-				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link, $indent."\t");
+				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link, $whitelist, $indent."\t");
 				$subgraph .= "\n"
 					.$indent."subgraph cluster_".get_ident($id)." {\n"
 					.$indent."\tlabel = \"".$id."\";\n\n"
@@ -458,7 +473,8 @@ class PipelineController {
 				} else {
 					$label = '"'.addcslashes($module, '"\\').'"';
 				}
-				$gv .= "\t m_".get_ident($module)." [color=\"#ff6666\", shape=ellipse, label=$label, padding=0];\n";
+				$gv .= "\t m_".get_ident($module)." [color=".(array_key_exists($module, $whitelist) ? "dimgrey" : "red")
+						.", shape=ellipse, label=$label, padding=0];\n";
 			}
 		}
 

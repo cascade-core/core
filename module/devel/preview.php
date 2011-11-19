@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2010, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,53 +28,41 @@
  * SUCH DAMAGE.
  */
 
-class M_core__ini__load extends Module {
+class M_core__devel__preview extends Module
+{
+	const force_exec = true;
 
 	protected $inputs = array(
-		'filename' => array(),
-		'name' => null,
-		'process-sections' => true,
-		'multi-output' => false,
+		'modules' => array(),
+		'link' => DEBUG_PIPELINE_GRAPH_LINK,
+		'slot' => 'default',
+		'slot-weight' => 50,
 	);
 
 	protected $outputs = array(
-		'data' => true,
-		'filename' => true,
-		'error' => true,
 		'done' => true,
 	);
 
-
 	public function main()
 	{
-		$name = $this->in('name');
-		$fn = $this->in('filename');
+		/* Initialize pipeline controller */
+		$pipeline = new PipelineController();
+		$pipeline->set_replacement_table($this->get_pipeline_controller()->get_replacement_table());
 
-		if (is_array($name)) {
-			$name = join('/', $name);
-		}
-		if (is_array($fn)) {
-			$fn = join('/', $fn);
-		}
+		/* Prepare starting modules */
+		$done = $pipeline->add_modules_from_ini(null, $this->in('modules'), $this->context);
 
-		if ($name !== null) {
-			$fn = sprintf($fn, $name);
-		}
+		/* Template object will render & cache image */
+		$this->template_add('_pipeline_graph', 'core/pipeline_graph', array(
+				'pipeline' => $pipeline,
+				'whitelist' => $this->visible_module_names(),
+				'dot_name' => 'data/graphviz/pipeline-%s.%s',
+				'preview' => true,
+				'style' => 'page-content',
+				'link' => $this->in('link'),
+			));
 
-		$data = parse_ini_file($fn, $this->in('process-sections'));
-
-		if ($data === FALSE) {
-			$this->out('error', true);
-		} else {
-			if ($this->in('multi-output')) {
-				$this->out_all($data);
-			} else {
-				$this->out('data', $data);
-			}
-		}
-
-		$this->out('filename', $fn);
-		$this->out('done', $data !== FALSE);
+		$this->out('done', $done);
 	}
 }
 

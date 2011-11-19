@@ -40,10 +40,12 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 	echo "</h2>\n";
 
 	// Class header
-	echo "<div class=\"class_header\"><small><tt>", htmlspecialchars($class_header), "</tt></small></div>\n";
+	if (isset($class_header)) {
+		echo "<div class=\"class_header\"><small><tt>", htmlspecialchars($class_header), "</tt></small></div>\n";
+	}
 
 	// Location
-	if ($is_local) {
+	if ($is_local && isset($filename)) {
 		echo "<div class=\"location\"><small>";
 		printf(_('Location: <a href="open://%s"><tt>%s</tt></a>'), htmlspecialchars($filename), htmlspecialchars($filename));
 		echo "</small></div>\n";
@@ -54,31 +56,39 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 		"<h3>", _('Description'), "</h3>\n";
 	if (empty($description)) {
 		echo "<p>", _('Sorry, no description available.'), "</p>\n";
+	} else if (!is_array($description)) {
+		echo "<p>", htmlspecialchars($description), "</p>";
 	} else foreach ($description as $text) {
-		echo "<pre>", ($text), "</pre>";
+		echo "<pre>", htmlspecialchars($text), "</pre>";
 	}
 	echo "</div>\n";
 
 	// Force exec
-	echo "<div class=\"force_exec\">\n",
-		"<h3>", _('Force Exec flag'), "</h3>\n",
-		"<pre>", htmlspecialchars($force_exec), "</pre>\n",
-		"</div>\n";
+	if (isset($force_exec)) {
+		echo "<div class=\"force_exec\">\n",
+			"<h3>", _('Force Exec flag'), "</h3>\n",
+			"<pre>", htmlspecialchars($force_exec), "</pre>\n",
+			"</div>\n";
+	}
 
 	// Inputs
-	echo "<div class=\"inputs\">\n",
-		"<h3>", _('Inputs'), "</h3>\n",
-		"<pre>", htmlspecialchars($inputs), "</pre>\n",
-		"</div>\n";
+	if (isset($inputs)) {
+		echo "<div class=\"inputs\">\n",
+			"<h3>", _('Inputs'), "</h3>\n",
+			"<pre>", htmlspecialchars($inputs), "</pre>\n",
+			"</div>\n";
+	}
 
 	// Outputs
-	echo "<div class=\"outputs\">\n",
-		"<h3>", _('Outputs'), "</h3>\n",
-		"<pre>", htmlspecialchars($outputs), "</pre>\n",
-		"</div>\n";
+	if (isset($outputs)) {
+		echo "<div class=\"outputs\">\n",
+			"<h3>", _('Outputs'), "</h3>\n",
+			"<pre>", htmlspecialchars($outputs), "</pre>\n",
+			"</div>\n";
+	}
 
-	if ($code) {
-		// Code
+	// Code
+	if (isset($code)) {
 		echo "<div class=\"code\">\n",
 			"<h3>", _('Code'), "</h3>\n",
 			"<pre style=\"overflow: auto;\">";

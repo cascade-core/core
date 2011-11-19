@@ -38,7 +38,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 		@mkdir(dirname($dot_name));
 	}
 
-	$dot = $pipeline->export_graphviz_dot($link);
+	$dot = $pipeline->export_graphviz_dot($link, isset($whitelist) ? $whitelist : array());
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
@@ -80,17 +80,27 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 
 		default:
 		case 'image':
-			echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
-				"\t<hr>\n",
-				"\t<h2>Pipeline</h2>\n",
-				"\t<div><small>[ ",
-					"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
-					" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
-					" ]</small></div>\n",
-				str_replace(array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""'),
-					array('<map id="pipeline_graph_map" name="pipeline_graph_map">', ''),
-					file_get_contents(DIR_ROOT.$map_file)),
-				'<img src="', htmlspecialchars('/'.$png_file), '" usemap="pipeline_graph_map">',
+		case 'page-content':
+			if ($style == 'image') {
+				echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
+					"\t<hr>\n",
+					"\t<h2>Pipeline</h2>\n",
+					"\t<div><small>[ ",
+						"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
+						" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
+					" ]</small></div>\n";
+			} else {
+				echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\">\n";
+			}
+			$map_html_name = 'pipeline_graph_map__'.htmlspecialchars($id);
+			$map_needle = array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""');
+			$map_replacement = array('<map id="'.$map_html_name.'" name="'.$map_html_name.'">', '');
+			if (!empty($preview)) {
+				$map_needle[] = ' target="_blank"';
+				$map_replacement[] = '';
+			}
+			echo str_replace($map_needle, $map_replacement, file_get_contents(DIR_ROOT.$map_file)),
+				'<img src="', htmlspecialchars('/'.$png_file), '" usemap="pipeline_graph_map__'.htmlspecialchars($id).'">',
 				"</div>\n";
 			//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
 			break;

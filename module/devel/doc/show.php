@@ -40,6 +40,7 @@ class M_core__devel__doc__show extends Module
 	protected $inputs = array(
 		'module' => array(),
 		'show-code' => false,
+		'link' => DEBUG_PIPELINE_GRAPH_LINK,
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -61,8 +62,8 @@ class M_core__devel__doc__show extends Module
 		}
 		$this->expected_class = 'M_'.str_replace('/', '__', $module);
 
+		// PHP file
 		$filename = get_module_filename($module);
-
 		debug_msg("%s: Loading module %s from file %s", $this->full_id(), $module, $filename);
 
 		if (is_readable($filename)) {
@@ -89,13 +90,40 @@ class M_core__devel__doc__show extends Module
 
 			$this->out('title', $module);
 			$this->out('done', true);
-		} else {
-			error_msg("%s: Can't read file %s", $this->full_id(), $filename);
-			$this->out('done', false);
+			unset($this->tokens);
+			unset($this->data);
+
+			return;
 		}
 
-		unset($this->tokens);
-		unset($this->data);
+		// INI file
+		$filename = get_module_filename($module, '.ini.php');
+		debug_msg("%s: Loading module %s from file %s", $this->full_id(), $module, $filename);
+
+		if (is_readable($filename)) {
+			$this->template_add(null, 'core/doc/show', array(
+					'module' => $module,
+					'filename' => $filename,
+					'description' => _('Module is composed of these modules:'),
+					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
+				));
+
+			$this->pipeline_add('load', 'core/ini/load', null, array(
+					'filename' => $filename,
+				));
+			$this->pipeline_add('show_image', 'core/devel/preview', null, array(
+					'modules' => array('load', 'data'),
+					'link' => $this->in('link'),
+					'slot' => $this->in('slot'),
+					'slot-weight' => $this->in('slot-weight'),
+				));
+			$this->out_forward('done', 'load', 'done');
+			return;
+		}
+
+		// Nothing found
+		error_msg("%s: Can't read file %s", $this->full_id(), $filename);
+		$this->out('done', false);
 	}
 
 
