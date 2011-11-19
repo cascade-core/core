@@ -50,7 +50,8 @@ class M_core__devel__preview extends Module
 		$pipeline->set_replacement_table($this->get_pipeline_controller()->get_replacement_table());
 
 		/* Prepare starting modules */
-		$done = $pipeline->add_modules_from_ini(null, $this->in('modules'), $this->context);
+		$errors = array();
+		$done = $pipeline->add_modules_from_ini(null, $this->in('modules'), $this->context, $errors);
 
 		/* Template object will render & cache image */
 		$this->template_add('_pipeline_graph', 'core/pipeline_graph', array(
@@ -60,6 +61,7 @@ class M_core__devel__preview extends Module
 				'preview' => true,
 				'style' => 'page-content',
 				'link' => $this->in('link'),
+				'errors' => $errors,
 			));
 
 		$this->out('done', $done);

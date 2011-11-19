@@ -104,7 +104,8 @@ class M_core__devel__doc__show extends Module
 			$this->template_add(null, 'core/doc/show', array(
 					'module' => $module,
 					'filename' => $filename,
-					'description' => _('Module is composed of these modules:'),
+					'description' => _('Module is composed of modules as shown on following diagram. Note that diagram '
+							.'represents pipeline before it\'s execution, not contents of the INI file.'),
 					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
 				));
 

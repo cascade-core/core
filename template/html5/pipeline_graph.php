@@ -103,6 +103,16 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 				'<img src="', htmlspecialchars('/'.$png_file), '" usemap="pipeline_graph_map__'.htmlspecialchars($id).'">',
 				"</div>\n";
 			//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
+			if ($style == 'page-content' && !empty($errors)) {
+				echo "<b>Errors:</b>\n<ul>\n";
+				foreach($errors as $e) {
+					printf("<li><b>%s</b> (<i>%s</i>): %s</li>\n",
+							htmlspecialchars($e['id']),
+							htmlspecialchars($e['module']),
+							htmlspecialchars($e['error']));
+				}
+				echo "</ul>\n";
+			}
 			break;
 
 		case 'nette':
