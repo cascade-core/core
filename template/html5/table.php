@@ -215,7 +215,9 @@ class tpl_html5__core__table__text {
 		if ($value === null) {
 			$fmt_val = null;	// keep missing values missing
 		} else if ($fmt) {
-			if (is_callable($fmt)) {
+			if ($fmt == 'raw_html') {
+				$fmt_val = $value;
+			} else if (is_callable($fmt)) {
 				$fmt_val = htmlspecialchars($fmt($value));
 			} else {
 				$fmt_val = htmlspecialchars(sprintf($fmt, $value));
