@@ -264,3 +264,65 @@ function template_format($template, array $values, $escaping_function = 'htmlspe
 	return join('', $result);
 }
 
+
+function write_ini_file_row($f, $k, $v) {
+	fwrite($f, $k);
+	fwrite($f, ' = ');
+
+	if (is_null($v)) {
+		fwrite($f, 'null');
+	} else if (is_bool($v)) {
+		fwrite($f, $v ? 'true':'false');
+	} else if (is_int($v)) {
+		fwrite($f, $v);
+	} else {
+		fwrite($f, '"');
+		fwrite($f, $v);
+		fwrite($f, '"');
+	}
+
+	fwrite($f, "\n");
+}
+
+
+function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE)
+{
+	$f = fopen($filename, 'w');
+	if ($f === FALSE) {
+		return FALSE;
+	}
+
+	if ($header !== FALSE) {
+		fwrite($f, $header);
+		fwrite($f, "\n");
+	}
+
+	if ($sections) {
+		foreach($array as $section => $section_content) {
+			fwrite($f, "\n[");
+			fwrite($f, $section);
+			fwrite($f, "]\n");
+			foreach($section_content as $k => $v) {
+				if (is_array($v)) {
+					foreach ($v as $vk => $vv)
+					write_ini_file_row($f, $k.'[]', $vv);
+				} else {
+					write_ini_file_row($f, $k, $v);
+				}
+			}
+		}
+	} else {
+		foreach($array as $k => $v) {
+			if (is_array($v)) {
+				foreach ($v as $vk => $vv)
+				write_ini_file_row($f, $k.'[]', $vv);
+			} else {
+				write_ini_file_row($f, $k, $v);
+			}
+		}
+	}
+
+	fwrite($f, "\n\n; vim:filetype=dosini:\n");
+	return fclose($f);
+}
+
