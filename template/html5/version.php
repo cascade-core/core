@@ -52,7 +52,7 @@ function TPL_html5__core__version($t, $id, $d, $so)
 
 		// show selected fields in table
 		case 'details':
-			$fields = array('version', 'date');
+			$fields = array('version', 'date', 'note', 'error');
 
 		// show everything in table
 		case 'full':
@@ -71,14 +71,21 @@ function TPL_html5__core__version($t, $id, $d, $so)
 				echo "</th></tr>\n";
 
 				foreach (isset($fields) ? $fields : array_keys($ver) as $k) {
-					if ($ver[$k] == '') {
+					if (@$ver[$k] == '') {
 						continue;
 					}
-					echo "<tr>";
+					echo "<tr class=\"", $k, "\">";
 					echo "<td align=\"right\">";
 					printf(_('%s%s:'), htmlspecialchars(strtoupper($k[0])), htmlspecialchars(substr($k, 1)));
-					echo "</td><td>", htmlspecialchars($ver[$k]), "</td>";
-					echo "</tr>\n";
+					echo "</td><td>";
+					if ($k == 'version') {
+						echo "<code>", htmlspecialchars($ver[$k]), "</code>";
+					} else if ($k == 'error' || $k == 'note') {
+						echo "<i>", htmlspecialchars($ver[$k]), "</i>";
+					} else {
+						echo htmlspecialchars($ver[$k]);
+					}
+					echo "</td></tr>\n";
 				}
 			}
 			echo "</table>\n";
