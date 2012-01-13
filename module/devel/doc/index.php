@@ -86,6 +86,19 @@ class M_core__devel__doc__index extends Module
 
 	public function main()
 	{
+		$modules = $this->get_modules();
+
+		$this->template_add(null, 'core/doc/index', array(
+				'link' => $this->in('link'),
+				'modules' => $modules,
+			));
+
+		$this->out('done', !empty($modules));
+	}
+
+
+	public static function get_modules()
+	{
 		$prefixes = array(
 			'' => DIR_APP.DIR_MODULE,
 			'core' => DIR_CORE.DIR_MODULE,
@@ -98,22 +111,17 @@ class M_core__devel__doc__index extends Module
 		$modules = array();
 
 		foreach ($prefixes as $prefix => $dir) {
-			$list = $this->scan_directory($dir, $prefix);
+			$list = self::scan_directory($dir, $prefix);
 			if (!empty($list)) {
 				$modules[$prefix] = $list;
 			}
 		}
 
-		$this->template_add(null, 'core/doc/index', array(
-				'link' => $this->in('link'),
-				'modules' => $modules,
-			));
-
-		$this->out('done', !empty($modules));
+		return $modules;
 	}
 
 
-	private function scan_directory($directory, $prefix, $subdir = '', & $list = array())
+	private static function scan_directory($directory, $prefix, $subdir = '', & $list = array())
 	{
 		$dir_name = $directory.$subdir;
 		$d = opendir($dir_name);
@@ -130,7 +138,7 @@ class M_core__devel__doc__index extends Module
 			$module = $subdir.'/'.$f;
 
 			if (is_dir($file)) {
-				$this->scan_directory($directory, $prefix, $module, $list);
+				self::scan_directory($directory, $prefix, $module, $list);
 			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $module)) {
 				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $module);
 			}

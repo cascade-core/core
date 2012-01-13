@@ -88,6 +88,17 @@ function get_module_filename($module, $extension = '.php')
 	return DIR_APP.DIR_MODULE.$module.$extension;
 }
 
+/* Get module's class name */
+function get_module_class_name($module)
+{
+	$class_name = 'M_'.str_replace('/', '__', $module);
+	if (class_exists($class_name)) {
+		return $class_name;
+	} else {
+		return false;
+	}
+}
+
 /* Get template's file from it's name */
 function get_template_filename($output_type, $template_name, $extension = '.php')
 {

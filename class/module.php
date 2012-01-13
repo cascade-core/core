@@ -118,6 +118,17 @@ abstract class Module {
 	}
 
 
+	/* Describe module, it's inputs, outputs, ... */
+	final public function describe_module()
+	{
+		return array(
+			'module' => str_replace('__', '/', preg_replace('/^M_/', '', __CLASS__)),
+			'force_exec' => self::force_exec,
+			'inputs' => $this->inputs,
+			'outputs' => $this->outputs,
+		);
+	}
+
 	/****************************************************************************
 	 *	Part of Pipeline Controller
 	 */
