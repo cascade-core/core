@@ -33,8 +33,12 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 	extract($d);
 
 	// if $title_fmt does not start with '{a}' and end with '{/a}', wrap it with span
-	if ($title_fmt !== null && (strncmp($title_fmt, '{a}', 3) != 0 || substr($title_fmt, -4) != '{/a}')) {
-		$title_fmt = '<span>'.$title_fmt.'</span>';
+	if (isset($title_fmt)) {
+		if (strncmp($title_fmt, '{a}', 3) != 0 || substr($title_fmt, -4) != '{/a}') {
+			$title_fmt = '<span>'.$title_fmt.'</span>';
+		}
+	} else {
+		$title_fmt = null;
 	}
 
 	switch ($layout) {
@@ -56,7 +60,7 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 
 function tpl_html5__core__menu__label($id, $item, $title_fmt)
 {
-	if ($title_fmt !== null) {
+	if (isset($title_fmt)) {
 		if (isset($item['link'])) {
 			$open =  "<a href=\"".str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($item['link']))."\">";
 			$close = "</a>";
