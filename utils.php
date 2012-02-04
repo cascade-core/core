@@ -36,11 +36,12 @@ function first_msg()
 	global $_utils_php__first_msg;
 
 	$_utils_php__first_msg = false;
-	debug_msg('New client from %s:%d at %s, requesting "%s"',
+	error_log(sprintf('New client from %s:%d at %s, requesting "%s"',
 			$_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'],
 			strftime('%Y-%m-%d %H:%M:%S', $_SERVER['REQUEST_TIME']),
-			$_SERVER['REQUEST_URI']);
+			$_SERVER['REQUEST_URI']));
 }
+
 
 function debug_msg($msg)
 {
@@ -322,7 +323,7 @@ function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE)
 		}
 	}
 
-	fwrite($f, "\n\n; vim:filetype=dosini:\n");
+	fwrite($f, "\n\n; vim\072filetype=dosini:\n");
 	return fclose($f);
 }
 
