@@ -36,10 +36,21 @@ function first_msg()
 	global $_utils_php__first_msg;
 
 	$_utils_php__first_msg = false;
-	error_log(sprintf('New client from %s:%d at %s, requesting "%s"',
-			$_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'],
-			strftime('%Y-%m-%d %H:%M:%S', $_SERVER['REQUEST_TIME']),
-			$_SERVER['REQUEST_URI']));
+	if (DEBUG_VERBOSE_BANNER) {
+		error_log('--');
+		error_log(sprintf('New client:  %s:%d  at  %s',
+				$_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'],
+				strftime('%Y-%m-%d %H:%M:%S', $_SERVER['REQUEST_TIME'])));
+		error_log(sprintf('Request:     %s %s',
+				$_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']));
+		error_log(sprintf('User Agent:  %s', $_SERVER['HTTP_USER_AGENT']));
+		error_log('--');
+	} else {
+		error_log(sprintf('New client from %s:%d at %s: %s "%s"',
+				$_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'],
+				strftime('%Y-%m-%d %H:%M:%S', $_SERVER['REQUEST_TIME']),
+				$_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']));
+	}
 }
 
 

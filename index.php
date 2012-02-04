@@ -185,6 +185,7 @@ if (isset($core_cfg['php'])) {
 
 /* Enable debug logging -- a lot of messages from debug_msg() */
 define('DEBUG_LOGGING_ENABLED', !empty($core_cfg['debug']['debug_logging_enabled']));
+define('DEBUG_VERBOSE_BANNER', !empty($core_cfg['debug']['verbose_banner']));
 define('DEBUG_PIPELINE_GRAPH_LINK', @$core_cfg['debug']['pipeline_graph_link']);
 
 /* Show banner in log */
