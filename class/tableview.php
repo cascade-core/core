@@ -31,6 +31,7 @@
 class TableView {
 
 	private $class;
+	private $row_class;
 	private $columns;
 	private $actions;	// Links shown in footer
 	private $data_array;
