@@ -108,22 +108,6 @@ class PipelineController {
 			return false;
 		}
 
-		/* check permissions */
-		if (!$context->is_allowed($module, $details)) {
-			if ($details != '') {
-				error_msg('Permission denied to module %s (%s).', $module, $details);
-			} else {
-				error_msg('Permission denied to module %s.', $module);
-			}
-			$errors[] = array(
-				'error'   => 'Permission denied.',
-				'id'      => $id,
-				'module'  => $module,
-				'details' => $details,
-			);
-			return false;
-		}
-
 		/* check malformed IDs */
 		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
 			error_msg('Invalid module ID: %s', $id);
@@ -152,6 +136,24 @@ class PipelineController {
 		/* build class name */
 		$class = 'M_'.str_replace('/', '__', $module);
 
+		/* check permissions */
+		if (!$context->is_allowed($module, $details)) {
+			if ($details != '') {
+				error_msg('Permission denied to module %s (%s).', $module, $details);
+			} else {
+				error_msg('Permission denied to module %s.', $module);
+			}
+			$errors[] = array(
+				'error'   => 'Permission denied.',
+				'id'      => $id,
+				'module'  => $module,
+				'details' => $details,
+			);
+			$this->add_failed_module($parent, $id, $full_id, $real_module !== null ? $real_module : $module, $connections);
+			return false;
+		}
+
+
 		/* kick autoloader */
 		if (class_exists($class)) {
 
@@ -166,6 +168,7 @@ class PipelineController {
 					'module'  => $module,
 					'inputs'  => $connections,
 				);
+				$this->add_failed_module($parent, $id, $full_id, $connections);
 				return false;
 			}
 			$this->add_order++;
@@ -202,9 +205,29 @@ class PipelineController {
 					'id'      => $id,
 					'module'  => $module,
 				);
+				$this->add_failed_module($parent, $id, $full_id, $connections);
 				return false;
 			}
 		}
+	}
+
+
+	private function add_failed_module($parent, $id, $full_id, $real_module, array $connections)
+	{
+		/* create dummy module */
+		$m = new M_core__dummy();
+		$m->pc_init($parent, $id, $full_id, $this, $real_module, null, $this->add_order, Module::FAILED);
+		$m->pc_connect($connections, $this->modules);
+		$this->add_order++;
+
+		/* put module to parent's namespace */
+		if ($parent) {
+			$parent->pc_register_module($m);
+		} else {
+			$this->root_namespace[$id] = $m;
+		}
+
+		return true;
 	}
 
 

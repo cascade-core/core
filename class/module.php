@@ -134,7 +134,7 @@ abstract class Module {
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $module_name, $context, $add_order)
+	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $module_name, $context, $add_order, $initial_status = self::QUEUED)
 	{
 		// basic init
 		$this->id = $id;
@@ -144,6 +144,7 @@ abstract class Module {
 		$this->module_name = $module_name;
 		$this->context = $context;
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($add_order + 99.0); // lim -> inf = 1
+		$this->status = $initial_status;
 
 		// add common inputs
 		$this->inputs['enable'] = true;
