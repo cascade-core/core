@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # update-version.sh - Execute this file from your post-checkout hook.
 # 

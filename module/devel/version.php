@@ -80,7 +80,9 @@ class M_core__devel__version extends Module
 
 		// Update version.ini
 		if ($need_update) {
-			system("core/update-version.sh");
+			if (system(escapeshellarg(DIR_CORE.'update-version.sh')) === FALSE) {
+				error_msg('Cannot update version info, executing update-version.sh failed.');
+			}
 			touch($version_file);	// be sure that file is created even if script failed
 		}
 
