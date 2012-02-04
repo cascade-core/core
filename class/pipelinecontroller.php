@@ -233,6 +233,8 @@ class PipelineController {
 
 	public function add_modules_from_ini($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
 	{
+		$all_good = true;
+
 		/* walk thru ini and take 'module:*' sections */
 		foreach ($parsed_ini_with_sections as $section => $opts) {
 			@list($keyword, $id) = explode(':', $section, 2);
@@ -250,9 +252,11 @@ class PipelineController {
 					}
 				}
 
-				$this->add_module($parent, $id, $module, $force_exec, $opts, $context, $errors);
+				$all_good &= $this->add_module($parent, $id, $module, $force_exec, $opts, $context, $errors);
 			}
 		}
+
+		return $all_good;
 	}
 
 

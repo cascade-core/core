@@ -49,14 +49,32 @@ class M_core__ini__proxy extends Module {
 			return;
 		}
 
-		$this->pipeline_add_from_ini($conf);
+		// Policy checks
+		if (isset($conf['policy'])) {
+			// Call policy methods. You may add policies by
+			// inheriting from and extending this class. Then use
+			// module-map in core.ini.php.
+			foreach ($conf['policy'] as $policy => $arg) {
+				$method = 'policy__'.$policy;
+				if (method_exists($this, $method)) {
+					if ($this->$method($arg, $conf) == false) {
+						return;
+					}
+				}
+			}
+		}
 
+		// Fill pipeline
+		$done = $this->pipeline_add_from_ini($conf);
+
+		// Copy inputs
 		if (isset($conf['copy-inputs'])) {
 			foreach ($conf['copy-inputs'] as $out => $in) {
 				$this->out($out, $this->in($in));
 			}
 		}
 
+		// Set/Forward outputs
 		if (isset($conf['outputs'])) {
 			foreach ($conf['outputs'] as $out => $src) {
 				if (is_array($src)) {
@@ -68,12 +86,55 @@ class M_core__ini__proxy extends Module {
 			}
 		}
 
+		// Forward outputs (deprecated)
 		if (isset($conf['forward-outputs'])) {
 			foreach ($conf['forward-outputs'] as $out => $src) {
 				list($src_mod, $src_out) = explode(':', $src);
 				$this->out_forward($out, $src_mod, $src_out);
 			}
 		}
+
+		$this->out('done', $done);
+	}
+
+
+	final protected function policy__require_module($arg, & $conf)
+	{
+		// Check required modules
+		foreach ((array) $arg as $rq_module) {
+			if (!$this->context->is_allowed($rq_module)) {
+				debug_msg('Required module "%s" is not allowed. Aborting.', $rq_module);
+				return;
+			}
+		}
+		return true;
+	}
+
+
+	final protected function policy__dummy_if_denied($arg, & $conf)
+	{
+		// Silently replace denied modules with dummy. Useful when other modulesare connected to these.
+		foreach ((array) $arg as $id) {
+			$m = @ $conf['module:'.$id]['.module'];
+			if ($m !== null && !$this->context->is_allowed($m)) {
+				debug_msg('Replacing module "%s" (%s) with dummy.', $id, $m);
+				$conf['module:'.$id]['.module'] = 'core/dummy';
+			}
+		}
+		return true;
+	}
+
+	final protected function policy__skip_if_denied($arg, & $conf)
+	{
+		// Silently skip denied modules. When nothing needs these.
+		foreach ((array) $arg as $id) {
+			$m = @ $conf['module:'.$id]['.module'];
+			if ($m !== null && !$this->context->is_allowed($m)) {
+				debug_msg('Skipping module "%s" (%s).', $id, $m);
+				unset($conf['module:'.$id]);
+			}
+		}
+		return true;
 	}
 }
 
