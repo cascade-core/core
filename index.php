@@ -284,7 +284,7 @@ if (!empty($core_cfg['debug']['add_pipeline_graph'])) {
 
 /* Log memory usage */
 if (!empty($core_cfg['debug']['log_memory_usage'])) {
-	log_msg('Pipeline memory usage: %1.3f B', $pipeline->get_memory_usage() / 1024);
+	extra_msg('Pipeline memory usage: %1.3f B', $pipeline->get_memory_usage() / 1024);
 }
 
 /* Store profiler statistics */
@@ -297,5 +297,4 @@ session_write_close();
 
 /* Generate output */
 $template->start();
-
 

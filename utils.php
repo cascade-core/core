@@ -117,6 +117,21 @@ function log_msg($msg)
 }
 
 
+function extra_msg($msg)
+{
+	global $_utils_php__first_msg;
+
+	if ($_utils_php__first_msg) {
+		return;
+	}
+
+	$args = func_get_args();
+	unset($args[0]);
+
+	error_log(vsprintf($msg, $args));
+}
+
+
 function get_ident($name)
 {
 	if ((string) $name === '') {
