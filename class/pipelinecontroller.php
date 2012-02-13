@@ -339,6 +339,7 @@ class PipelineController {
 			."#\n"
 			."digraph structs {\n"
 			."	rankdir = LR;\n"
+			."	margin = 0;\n"
 			."	bgcolor = transparent;\n"
 			."	edge [ arrowtail=none, arrowhead=normal, arrowsize=0.6 ];\n"
 			."	node [ shape=none, fontsize=7, fontname=\"sans\" ];\n"
