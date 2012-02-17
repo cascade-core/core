@@ -168,7 +168,7 @@ class PipelineController {
 					'module'  => $module,
 					'inputs'  => $connections,
 				);
-				$this->add_failed_module($parent, $id, $full_id, $connections);
+				$this->add_failed_module($parent, $id, $full_id, $real_module !== null ? $real_module : $module, $connections);
 				return false;
 			}
 			$this->add_order++;

@@ -162,7 +162,7 @@ abstract class Module {
 		if (!$wildcard && count($this->inputs) != count($new_inputs)) {
 			/* Connected non-existent inputs */
 			foreach(array_diff_key($connections, $this->inputs) as $in => $out) {
-				error_msg('Input "%s.%s" does not exist!', $this->id, $in);
+				error_msg('Input "%s:%s" does not exist!', $this->id, $in);
 			}
 			return false;
 		}
@@ -188,16 +188,38 @@ abstract class Module {
 
 	final public function pc_resolve_module_name($mod_name)
 	{
-		// TODO: Make this faster!
-		if ($mod_name == 'parent') {
-			return $this->parent;
-		} else if (isset($this->namespace[$mod_name])) {
-			return $this->namespace[$mod_name];
-		} else if ($this->parent) {
-			return $this->parent->pc_resolve_module_name($mod_name);
+		$path = explode('.', $mod_name);
+		$start_name = array_shift($path);
+
+		// Go out
+		if ($start_name == '') {
+			$m = $this->pipeline_controller->resolve_module_name(array_shift($path));
+		} else if ($start_name == 'parent') {
+			$m = $this->parent;
 		} else {
-			return $this->pipeline_controller->resolve_module_name($mod_name);
+			$t = $this;
+			while ($t && !isset($t->namespace[$start_name])) {
+				$t = $t->parent;
+			}
+			$m = $t !== null ? $t->namespace[$start_name] : $this->pipeline_controller->resolve_module_name($start_name);
 		}
+
+		if (!$m) {
+			return null;
+		}
+
+		// Go in
+		foreach ($path as $p) {
+			if (!$m->pc_execute()) {
+				return null;
+			}
+			$m = $m->namespace[$p];
+			if ($m === null) {
+				return null;
+			}
+		}
+
+		return $m;
 	}
 
 
@@ -295,13 +317,13 @@ abstract class Module {
 				if ($m->pc_execute()) {
 					$this->output_cache[$name] = $m->pc_get_output($src_out);
 				} else {
-					error_msg('Source module or output not found while forwarding to "%s.%s" from "%s.%s"!',
+					error_msg('Source module or output not found while forwarding to "%s:%s" from "%s:%s"!',
 							$this->id(), $name, $src_name, $src_out);
 					$this->status = self::FAILED;
 					break;
 				}
 			} else {
-				error_msg('Can\'t forward output "%s.%s" from "%s.%s" !',
+				error_msg('Can\'t forward output "%s:%s" from "%s:%s" !',
 						$this->id, $name, $src_name, $src_out);
 				$this->status = self::FAILED;
 				break;
