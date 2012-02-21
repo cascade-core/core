@@ -279,6 +279,7 @@ if (!empty($core_cfg['debug']['add_pipeline_graph'])) {
 			'dot_name' => 'data/graphviz/pipeline-%s.%s',
 			'style' => @$core_cfg['debug']['add_pipeline_graph'],
 			'link' => DEBUG_PIPELINE_GRAPH_LINK,
+			'animate' => !empty($core_cfg['debug']['animate_pipeline'])
 		));
 }
 

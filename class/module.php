@@ -59,6 +59,9 @@ abstract class Module {
 	private $output_cache = array();
 	private $forward_list = array();
 	private $execution_time = null;		// time [ms] spent in main()
+	private $timestamp_create = null;	// when was block created ?
+	private $timestamp_start = null;	// when block execution started ?
+	private $timestamp_finish = null;	// when block execution finished ?
 
 	private $parent = null;			// parent module
 	private $namespace = null;		// references to other modules
@@ -129,12 +132,19 @@ abstract class Module {
 		);
 	}
 
+
+	final public function get_timestamps()
+	{
+		return array($this->timestamp_create, $this->timestamp_start, $this->timestamp_finish);
+	}
+
+
 	/****************************************************************************
 	 *	Part of Pipeline Controller
 	 */
 
 	// "constructor" -- called imediately after module creation
-	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $module_name, $context, $add_order, $initial_status = self::QUEUED)
+	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $module_name, $context, $initial_status = self::QUEUED)
 	{
 		// basic init
 		$this->id = $id;
@@ -143,7 +153,8 @@ abstract class Module {
 		$this->pipeline_controller = $pipeline_controller;
 		$this->module_name = $module_name;
 		$this->context = $context;
-		$this->slot_weight_penalty = 1.0 - 100.0 / ($add_order + 99.0); // lim -> inf = 1
+		$this->timestamp_create = $this->pipeline_controller->current_step();
+		$this->slot_weight_penalty = 1.0 - 100.0 / ($this->timestamp_create + 99.0); // lim -> inf = 1
 		$this->status = $initial_status;
 
 		// add common inputs
@@ -239,8 +250,9 @@ abstract class Module {
 				return false;
 		}
 
-		debug_msg('%s: Preparing module "%s"', $this->module_name(), $this->id());
+		$this->timestamp_start = $this->pipeline_controller->current_step();
 		$this->status = self::RUNNING;
+		debug_msg('%s: Preparing module "%s" (t = %d)', $this->module_name(), $this->id(), $this->timestamp_start);
 
 		/* dereference module names and build dependency list */
 		$dependencies = array();
@@ -270,6 +282,7 @@ abstract class Module {
 		/* abort if failed */
 		if (!$this->status == self::FAILED) {
 			error_msg('%s: Failed to prepare module "%s"', $this->module_name(), $this->id());
+			$this->timestamp_finish = $this->pipeline_controller->current_step();
 			return false;
 		}
 
@@ -286,6 +299,7 @@ abstract class Module {
 		/* abort if failed */
 		if ($this->status == self::FAILED) {
 			error_msg('%s: Failed to solve dependencies of module "%s"', $this->module_name(), $this->id());
+			$this->timestamp_finish = $this->pipeline_controller->current_step();
 			return false;
 		}
 
@@ -293,6 +307,7 @@ abstract class Module {
 		if (!$this->in('enable')) {
 			debug_msg('%s: Skipping disabled module "%s"', $this->module_name(), $this->id());
 			$this->status = self::DISABLED;
+			$this->timestamp_finish = $this->pipeline_controller->current_step();
 			return true;
 		}
 
@@ -303,6 +318,7 @@ abstract class Module {
 		$this->main();
 		$this->execution_time = (microtime(TRUE) - $t) * 1000;
 		$this->status = self::ZOMBIE;
+		$this->timestamp_finish = $this->pipeline_controller->current_step();
 
 		/* execute & evaluate forwarded outputs */
 		// TODO - nebylo by lepsi to udelat az na pozadani ?

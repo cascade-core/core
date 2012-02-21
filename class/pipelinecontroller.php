@@ -32,7 +32,7 @@ class PipelineController {
 
 	private $queue = array();	// waiting modules
 	private $modules = array();	// all existing modules
-	private $add_order = 1;		// insertion serial number - slot weight modifier
+	private $evaluation_step = 0;	// step counter - time for cascade animations and slot weight penalty
 	private $replacement = array();	// module replacement table (aliases)
 	private $root_namespace = array();
 
@@ -87,6 +87,16 @@ class PipelineController {
 	public function root_namespace_module_names()
 	{
 		return array_keys($this->root_namespace);
+	}
+
+
+	public function current_step($increment = true)
+	{
+		if ($increment) {
+			return $this->evaluation_step++;
+		} else {
+			return $this->evaluation_step;
+		}
 	}
 
 
@@ -159,7 +169,7 @@ class PipelineController {
 
 			/* initialize module */
 			$m = new $class();
-			$m->pc_init($parent, $id, $full_id, $this, $real_module !== null ? $real_module : $module, $context, $this->add_order);
+			$m->pc_init($parent, $id, $full_id, $this, $real_module !== null ? $real_module : $module, $context);
 			if (!$m->pc_connect($connections, $this->modules)) {
 				error_msg('Module "%s": Can\'t connect inputs!', $id);
 				$errors[] = array(
@@ -171,7 +181,6 @@ class PipelineController {
 				$this->add_failed_module($parent, $id, $full_id, $real_module !== null ? $real_module : $module, $connections);
 				return false;
 			}
-			$this->add_order++;
 
 			/* put module to parent's namespace */
 			if ($parent) {
@@ -216,9 +225,8 @@ class PipelineController {
 	{
 		/* create dummy module */
 		$m = new M_core__dummy();
-		$m->pc_init($parent, $id, $full_id, $this, $real_module, null, $this->add_order, Module::FAILED);
+		$m->pc_init($parent, $id, $full_id, $this, $real_module, null, Module::FAILED);
 		$m->pc_connect($connections, $this->modules);
-		$this->add_order++;
 
 		/* put module to parent's namespace */
 		if ($parent) {
@@ -322,7 +330,7 @@ class PipelineController {
 	}
 
 
-	public function export_graphviz_dot($doc_link, $whitelist = array())
+	public function export_graphviz_dot($doc_link, $whitelist = array(), $step = null)
 	{
 		$colors = array(
 			Module::QUEUED   => '#eeeeee',	// grey
@@ -332,8 +340,14 @@ class PipelineController {
 			Module::FAILED   => '#ffccaa',	// red
 		);
 
+		if ($step === null) {
+			$step = $this->current_step(false) + 1;
+		}
+
 		$gv =	 "#\n"
 			."# Pipeline visualization\n"
+			."#\n"
+			."# Step: ".$step."\n"
 			."#\n"
 			."# Use \"dot -Tpng this-file.gv -o this-file.png\" to compile.\n"
 			."#\n"
@@ -343,10 +357,10 @@ class PipelineController {
 			."	bgcolor = transparent;\n"
 			."	edge [ arrowtail=none, arrowhead=normal, arrowsize=0.6 ];\n"
 			."	node [ shape=none, fontsize=7, fontname=\"sans\" ];\n"
-			."	subgraph [ shape=none, color=blueviolet, fontcolor=blueviolet, fontsize=9, fontname=\"sans\" ];\n"
+			."	graph [ shape=none, color=blueviolet, fontcolor=blueviolet, fontsize=9, fontname=\"sans\" ];\n"
 			."\n";
 
-		list($clusters, $specs) = $this->export_graphviz_dot_namespace($this->root_namespace, $colors, $doc_link, array_flip($whitelist));
+		list($clusters, $specs) = $this->export_graphviz_dot_namespace($this->root_namespace, $colors, $doc_link, array_flip($whitelist), $step);
 		$gv .= $clusters;
 		$gv .= $specs;
 		$gv .= "}\n";
@@ -354,7 +368,7 @@ class PipelineController {
 		return $gv;
 	}
 
-	private function export_graphviz_dot_namespace($namespace, $colors, $doc_link, $whitelist = array(), $indent = "\t")
+	private function export_graphviz_dot_namespace($namespace, $colors, $doc_link, $whitelist = array(), $step = null, $indent = "\t")
 	{
 		$missing_modules = array();
 		$gv = '';
@@ -368,13 +382,26 @@ class PipelineController {
 			}
 
 			$id = $module->full_id();
+			list($t_create, $t_start, $t_finish) = $module->get_timestamps();
+
+			$is_created  = $t_create < $step;
+			$is_started  = $t_start < $step;
+			$is_running  = $t_start < $step && $t_finish >= $step;
+			$is_finished = $t_finish < $step;
 
 			/* add module header */
 			$subgraph .= $indent."m_".get_ident($id).";\n";
 			$gv .=	 "\tm_".get_ident($id)." [URL=\"".sprintf($doc_link, $module->module_name())."\",target=\"_blank\","
-						."label=<<table border=\"1\" bgcolor=\"#ffffff\" cellborder=\"0\" cellspacing=\"0\">\n"
+						.($is_created ? '':'fontcolor="#eeeeee",')
+						."label=<<table border=\"1\"".($is_created ? '':' color="#eeeeee"')
+								." bgcolor=\"#ffffff\" cellborder=\"0\" cellspacing=\"0\">\n"
 				."	<tr>\n"
-				."		<td bgcolor=\"".$colors[$module->status()]."\" colspan=\"2\">\n"
+				."		<td bgcolor=\"".($is_created
+									? $colors[$is_running
+										? Module::RUNNING
+										: ($is_finished ? $module->status() : Module::QUEUED)]
+									:'#ffffff'
+								)."\" colspan=\"2\">\n"
 				."			<font face=\"sans bold\">".htmlspecialchars($module->id())."</font><br/>\n"
 				."			<font face=\"sans italic\">".htmlspecialchars($module->module_name())."</font>\n"
 				."		</td>\n"
@@ -408,13 +435,30 @@ class PipelineController {
 					} else if ($out_mod->pc_output_exists($out_name)) {
 						$missing = false;
 						$v = $out_mod->pc_output_cache();
-						$v = @$v[$out_name];
-						$zero = empty($v);
-						$big = is_array($v) || is_object($v);
+						if (array_key_exists($out_name, $v)) {
+							$v = $v[$out_name];
+							$exists = true;
+							$zero = empty($v);
+							$big = is_array($v) || is_object($v);
+						} else {
+							$v = null;
+							$exists = false;
+							$zero = true;
+							$big = false;
+						}
 					}
 
-					$gv_inputs .= "\tm_".get_ident($out_mod_id).":o_".get_ident($out_name).":e -> m_".get_ident($id).":i_".get_ident($in).':w'
-						.($missing ? " [color=red]":($zero ? ' [color=dimgrey,penwidth=0.8]':($big ? ' [penwidth=2]':''))).";\n";
+					$gv_inputs .= "\tm_".get_ident($out_mod_id).($exists ? ':o_'.get_ident($out_name).':e' : '')
+						.' -> m_'.get_ident($id).':i_'.get_ident($in).':w'
+						.($is_created
+							? ($missing
+								? " [color=red]"
+								: ($zero
+									? ' [color=dimgrey,penwidth=0.8]'
+									: ($big ? ' [penwidth=2]':''))
+								)
+							: '[color="#eeeeee"]'
+						).";\n";
 				}
 			}
 
@@ -473,8 +517,10 @@ class PipelineController {
 					$src_mod = $resolved;
 				}
 				$src_mod_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
-				$gv .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_mod_id).":o_".get_ident($src_out).":e"
-					."[color=royalblue,arrowhead=dot,arrowtail=none,dir=both,weight=0];\n";
+				$v = is_object($src_mod) ? $src_mod->pc_output_cache($src_out) : array();
+				$gv .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_mod_id)
+						.(array_key_exists($src_out, $v) ? ":o_".get_ident($src_out).":e":'')
+					.($is_created ? "[color=royalblue" : '[color="#eeeeee"').",arrowhead=dot,arrowtail=none,dir=both,weight=0];\n";
 			}
 
 			$gv .= "\n";
@@ -482,10 +528,12 @@ class PipelineController {
 			/* recursively draw sub-namespaces */
 			$child_namespace = $module->pc_get_namespace();
 			if (!empty($child_namespace)) {
-				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link, $whitelist, $indent."\t");
+				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link,
+										$whitelist, $step, $indent."\t");
 				$subgraph .= "\n"
 					.$indent."subgraph cluster_".get_ident($id)." {\n"
 					.$indent."\tlabel = \"".$id."\";\n\n"
+					.($is_started ? '' : $indent."\tcolor=\"#eeeeee\"; fontcolor=\"#eeeeee\";\n")
 					.$child_sub
 					.$indent."}\n"
 					."\n";

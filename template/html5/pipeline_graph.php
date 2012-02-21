@@ -38,10 +38,15 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 		@mkdir(dirname($dot_name));
 	}
 
-	$dot = $pipeline->export_graphviz_dot($link, isset($whitelist) ? $whitelist : array());
+	if (!isset($whitelist)) {
+		$whitelist = array();
+	}
+
+	$dot = $pipeline->export_graphviz_dot($link, $whitelist);
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
+	$movie_file = sprintf($dot_name, $hash, '%06d.dot.gz');
 	$png_file = sprintf($dot_name, $hash, 'png');
 	$map_file = sprintf($dot_name, $hash, 'map');
 	debug_msg('Pipeline graph file: %s', $png_file);
@@ -52,9 +57,22 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 
 	if (!$dot_mtime || !$png_mtime || !$map_mtime
 			|| $dot_mtime > $png_mtime || $dot_mtime > $map_mtime
-			|| $png_mtime <= filemtime(__FILE__) || $map_mtime <= filemtime(__FILE__))
+			|| $png_mtime <= filemtime(__FILE__) || $map_mtime <= filemtime(__FILE__)
+			|| ($animate && !file_exists(sprintf($movie_file, 0))))
 	{
+		// store dot file, it will be rendered later
 		file_put_contents($dot_file, $dot);
+
+		// prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do
+		if ($animate) {
+			$steps = $pipeline->current_step(false) + 1;
+			for ($t = 0; $t <= $steps; $t++) {
+				$f = sprintf($movie_file, $t);
+				file_put_contents($f, gzencode($pipeline->export_graphviz_dot($link, $whitelist, $t), 2));
+			}
+		}
+		
+		// render graph
 		$pipeline->exec_dot($dot, 'png', $png_file);
 		$pipeline->exec_dot($dot, 'cmapx', $map_file);
 	}
@@ -119,12 +137,15 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 			class PipelineGraphPanelWidget implements IDebugPanel
 			{
 				var $id;
+				var $dot_file;
 				var $png_file;
 				var $map_file;
 
-				function __construct($id, $png_file, $map_file)
+				function __construct($id, $hash, $dot_file, $png_file, $map_file)
 				{
 					$this->id = $id;
+					$this->hash = $hash;
+					$this->dot_file = $dot_file;
 					$this->png_file = $png_file;
 					$this->map_file = $map_file;
 				}
@@ -135,6 +156,11 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 
 				function getPanel() {
 					return '<h1>Pipeline Graph</h1><div class="nette-inner">'
+							."\t<div><small>[ "
+							.	"<a href=\"".htmlspecialchars('/'.$this->png_file)."\">png</a>"
+							.	" | <a href=\"".htmlspecialchars('/'.$this->dot_file)."\">dot</a>"
+							.	" | ".$this->hash
+							." ]</small></div>\n"
 							.str_replace(array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""'),
 								array('<map id="pipeline_graph_map" name="pipeline_graph_map">', ''),
 								file_get_contents(DIR_ROOT.$this->map_file))
@@ -146,7 +172,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 					return $this->id;
 				}
 			}
-			$plgpw = new PipelineGraphPanelWidget($id, $png_file, $map_file);
+			$plgpw = new PipelineGraphPanelWidget($id, $hash, $dot_file, $png_file, $map_file);
 			NDebug::addPanel($plgpw);
 			break;
 	}
