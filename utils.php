@@ -292,7 +292,7 @@ function template_format($template, array $values, $escaping_function = 'htmlspe
 }
 
 
-function write_ini_file_row($f, $k, $v) {
+function write_ini_file_row($f, $k, $v, $quotes) {
 	fwrite($f, $k);
 	fwrite($f, ' = ');
 
@@ -302,17 +302,19 @@ function write_ini_file_row($f, $k, $v) {
 		fwrite($f, $v ? 'true':'false');
 	} else if (is_int($v)) {
 		fwrite($f, $v);
-	} else {
+	} else if ($quotes) {
 		fwrite($f, '"');
 		fwrite($f, $v);
 		fwrite($f, '"');
+	} else {
+		fwrite($f, $v);
 	}
 
 	fwrite($f, "\n");
 }
 
 
-function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $footer = "; vim\072filetype=dosini:")
+function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $footer = "; vim\072filetype=dosini:", $quotes = true)
 {
 	$f = fopen($filename, 'w');
 	if ($f === FALSE) {
@@ -332,9 +334,9 @@ function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $
 			foreach($section_content as $k => $v) {
 				if (is_array($v)) {
 					foreach ($v as $vk => $vv)
-					write_ini_file_row($f, $k.'[]', $vv);
+					write_ini_file_row($f, $k.'[]', $vv, $quotes);
 				} else {
-					write_ini_file_row($f, $k, $v);
+					write_ini_file_row($f, $k, $v, $quotes);
 				}
 			}
 		}
@@ -342,9 +344,9 @@ function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $
 		foreach($array as $k => $v) {
 			if (is_array($v)) {
 				foreach ($v as $vk => $vv)
-				write_ini_file_row($f, $k.'[]', $vv);
+				write_ini_file_row($f, $k.'[]', $vv, $quotes);
 			} else {
-				write_ini_file_row($f, $k, $v);
+				write_ini_file_row($f, $k, $v, $quotes);
 			}
 		}
 	}
