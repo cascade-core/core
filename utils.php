@@ -312,7 +312,7 @@ function write_ini_file_row($f, $k, $v) {
 }
 
 
-function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE)
+function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $footer = "; vim\072filetype=dosini:")
 {
 	$f = fopen($filename, 'w');
 	if ($f === FALSE) {
@@ -349,7 +349,12 @@ function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE)
 		}
 	}
 
-	fwrite($f, "\n\n; vim\072filetype=dosini:\n");
+	fwrite($f, "\n");
+	if ($footer !== FALSE) {
+		fwrite($f, "\n");
+		fwrite($f, $footer);
+		fwrite($f, "\n");
+	}
 	return fclose($f);
 }
 
