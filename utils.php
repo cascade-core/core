@@ -321,6 +321,10 @@ function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $
 		return FALSE;
 	}
 
+	if (!flock($f, LOCK_EX)) {
+		return FALSE;
+	}
+
 	if ($header !== FALSE) {
 		fwrite($f, $header);
 		fwrite($f, "\n");
@@ -357,6 +361,8 @@ function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $
 		fwrite($f, $footer);
 		fwrite($f, "\n");
 	}
+
+	flock($f, LOCK_UN);
 	return fclose($f);
 }
 
