@@ -1,25 +1,35 @@
-; <?php exit(); ?>
+; <?php exit(); __halt_compiler(); ?>
 ;
 ; Default routes for 'hello world' and documentation browser
 ;
 ; Look at core/value/pipeline_loader module before you use this.
 ;
 
+; default values
+[#]
+skeleton = core/page/skeleton
+title_fmt = %s - Cascade
+title = "(missing title)"
+
+; -----------------------------------------------
+
 [/]
-hello = true
-index = false
-show = false
+title = Hello
+content = core/page/hello
+title_fmt = %s
 
 [/doc]
-hello = false
-index = true
-show = false
+title = Documentation
+content = core/page/doc
 
 [/doc/**]
-hello = false
-index = false
-show = true
+title = Documentation
+content = core/page/doc_show
 ; path_tail is '**' part
+
+[/profiler]
+title = Profiler
+content = core/page/profiler
 
 
 ; vim:filetype=dosini:

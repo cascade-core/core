@@ -1,4 +1,4 @@
-; <?php exit(); ?>
+; <?php exit(); __halt_compiler(); ?>
 ; 
 ; Core fallback config file
 ;
@@ -37,6 +37,7 @@ debug_logging_enabled	= true
 always_log_banner	= true
 log_memory_usage	= true
 add_pipeline_graph	= true
+animate_pipeline	= false
 pipeline_graph_link	= "/doc/%s"
 profiler_stats_file	= "var/profiler.stats"
 
@@ -61,76 +62,22 @@ default_type		= "html5"
 .module		= core/ini/router
 config		= core/routes.ini.php
 
-[module:skeleton]
-.module		= core/out/page
+[module:page]
+.module		= "core/value/pipeline_loader"
 .force-exec	= true
+output-forward	= "done,title"
+skeleton[]	= "router:skeleton"
+content[]	= "router:content"
+extra[]		= "router:extra"
+enable[]	= "router:done"
 
-[module:hello]
-.module		= core/out/raw
+[module:page_title]
+.module		= core/out/set_page_title
 .force-exec	= true
-; Never do this:
-data		= "<p>Hello world!</p><p>Look at <a href='/doc'>documentation</a>!</p>"
-enable[]	= "router:hello"
+title[]		= page:content_0_title
+format[]	= router:title_fmt
+title-fallback[] = router:title
 
-[module:doc_index_hd]
-.module		= "core/out/header"
-text		= "Documentation Index"
-level		= 1
-enable[]	= "version:done"
-slot-weight	= 10
-
-[module:doc_index]
-.module		= "core/devel/doc/index"
-.force-exec	= true
-slot-weight	= 60
-enable[]	= "router:index"
-
-[module:version_hd]
-.module		= "core/out/header"
-text		= "Version"
-enable[]	= "version:done"
-slot-weight	= 30
-
-[module:version]
-.module		= "core/devel/version"
-format		= "details"
-slot-weight	= 40
-enable[]	= "router:index"
-
-[module:doc_show]
-.module		= "core/devel/doc/show"
-.force-exec	= true
-module[]	= "router:path_tail"
-show-code	= false
-enable[]	= "router:show"
-
-;;
-;; Use something like this for real sites:
-;;
-;
-;[module:page]
-;.module	= "core/value/pipeline_loader"
-;.force-exec	= true
-;output-forward	= "done,title"
-;content[]	= "router:content"
-;extra[]	= "router:extra"
-;enable[]	= "router:done"
-;
-;[module:page_title]
-;.module	= core/out/set_page_title
-;.force-exec	= true
-;title[]	= page:content_0_title
-;title-fallback[] = router:title
-;format[]	= router:title_fmt
-;
-;[module:page_error]
-;.module	= core/out/message
-;.force-exec	= true
-;is-error	= true
-;title		= "Sorry!"
-;text		= "Page not found."
-;http-status-code = 404
-;hide[]		= page:content_0_done
 
 ; vim:filetype=dosini:
 
