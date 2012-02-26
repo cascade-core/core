@@ -34,6 +34,7 @@ class M_core__out__set_type extends Module
 
 	protected $inputs = array(
 		'type' => null,
+		'type-fallback' => null,
 	);
 
 	protected $outputs = array(
@@ -49,6 +50,13 @@ class M_core__out__set_type extends Module
 			$this->template_set_type($type);
 			$this->out('type', $type);
 			$this->out('done', true);
+		} else {
+			$type = $this->in('type-fallback');
+			if ($type != '') {
+				$this->template_set_type($type);
+				$this->out('type', $type);
+				$this->out('done', true);
+			}
 		}
 	}
 }

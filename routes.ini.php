@@ -8,8 +8,11 @@
 ; default values
 [#]
 skeleton = core/page/skeleton
+content = false
+extra = false
 title_fmt = %s - Cascade
 title = "(missing title)"
+type = html5
 
 ; -----------------------------------------------
 

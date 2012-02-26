@@ -258,23 +258,29 @@ abstract class Module {
 		$dependencies = array();
 		foreach($this->inputs as $in => & $out) {
 			if (is_array($out)) {
-				@list($mod_name, $mod_out) = $out;
-
-				// connect to output
-				if ($mod_name === null || $mod_out === null) {
+				// connect to output(s)
+				$n = count($out);
+				if ($n == 0) {
 					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of module "%s" is not defined!',
 							$this->module_name(), $in, $this->id());
 					$this->status = self::FAILED;
-				} else if (!($m = $this->pc_resolve_module_name($mod_name))) {
-					error_msg('%s: Can\'t connect inputs -- module "%s" not found!', $this->module_name(), $mod_name);
-					$this->status = self::FAILED;
-				} else if (isset($m->outputs[$mod_out]) || isset($m->outputs['*'])) {
-					$dependencies[$m->full_id()] = $m;
-					$out[0] = $m;
 				} else {
-					error_msg('Can\'t connect input "%s:%s" to "%s:%s" !',
-							$this->id, $in, $mod_name, $mod_out);
-					$this->status = self::FAILED;
+					for ($i = $out[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
+						$mod_name = $out[$i];
+						$mod_out = $out[$i + 1];
+						$m = $this->pc_resolve_module_name($mod_name);
+						if (!$m) {
+							error_msg('%s: Can\'t connect inputs -- module "%s" not found!', $this->module_name(), $mod_name);
+							$this->status = self::FAILED;
+						} else if (isset($m->outputs[$mod_out]) || isset($m->outputs['*'])) {
+							$dependencies[$m->full_id()] = $m;
+							$out[$i] = $m;
+						} else {
+							error_msg('Can\'t connect input "%s:%s" to "%s:%s" !',
+									$this->id, $in, $mod_name, $mod_out);
+							$this->status = self::FAILED;
+						}
+					}
 				}
 			}
 		}
@@ -450,7 +456,80 @@ abstract class Module {
 		// read input
 		if (is_array($ref)) {
 			// read from output
-			return $ref[0] !== null ? $ref[0]->pc_get_output($ref[1]) : null;
+			$n = count($ref);
+			if ($n == 2) {
+				// single output
+				return is_object($ref[0]) ? $ref[0]->pc_get_output($ref[1]) : null;
+			} else {
+				// use specified function to create one value from multiple outputs
+				switch ($ref[0]) {
+					case ':or':
+						for ($i = 1; $i < $n - 1; $i += 2) {
+							$x = is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null;
+							if ($x) {
+								return $x;
+							}
+						}
+						return false;
+
+					case ':nor':
+						for ($i = 1; $i < $n - 1; $i += 2) {
+							if (is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null) {
+								return false;
+							}
+						}
+						return true;
+
+					case ':and':
+						for ($i = 1; $i < $n - 1; $i += 2) {
+							if (!(is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null)) {
+								return false;
+							}
+						}
+						return true;
+
+					case ':not':
+					case ':nand':
+						for ($i = 1; $i < $n - 1; $i += 2) {
+							if (!(is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null)) {
+								return true;
+							}
+						}
+						return false;
+
+					case ':merge':
+						$a = array();
+						for ($i = 1; $i < $n - 1; $i += 2) {
+							$a[] = (array) (is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null);
+						}
+						return call_user_func('array_merge', $a);
+
+					case ':array':
+					case ':filter':
+					case ':max':
+					case ':min':
+					case ':product':
+					case ':sum':
+					case ':unique':
+						$a = array();
+						for ($i = 1; $i < $n - 1; $i += 2) {
+							$a[] = is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null;
+						}
+						switch ($ref[0]) {
+							case ':array':    return $a;
+							case ':filter':   return array_filter($a);
+							case ':max':      return max($a);
+							case ':min':      return min($a);
+							case ':product':  return array_product($a);
+							case ':sum':      return array_sum($a);
+							case ':unique':   return array_unique($a);
+						}
+
+					default:
+						error_msg('%s: Input "%s" requires unknown operator "%s"!', $this->module_name(), $name, $ref[0]);
+						return null;
+				}
+			}
 		} else {
 			// ref is constant
 			return $ref;

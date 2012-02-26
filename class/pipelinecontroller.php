@@ -255,8 +255,24 @@ class PipelineController {
 
 				/* parse connections */
 				foreach($opts as & $out) {
-					if (is_array($out) && count($out) == 1) {
-						$out = explode(':', $out[0], 2);
+					if (is_array($out)) {
+						if (count($out) == 1) {
+							// single connection
+							$out = explode(':', $out[0], 2);
+						} else {
+							// multiple connections
+							$outs = array(null);
+							foreach ($out as $o) {
+								if ($o[0] == ':') {
+									$outs[0] = $o;
+								} else {
+									list($o_mod, $o_out) = explode(':', $o, 2);
+									$outs[] = $o_mod;
+									$outs[] = $o_out;
+								}
+							}
+							$out = $outs;
+						}
 					}
 				}
 
@@ -411,54 +427,65 @@ class PipelineController {
 			$gv_inputs = '';
 			$inputs  = $module->pc_inputs();
 			$input_names = array();
+			$input_functions = array();
 			$output_names = $module->pc_outputs();
 
 			/* connect inputs */
 			foreach ($inputs as $in => $out) {
 				if (is_array($out)) {
-					list($out_mod, $out_name) = $out;
 					$input_names[] = $in;
-
-					if (!is_object($out_mod) && ($resolved = $module->pc_resolve_module_name($out_mod))) {
-						$out_mod = $resolved;
+					if (!is_object($out[0]) && $out[0][0] == ':') {
+						$function = $out[0];
+						$input_functions[$in] = $function;
+					} else {
+						$function = null;
 					}
+					$n = count($out);
+					for ($i = $function !== null ? 1 : 0; $i < $n - 1; $i += 2) {
+						$out_mod = $out[$i];
+						$out_name = $out[$i + 1];
 
-					$out_mod_id = is_object($out_mod) ? $out_mod->full_id() : $out_mod;
-
-					$missing = true;
-					$zero = true;
-					$big = false;
-
-					if (!is_object($out_mod)) {
-						$missing_modules[$out_mod] = true;
-						$missing = !array_key_exists($out_mod, $whitelist);
-					} else if ($out_mod->pc_output_exists($out_name)) {
-						$missing = false;
-						$v = $out_mod->pc_output_cache();
-						if (array_key_exists($out_name, $v)) {
-							$v = $v[$out_name];
-							$exists = true;
-							$zero = empty($v);
-							$big = is_array($v) || is_object($v);
-						} else {
-							$v = null;
-							$exists = false;
-							$zero = true;
-							$big = false;
+						if (!is_object($out_mod) && ($resolved = $module->pc_resolve_module_name($out_mod))) {
+							$out_mod = $resolved;
 						}
-					}
 
-					$gv_inputs .= "\tm_".get_ident($out_mod_id).($exists ? ':o_'.get_ident($out_name).':e' : '')
-						.' -> m_'.get_ident($id).':i_'.get_ident($in).':w'
-						.($is_created
-							? ($missing
-								? " [color=red]"
-								: ($zero
-									? ' [color=dimgrey,penwidth=0.8]'
-									: ($big ? ' [penwidth=2]':''))
-								)
-							: '[color="#eeeeee"]'
-						).";\n";
+						$out_mod_id = is_object($out_mod) ? $out_mod->full_id() : $out_mod;
+
+						$missing = true;
+						$zero = true;
+						$big = false;
+
+						if (!is_object($out_mod)) {
+							$missing_modules[$out_mod] = true;
+							$missing = !array_key_exists($out_mod, $whitelist);
+						} else if ($out_mod->pc_output_exists($out_name)) {
+							$missing = false;
+							$v = $out_mod->pc_output_cache();
+							if (array_key_exists($out_name, $v)) {
+								$v = $v[$out_name];
+								$exists = true;
+								$zero = empty($v);
+								$big = is_array($v) || is_object($v);
+							} else {
+								$v = null;
+								$exists = false;
+								$zero = true;
+								$big = false;
+							}
+						}
+
+						$gv_inputs .= "\tm_".get_ident($out_mod_id).($exists ? ':o_'.get_ident($out_name).':e' : '')
+							.' -> m_'.get_ident($id).':i_'.get_ident($in).':w'
+							.($is_created
+								? ($missing
+									? " [color=red]"
+									: ($zero
+										? ' [color=dimgrey,penwidth=0.8]'
+										: ($big ? ' [penwidth=2]':''))
+									)
+								: '[color="#eeeeee"]'
+							).";\n";
+					}
 				}
 			}
 
@@ -479,12 +506,16 @@ class PipelineController {
 				if ($in !== false || $out !== false) {
 					$gv .=	"\t\t<tr>\n";
 					if ($in !== false) {
-						$gv .= "\t\t\t<td align=\"left\"  port=\"i_".get_ident($in)."\">".htmlspecialchars($in)."</td>\n";
+						$gv .= "\t\t\t<td align=\"left\"  port=\"i_".get_ident($in)."\">"
+							.htmlspecialchars($in)
+							.(isset($input_functions[$in]) ? ' ('.htmlspecialchars($input_functions[$in]).')' : '')
+							."</td>\n";
 					} else {
 						$gv .= "\t\t\t<td></td>\n";
 					}
 					if ($out !== false) {
-						$gv .= "\t\t\t<td align=\"right\" port=\"o_".get_ident($out)."\">".htmlspecialchars($out)."</td>\n";
+						$gv .= "\t\t\t<td align=\"right\" port=\"o_".get_ident($out)."\">"
+							.htmlspecialchars($out)."</td>\n";
 					} else {
 						$gv .= "\t\t\t<td></td>\n";
 					}
@@ -492,6 +523,7 @@ class PipelineController {
 				}
 
 				$in = next($input_names);
+				$in_fn = next($input_functions);
 				$out = next($output_names);
 			}
 

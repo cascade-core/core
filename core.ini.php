@@ -62,22 +62,37 @@ default_type		= "html5"
 .module		= core/ini/router
 config		= core/routes.ini.php
 
-[module:page]
+[module:content]
 .module		= "core/value/pipeline_loader"
-.force-exec	= true
-output-forward	= "done,title"
-skeleton[]	= "router:skeleton"
+output-forward	= "done,title,type"
 content[]	= "router:content"
-extra[]		= "router:extra"
 enable[]	= "router:done"
+
+[module:extra]
+.module		= "core/value/pipeline_loader"
+output-forward	= "done"
+skeleton[]	= "router:skeleton"
+extra[]		= "router:extra"
+enable[]	= "content:content_0_done"
 
 [module:page_title]
 .module		= core/out/set_page_title
-.force-exec	= true
-title[]		= page:content_0_title
+title[]		= :or
+title[]		= content:content_0_title
+title[]		= router:title
 format[]	= router:title_fmt
-title-fallback[] = router:title
 
+[module:page_type]
+.module		= core/out/set_type
+type[]		= :or
+type[]		= content:content_0_type
+type[]		= router:type
+
+
+[module:error_page]
+.module		= core/page/error
+enable[]	= :not
+enable[]	= content:content_0_done
 
 ; vim:filetype=dosini:
 

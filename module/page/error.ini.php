@@ -2,7 +2,7 @@
 
 [outputs]
 done = true
-title = "Cascade skeleton"
+title = "Page not found"
 
 [module:skeleton]
 .module		= core/out/page
@@ -14,14 +14,13 @@ level		= 1
 text[]		= page_title:title
 slot-weight	= 1
 
-[module:menu_builder]
-.module		= core/ini/router_links
-config		= core/routes.ini.php
-
-[module:main_menu]
-.module		= core/out/menu
-items[]		= menu_builder:links
-slot-weight	= 5
+[module:page_error]
+.module		= core/out/message
+.force-exec	= true
+is-error	= true
+title		= "Sorry!"
+text		= "Page not found."
+http-status-code = 404
 
 ; vim:filetype=dosini:
 

@@ -38,6 +38,8 @@ class M_core__ini__proxy extends Module {
 		'*' => true,
 	);
 
+	const force_exec = true;
+
 
 	public function main()
 	{
