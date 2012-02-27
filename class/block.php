@@ -28,17 +28,17 @@
  * SUCH DAMAGE.
  */
 
-abstract class Module {
+abstract class Block {
 
-	// module status
+	// block status
 	const QUEUED   = 0x00;
 	const RUNNING  = 0x01;
 	const ZOMBIE   = 0x02;
 	const DISABLED = 0x04;
 	const FAILED   = 0x08;
 
-	// Default value of 'force_exec' flag when adding this module into
-	// pipeline (not when calling add_module() from this class).
+	// Default value of 'force_exec' flag when adding this block into
+	// pipeline (not when calling add_block() from this class).
 	// This is used when force_exec arg. is null (or not set at all).
 	const force_exec = false;
 
@@ -52,7 +52,7 @@ abstract class Module {
 
 	private $id, $full_id;
 	private $pipeline_controller;
-	private $module_name;
+	private $block_name;
 	private $slot_weight_penalty;		// guarantees keeping order of output objects
 
 	private $status = self::QUEUED;
@@ -63,8 +63,8 @@ abstract class Module {
 	private $timestamp_start = null;	// when block execution started ?
 	private $timestamp_finish = null;	// when block execution finished ?
 
-	private $parent = null;			// parent module
-	private $namespace = null;		// references to other modules
+	private $parent = null;			// parent block
+	private $namespace = null;		// references to other blocks
 	protected $context;
 
 	private $pipeline_errors = array();	// list of errors received from pipeline controller
@@ -103,9 +103,9 @@ abstract class Module {
 	}
 
 
-	final public function module_name()
+	final public function block_name()
 	{
-		return $this->module_name;
+		return $this->block_name;
 	}
 
 
@@ -121,11 +121,11 @@ abstract class Module {
 	}
 
 
-	/* Describe module, it's inputs, outputs, ... */
-	final public function describe_module()
+	/* Describe block, it's inputs, outputs, ... */
+	final public function describe_block()
 	{
 		return array(
-			'module' => str_replace('__', '/', preg_replace('/^M_/', '', __CLASS__)),
+			'block' => str_replace('__', '/', preg_replace('/^M_/', '', __CLASS__)),
 			'force_exec' => self::force_exec,
 			'inputs' => $this->inputs,
 			'outputs' => $this->outputs,
@@ -143,15 +143,15 @@ abstract class Module {
 	 *	Part of Pipeline Controller
 	 */
 
-	// "constructor" -- called imediately after module creation
-	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $module_name, $context, $initial_status = self::QUEUED)
+	// "constructor" -- called imediately after block creation
+	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $block_name, $context, $initial_status = self::QUEUED)
 	{
 		// basic init
 		$this->id = $id;
 		$this->parent = $parent;
 		$this->full_id = $full_id;
 		$this->pipeline_controller = $pipeline_controller;
-		$this->module_name = $module_name;
+		$this->block_name = $block_name;
 		$this->context = $context;
 		$this->timestamp_create = $this->pipeline_controller->current_step();
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($this->timestamp_create + 99.0); // lim -> inf = 1
@@ -183,28 +183,28 @@ abstract class Module {
 	}
 
 
-	final public function pc_register_module($module)
+	final public function pc_register_block($block)
 	{
-		$id = $module->id();
+		$id = $block->id();
 
 		if (isset($this->namespace[$id])) {
 			error_msg('Duplicate ID "%s" in the namespace of %s', $id, $this->full_id());
 			return false;
 		} else {
-			$this->namespace[$id] = $module;
+			$this->namespace[$id] = $block;
 			return true;
 		}
 	}
 
 
-	final public function pc_resolve_module_name($mod_name)
+	final public function pc_resolve_block_name($block_name)
 	{
-		$path = explode('.', $mod_name);
+		$path = explode('.', $block_name);
 		$start_name = array_shift($path);
 
 		// Go out
 		if ($start_name == '') {
-			$m = $this->pipeline_controller->resolve_module_name(array_shift($path));
+			$m = $this->pipeline_controller->resolve_block_name(array_shift($path));
 		} else if ($start_name == 'parent') {
 			$m = $this->parent;
 		} else {
@@ -212,7 +212,7 @@ abstract class Module {
 			while ($t && !isset($t->namespace[$start_name])) {
 				$t = $t->parent;
 			}
-			$m = $t !== null ? $t->namespace[$start_name] : $this->pipeline_controller->resolve_module_name($start_name);
+			$m = $t !== null ? $t->namespace[$start_name] : $this->pipeline_controller->resolve_block_name($start_name);
 		}
 
 		if (!$m) {
@@ -242,42 +242,42 @@ abstract class Module {
 				return true;
 
 			case self::FAILED:
-				debug_msg('%s: Skipping failed module "%s"', $this->module_name(), $this->id());
+				debug_msg('%s: Skipping failed block "%s"', $this->block_name(), $this->id());
 				return false;
 
 			case self::RUNNING:
-				error_msg('Circular dependency detected while executing module "%s" !', $this->id);
+				error_msg('Circular dependency detected while executing block "%s" !', $this->id);
 				return false;
 		}
 
 		$this->timestamp_start = $this->pipeline_controller->current_step();
 		$this->status = self::RUNNING;
-		debug_msg('%s: Preparing module "%s" (t = %d)', $this->module_name(), $this->id(), $this->timestamp_start);
+		debug_msg('%s: Preparing block "%s" (t = %d)', $this->block_name(), $this->id(), $this->timestamp_start);
 
-		/* dereference module names and build dependency list */
+		/* dereference block names and build dependency list */
 		$dependencies = array();
 		foreach($this->inputs as $in => & $out) {
 			if (is_array($out)) {
 				// connect to output(s)
 				$n = count($out);
 				if ($n == 0) {
-					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of module "%s" is not defined!',
-							$this->module_name(), $in, $this->id());
+					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of block "%s" is not defined!',
+							$this->block_name(), $in, $this->id());
 					$this->status = self::FAILED;
 				} else {
 					for ($i = $out[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
-						$mod_name = $out[$i];
-						$mod_out = $out[$i + 1];
-						$m = $this->pc_resolve_module_name($mod_name);
+						$block_name = $out[$i];
+						$block_out = $out[$i + 1];
+						$m = $this->pc_resolve_block_name($block_name);
 						if (!$m) {
-							error_msg('%s: Can\'t connect inputs -- module "%s" not found!', $this->module_name(), $mod_name);
+							error_msg('%s: Can\'t connect inputs -- block "%s" not found!', $this->block_name(), $block_name);
 							$this->status = self::FAILED;
-						} else if (isset($m->outputs[$mod_out]) || isset($m->outputs['*'])) {
+						} else if (isset($m->outputs[$block_out]) || isset($m->outputs['*'])) {
 							$dependencies[$m->full_id()] = $m;
 							$out[$i] = $m;
 						} else {
 							error_msg('Can\'t connect input "%s:%s" to "%s:%s" !',
-									$this->id, $in, $mod_name, $mod_out);
+									$this->id, $in, $block_name, $block_out);
 							$this->status = self::FAILED;
 						}
 					}
@@ -287,7 +287,7 @@ abstract class Module {
 
 		/* abort if failed */
 		if (!$this->status == self::FAILED) {
-			error_msg('%s: Failed to prepare module "%s"', $this->module_name(), $this->id());
+			error_msg('%s: Failed to prepare block "%s"', $this->block_name(), $this->id());
 			$this->timestamp_finish = $this->pipeline_controller->current_step();
 			return false;
 		}
@@ -304,21 +304,21 @@ abstract class Module {
 
 		/* abort if failed */
 		if ($this->status == self::FAILED) {
-			error_msg('%s: Failed to solve dependencies of module "%s"', $this->module_name(), $this->id());
+			error_msg('%s: Failed to solve dependencies of block "%s"', $this->block_name(), $this->id());
 			$this->timestamp_finish = $this->pipeline_controller->current_step();
 			return false;
 		}
 
 		/* do not execute if disabled */
 		if (!$this->in('enable')) {
-			debug_msg('%s: Skipping disabled module "%s"', $this->module_name(), $this->id());
+			debug_msg('%s: Skipping disabled block "%s"', $this->block_name(), $this->id());
 			$this->status = self::DISABLED;
 			$this->timestamp_finish = $this->pipeline_controller->current_step();
 			return true;
 		}
 
 		/* execute main */
-		debug_msg('%s: Starting module "%s"', $this->module_name(), $this->id());
+		debug_msg('%s: Starting block "%s"', $this->block_name(), $this->id());
 		$this->context->update_enviroment();
 		$t = microtime(TRUE);
 		$this->main();
@@ -333,13 +333,13 @@ abstract class Module {
 		//	  a udelat to pri tom.
 		foreach($this->forward_list as $name => & $src) {
 			list($src_name, $src_out) = $src;
-			$m = $this->pc_resolve_module_name($src_name);
+			$m = $this->pc_resolve_block_name($src_name);
 			if ($m && (isset($m->outputs[$src_out]) || isset($m->outputs['*']))) {
 				$src[0] = $m;
 				if ($m->pc_execute()) {
 					$this->output_cache[$name] = $m->pc_get_output($src_out);
 				} else {
-					error_msg('Source module or output not found while forwarding to "%s:%s" from "%s:%s"!',
+					error_msg('Source block or output not found while forwarding to "%s:%s" from "%s:%s"!',
 							$this->id(), $name, $src_name, $src_out);
 					$this->status = self::FAILED;
 					break;
@@ -431,7 +431,7 @@ abstract class Module {
 
 
 	/****************************************************************************
-	 *	For module itself
+	 *	For block itself
 	 */
 
 	// get value from input
@@ -449,7 +449,7 @@ abstract class Module {
 			$ref = & $this->inputs['*'];
 		} else {
 			// or fail
-			error_msg('%s: Input "%s" is not defined!', $this->module_name(), $name);
+			error_msg('%s: Input "%s" is not defined!', $this->block_name(), $name);
 			return null;
 		}
 
@@ -526,7 +526,7 @@ abstract class Module {
 						}
 
 					default:
-						error_msg('%s: Input "%s" requires unknown operator "%s"!', $this->module_name(), $name, $ref[0]);
+						error_msg('%s: Input "%s" requires unknown operator "%s"!', $this->block_name(), $name, $ref[0]);
 						return null;
 				}
 			}
@@ -570,7 +570,7 @@ abstract class Module {
 		if (array_key_exists($name, $this->outputs) || array_key_exists('*', $this->outputs)) {
 			$this->output_cache[$name] = & $value;
 		} else {
-			error_msg('%s: Output "%s" does not exist!', $this->module_name(), $name);
+			error_msg('%s: Output "%s" does not exist!', $this->block_name(), $name);
 		}
 	}
 
@@ -582,18 +582,18 @@ abstract class Module {
 	}
 
 
-	// forward output from another module
-	final protected function out_forward($name, $source_module, $source_name)
+	// forward output from another block
+	final protected function out_forward($name, $source_block, $source_name)
 	{
-		$this->forward_list[$name] = array($source_module, $source_name);
+		$this->forward_list[$name] = array($source_block, $source_name);
 	}
 
 
-	// list all visible module names already in pipeline (for debugging only)
-	final public function visible_module_names()
+	// list all visible block names already in pipeline (for debugging only)
+	final public function visible_block_names()
 	{
 		$m = $this;
-		$names = $this->pipeline_controller->root_namespace_module_names();
+		$names = $this->pipeline_controller->root_namespace_block_names();
 
 		while ($m && $m->namespace) {
 			$names = array_merge($names, array_keys($m->namespace));
@@ -660,21 +660,21 @@ abstract class Module {
 	}
 
 
-	// add module to pipeline
-	final protected function pipeline_add($id, $module, $force_exec = null, $connections = array(), $context = null)
+	// add block to pipeline
+	final protected function pipeline_add($id, $block, $force_exec = null, $connections = array(), $context = null)
 	{
 		$this->pipeline_errors = array();
-		return $this->pipeline_controller->add_module($this, $id, $module, $force_exec, $connections,
+		return $this->pipeline_controller->add_block($this, $id, $block, $force_exec, $connections,
 				$context === null ? $this->context : $context,
 				$this->pipeline_errors);
 	}
 
 
-	// add modules to pipeline from parsed inifile
+	// add blocks to pipeline from parsed inifile
 	final protected function pipeline_add_from_ini($parsed_ini_with_sections, $context = null)
 	{
 		$this->pipeline_errors = array();
-		return $this->pipeline_controller->add_modules_from_ini($this, $parsed_ini_with_sections,
+		return $this->pipeline_controller->add_blocks_from_ini($this, $parsed_ini_with_sections,
 				$context === null ? $this->context : $context,
 				$this->pipeline_errors);
 	}

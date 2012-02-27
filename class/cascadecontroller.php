@@ -28,12 +28,12 @@
  * SUCH DAMAGE.
  */
 
-class PipelineController {
+class CascadeController {
 
-	private $queue = array();	// waiting modules
-	private $modules = array();	// all existing modules
+	private $queue = array();	// waiting blocks
+	private $blocks = array();	// all existing blocks
 	private $evaluation_step = 0;	// step counter - time for cascade animations and slot weight penalty
-	private $replacement = array();	// module replacement table (aliases)
+	private $replacement = array();	// block replacement table (aliases)
 	private $root_namespace = array();
 
 	private $execution_time = null;	// time [ms] spent in start()
@@ -74,17 +74,17 @@ class PipelineController {
 	}
 
 
-	public function resolve_module_name($mod_name)
+	public function resolve_block_name($block_name)
 	{
-		if (($m = @$this->root_namespace[$mod_name])) {
+		if (($m = @$this->root_namespace[$block_name])) {
 			return $m;
 		} else {
-			error_msg('Module "%s" not found in root namespace!', $mod_name);
+			error_msg('Module "%s" not found in root namespace!', $block_name);
 		}
 	}
 
 
-	public function root_namespace_module_names()
+	public function root_namespace_block_names()
 	{
 		return array_keys($this->root_namespace);
 	}
@@ -100,31 +100,31 @@ class PipelineController {
 	}
 
 
-	public function add_module($parent, $id, $module, $force_exec, array $connections, Context $context, & $errors = null, $real_module = null)
+	public function add_block($parent, $id, $block, $force_exec, array $connections, Context $context, & $errors = null, $real_block = null)
 	{
 		/* check replacement table */
-		for ($step = 32; isset($this->replacement[$module]) && $step > 0; $step--) {
-			$module = $this->replacement[$module];
+		for ($step = 32; isset($this->replacement[$block]) && $step > 0; $step--) {
+			$block = $this->replacement[$block];
 		}
 
-		/* check module name */
-		if (!is_string($module) || strpos($module, '.') !== FALSE || !ctype_graph($module)) {
-			error_msg('Invalid module name: %s', $module);
+		/* check block name */
+		if (!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block)) {
+			error_msg('Invalid block name: %s', $block);
 			$errors[] = array(
-				'error'   => 'Invalid module name.',
+				'error'   => 'Invalid block name.',
 				'id'      => $id,
-				'module'  => $module,
+				'block'   => $block,
 			);
 			return false;
 		}
 
 		/* check malformed IDs */
 		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
-			error_msg('Invalid module ID: %s', $id);
+			error_msg('Invalid block ID: %s', $id);
 			$errors[] = array(
-				'error'   => 'Invalid module ID.',
+				'error'   => 'Invalid block ID.',
 				'id'      => $id,
-				'module'  => $module,
+				'block'   => $block,
 			);
 			return false;
 		}
@@ -133,33 +133,33 @@ class PipelineController {
 		$full_id = ($parent ? $parent->id().'.' : '').$id;
 
 		/* check for duplicate IDs */
-		if (array_key_exists($full_id, $this->modules)) {
+		if (array_key_exists($full_id, $this->blocks)) {
 			error_msg('Module ID "%s" already exists in pipeline!', $id);
 			$errors[] = array(
 				'error'   => 'Module ID already exists in pipeline.',
 				'id'      => $id,
-				'module'  => $module,
+				'block'   => $block,
 			);
 			return false;
 		}
 
 		/* build class name */
-		$class = 'M_'.str_replace('/', '__', $module);
+		$class = 'M_'.str_replace('/', '__', $block);
 
 		/* check permissions */
-		if (!$context->is_allowed($module, $details)) {
+		if (!$context->is_allowed($block, $details)) {
 			if ($details != '') {
-				error_msg('Permission denied to module %s (%s).', $module, $details);
+				error_msg('Permission denied to block %s (%s).', $block, $details);
 			} else {
-				error_msg('Permission denied to module %s.', $module);
+				error_msg('Permission denied to block %s.', $block);
 			}
 			$errors[] = array(
 				'error'   => 'Permission denied.',
 				'id'      => $id,
-				'module'  => $module,
+				'block'   => $block,
 				'details' => $details,
 			);
-			$this->add_failed_module($parent, $id, $full_id, $real_module !== null ? $real_module : $module, $connections);
+			$this->add_failed_block($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
 			return false;
 		}
 
@@ -167,30 +167,30 @@ class PipelineController {
 		/* kick autoloader */
 		if (class_exists($class)) {
 
-			/* initialize module */
+			/* initialize block */
 			$m = new $class();
-			$m->pc_init($parent, $id, $full_id, $this, $real_module !== null ? $real_module : $module, $context);
-			if (!$m->pc_connect($connections, $this->modules)) {
+			$m->pc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
+			if (!$m->pc_connect($connections, $this->blocks)) {
 				error_msg('Module "%s": Can\'t connect inputs!', $id);
 				$errors[] = array(
 					'error'   => 'Can\'t connect inputs.',
 					'id'      => $id,
-					'module'  => $module,
+					'block'   => $block,
 					'inputs'  => $connections,
 				);
-				$this->add_failed_module($parent, $id, $full_id, $real_module !== null ? $real_module : $module, $connections);
+				$this->add_failed_block($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
 				return false;
 			}
 
-			/* put module to parent's namespace */
+			/* put block to parent's namespace */
 			if ($parent) {
-				$parent->pc_register_module($m);
+				$parent->pc_register_block($m);
 			} else {
 				$this->root_namespace[$id] = $m;
 			}
 
-			/* add module to queue */
-			$this->modules[$id] = $m;
+			/* add block to queue */
+			$this->blocks[$id] = $m;
 			if ($force_exec === null ? $class::force_exec : $force_exec) {
 				$this->queue[] = $m;
 			}
@@ -199,38 +199,38 @@ class PipelineController {
 
 		} else {
 			/* class not found, check if ini file exists */
-			$f = get_module_filename($module, '.ini.php');
+			$f = get_block_filename($block, '.ini.php');
 
-			if ($module != 'core/ini/proxy' && is_file($f)) {
+			if ($block != 'core/ini/proxy' && is_file($f)) {
 				/* load core/ini/proxy for this ini file */
 				debug_msg('Loading core/ini/proxy for "%s".', $f);
-				return $this->add_module($parent, $id, 'core/ini/proxy', $force_exec, $connections, $context, $errors, $module);
+				return $this->add_block($parent, $id, 'core/ini/proxy', $force_exec, $connections, $context, $errors, $block);
 
 			} else {
-				/* module not found */
-				error_msg('Module "%s" not found.', $module);
+				/* block not found */
+				error_msg('Module "%s" not found.', $block);
 				$errors[] = array(
 					'error'   => 'Module not found.',
 					'id'      => $id,
-					'module'  => $module,
+					'block'   => $block,
 				);
-				$this->add_failed_module($parent, $id, $full_id, $module, $connections);
+				$this->add_failed_block($parent, $id, $full_id, $block, $connections);
 				return false;
 			}
 		}
 	}
 
 
-	private function add_failed_module($parent, $id, $full_id, $real_module, array $connections)
+	private function add_failed_block($parent, $id, $full_id, $real_block, array $connections)
 	{
-		/* create dummy module */
+		/* create dummy block */
 		$m = new M_core__dummy();
-		$m->pc_init($parent, $id, $full_id, $this, $real_module, null, Module::FAILED);
-		$m->pc_connect($connections, $this->modules);
+		$m->pc_init($parent, $id, $full_id, $this, $real_block, null, Module::FAILED);
+		$m->pc_connect($connections, $this->blocks);
 
-		/* put module to parent's namespace */
+		/* put block to parent's namespace */
 		if ($parent) {
-			$parent->pc_register_module($m);
+			$parent->pc_register_block($m);
 		} else {
 			$this->root_namespace[$id] = $m;
 		}
@@ -239,18 +239,18 @@ class PipelineController {
 	}
 
 
-	public function add_modules_from_ini($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
+	public function add_blocks_from_ini($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
 	{
 		$all_good = true;
 
-		/* walk thru ini and take 'module:*' sections */
+		/* walk thru ini and take 'block:*' sections */
 		foreach ($parsed_ini_with_sections as $section => $opts) {
 			@list($keyword, $id) = explode(':', $section, 2);
-			if ($keyword == 'module' && isset($id) && @($module = $opts['.module']) !== null) {
+			if ($keyword == 'block' && isset($id) && @($block = $opts['.block']) !== null) {
 				$force_exec = @ $opts['.force-exec'];
 
-				/* drop module options and keep only connections */
-				unset($opts['.module']);
+				/* drop block options and keep only connections */
+				unset($opts['.block']);
 				unset($opts['.force-exec']);
 
 				/* parse connections */
@@ -276,7 +276,7 @@ class PipelineController {
 					}
 				}
 
-				$all_good &= $this->add_module($parent, $id, $module, $force_exec, $opts, $context, $errors);
+				$all_good &= $this->add_block($parent, $id, $block, $force_exec, $opts, $context, $errors);
 			}
 		}
 
@@ -300,17 +300,17 @@ class PipelineController {
 		$sum = 0.0;
 
 		if (is_array($old_stats)) {
-			$by_module = $old_stats['modules'];
+			$by_block = $old_stats['blocks'];
 		} else {
-			$by_module = array();
+			$by_block = array();
 		}
 
-		foreach($this->modules as $m) {
+		foreach($this->blocks as $m) {
 			$t = $m->pc_execution_time();
 			if ($t > 0) {
 				$cnt++;
 				$sum += $t;
-				$bm = & $by_module[$m->module_name()];
+				$bm = & $by_block[$m->block_name()];
 				@$bm['sum'] += $t;		// arsort() uses first field in array
 				@$bm['cnt']++;
 				@$bm['min'] = $bm['min'] === null ? $t : min($t, $bm['min']);
@@ -323,18 +323,18 @@ class PipelineController {
 				'total_time' => $this->execution_time + $old_stats['total_time'],
 				'pipeline_time' => ($this->execution_time - $sum) + $old_stats['pipeline_time'],
 				'pipeline_count' => 1 + $old_stats['pipeline_count'],
-				'modules_time' => $sum + $old_stats['modules_time'],
-				'modules_count' => $cnt + $old_stats['modules_count'],
-				'modules' => $by_module
+				'blocks_time' => $sum + $old_stats['blocks_time'],
+				'blocks_count' => $cnt + $old_stats['blocks_count'],
+				'blocks' => $by_block
 			);
 		} else {
 			return array(
 				'total_time' => $this->execution_time,
 				'pipeline_time' => ($this->execution_time - $sum),
 				'pipeline_count' => 1,
-				'modules_time' => $sum,
-				'modules_count' => $cnt,
-				'modules' => $by_module
+				'blocks_time' => $sum,
+				'blocks_count' => $cnt,
+				'blocks' => $by_block
 			);
 		}
 	}
@@ -386,28 +386,28 @@ class PipelineController {
 
 	private function export_graphviz_dot_namespace($namespace, $colors, $doc_link, $whitelist = array(), $step = null, $indent = "\t")
 	{
-		$missing_modules = array();
+		$missing_blocks = array();
 		$gv = '';
 		$clusters = '';
 		$subgraph = '';
 
-		foreach ($namespace as $id => & $module) {
+		foreach ($namespace as $id => & $block) {
 			/* skip specials */
 			if ($id == 'parent' || $id == 'self') {
 				continue;
 			}
 
-			$id = $module->full_id();
-			list($t_create, $t_start, $t_finish) = $module->get_timestamps();
+			$id = $block->full_id();
+			list($t_create, $t_start, $t_finish) = $block->get_timestamps();
 
 			$is_created  = $t_create < $step;
 			$is_started  = $t_start < $step;
 			$is_running  = $t_start < $step && $t_finish >= $step;
 			$is_finished = $t_finish < $step;
 
-			/* add module header */
+			/* add block header */
 			$subgraph .= $indent."m_".get_ident($id).";\n";
-			$gv .=	 "\tm_".get_ident($id)." [URL=\"".sprintf($doc_link, $module->module_name())."\",target=\"_blank\","
+			$gv .=	 "\tm_".get_ident($id)." [URL=\"".sprintf($doc_link, $block->block_name())."\",target=\"_blank\","
 						.($is_created ? '':'fontcolor="#eeeeee",')
 						."label=<<table border=\"1\"".($is_created ? '':' color="#eeeeee"')
 								." bgcolor=\"#ffffff\" cellborder=\"0\" cellspacing=\"0\">\n"
@@ -415,20 +415,20 @@ class PipelineController {
 				."		<td bgcolor=\"".($is_created
 									? $colors[$is_running
 										? Module::RUNNING
-										: ($is_finished ? $module->status() : Module::QUEUED)]
+										: ($is_finished ? $block->status() : Module::QUEUED)]
 									:'#ffffff'
 								)."\" colspan=\"2\">\n"
-				."			<font face=\"sans bold\">".htmlspecialchars($module->id())."</font><br/>\n"
-				."			<font face=\"sans italic\">".htmlspecialchars($module->module_name())."</font>\n"
+				."			<font face=\"sans bold\">".htmlspecialchars($block->id())."</font><br/>\n"
+				."			<font face=\"sans italic\">".htmlspecialchars($block->block_name())."</font>\n"
 				."		</td>\n"
 				."	</tr>\n";
 
 
 			$gv_inputs = '';
-			$inputs  = $module->pc_inputs();
+			$inputs  = $block->pc_inputs();
 			$input_names = array();
 			$input_functions = array();
-			$output_names = $module->pc_outputs();
+			$output_names = $block->pc_outputs();
 
 			/* connect inputs */
 			foreach ($inputs as $in => $out) {
@@ -445,18 +445,18 @@ class PipelineController {
 						$out_mod = $out[$i];
 						$out_name = $out[$i + 1];
 
-						if (!is_object($out_mod) && ($resolved = $module->pc_resolve_module_name($out_mod))) {
+						if (!is_object($out_mod) && ($resolved = $block->pc_resolve_block_name($out_mod))) {
 							$out_mod = $resolved;
 						}
 
-						$out_mod_id = is_object($out_mod) ? $out_mod->full_id() : $out_mod;
+						$out_block_id = is_object($out_mod) ? $out_mod->full_id() : $out_mod;
 
 						$missing = true;
 						$zero = true;
 						$big = false;
 
 						if (!is_object($out_mod)) {
-							$missing_modules[$out_mod] = true;
+							$missing_blocks[$out_mod] = true;
 							$missing = !array_key_exists($out_mod, $whitelist);
 						} else if ($out_mod->pc_output_exists($out_name)) {
 							$missing = false;
@@ -474,7 +474,7 @@ class PipelineController {
 							}
 						}
 
-						$gv_inputs .= "\tm_".get_ident($out_mod_id).($exists ? ':o_'.get_ident($out_name).':e' : '')
+						$gv_inputs .= "\tm_".get_ident($out_block_id).($exists ? ':o_'.get_ident($out_name).':e' : '')
 							.' -> m_'.get_ident($id).':i_'.get_ident($in).':w'
 							.($is_created
 								? ($missing
@@ -494,7 +494,7 @@ class PipelineController {
 			$in = current($input_names);
 			$out = current($output_names);
 
-			/* add module inputs and outputs */
+			/* add block inputs and outputs */
 			while($in !== false || $out !== false) {
 				while ($in === '*') {
 					$in = next($input_names);
@@ -528,7 +528,7 @@ class PipelineController {
 			}
 
 			/*
-			$et = $module->pc_execution_time();
+			$et = $block->pc_execution_time();
 			if ($et > 10) {
 				$gv .=   "	<tr>\n"
 					."		<td align=\"center\" colspan=\"2\">\n"
@@ -543,14 +543,14 @@ class PipelineController {
 			$gv .=	$gv_inputs;
 
 			/* connect forwarded outputs */
-			foreach ($module->pc_forwarded_outputs() as $name => $src) {
+			foreach ($block->pc_forwarded_outputs() as $name => $src) {
 				list($src_mod, $src_out) = $src;
-				if (!is_object($src_mod) && ($resolved = $module->pc_resolve_module_name($src_mod))) {
+				if (!is_object($src_mod) && ($resolved = $block->pc_resolve_block_name($src_mod))) {
 					$src_mod = $resolved;
 				}
-				$src_mod_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
+				$src_block_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
 				$v = is_object($src_mod) ? $src_mod->pc_output_cache($src_out) : array();
-				$gv .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_mod_id)
+				$gv .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_block_id)
 						.(array_key_exists($src_out, $v) ? ":o_".get_ident($src_out).":e":'')
 					.($is_created ? "[color=royalblue" : '[color="#eeeeee"').",arrowhead=dot,arrowtail=none,dir=both,weight=0];\n";
 			}
@@ -558,7 +558,7 @@ class PipelineController {
 			$gv .= "\n";
 
 			/* recursively draw sub-namespaces */
-			$child_namespace = $module->pc_get_namespace();
+			$child_namespace = $block->pc_get_namespace();
 			if (!empty($child_namespace)) {
 				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link,
 										$whitelist, $step, $indent."\t");
@@ -573,15 +573,15 @@ class PipelineController {
 			}
 		}
 
-		/* add missing modules */
-		if (!empty($missing_modules)) {
-			foreach ($missing_modules as $module => $t) {
-				if ((string) $module == '') {
+		/* add missing blocks */
+		if (!empty($missing_blocks)) {
+			foreach ($missing_blocks as $block => $t) {
+				if ((string) $block == '') {
 					$label = '<<font face="Sans Italic">null</font>>';
 				} else {
-					$label = '"'.addcslashes($module, '"\\').'"';
+					$label = '"'.addcslashes($block, '"\\').'"';
 				}
-				$gv .= "\t m_".get_ident($module)." [color=".(array_key_exists($module, $whitelist) ? "dimgrey" : "red")
+				$gv .= "\t m_".get_ident($block)." [color=".(array_key_exists($block, $whitelist) ? "dimgrey" : "red")
 						.", shape=ellipse, label=$label, padding=0];\n";
 			}
 		}
