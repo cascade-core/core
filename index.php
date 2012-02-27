@@ -91,7 +91,7 @@ function get_block_filename($block, $extension = '.php')
 /* Get block's class name */
 function get_block_class_name($block)
 {
-	$class_name = 'M_'.str_replace('/', '__', $block);
+	$class_name = 'B_'.str_replace('/', '__', $block);
 	if (class_exists($class_name)) {
 		return $class_name;
 	} else {
@@ -129,7 +129,7 @@ function __autoload($class)
 	@ list($head, $tail) = explode("\\", $lc_class, 2);
 
 	/* Block */
-	if ($tail === null && $class[0] == 'M' && $class[1] == '_') {
+	if ($tail === null && $class[0] == 'B' && $class[1] == '_') {
 		$m = str_replace('__', '/', substr($lc_class, 2));
 		$f = get_block_filename($m);
 		if (file_exists($f)) {

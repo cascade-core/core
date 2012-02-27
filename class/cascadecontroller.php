@@ -144,7 +144,7 @@ class CascadeController {
 		}
 
 		/* build class name */
-		$class = 'M_'.str_replace('/', '__', $block);
+		$class = 'B_'.str_replace('/', '__', $block);
 
 		/* check permissions */
 		if (!$context->is_allowed($block, $details)) {
@@ -224,7 +224,7 @@ class CascadeController {
 	private function add_failed_block($parent, $id, $full_id, $real_block, array $connections)
 	{
 		/* create dummy block */
-		$m = new M_core__dummy();
+		$m = new B_core__dummy();
 		$m->pc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED);
 		$m->pc_connect($connections, $this->blocks);
 
