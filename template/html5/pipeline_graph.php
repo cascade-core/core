@@ -106,6 +106,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 					"\t<div><small>[ ",
 						"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
 						" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
+						" | ", $hash,
 					" ]</small></div>\n";
 			} else {
 				echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\">\n";
