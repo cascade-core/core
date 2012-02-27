@@ -6,7 +6,7 @@ title = Profiler statistics
 
 [block:profiler]
 .block		= "core/devel/profiler_stats"
-.force-exec	= true
+.force_exec	= true
 
 
 ; vim:filetype=dosini:

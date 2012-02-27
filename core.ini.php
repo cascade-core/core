@@ -64,15 +64,14 @@ config		= core/routes.ini.php
 
 [block:content]
 .block		= "core/value/cascade_loader"
-output-forward	= "done,title,type"
+output_forward	= "done,title,type"
 content[]	= "router:content"
 enable[]	= "router:done"
 
-[block:extra]
-.block		= "core/value/cascade_loader"
-output-forward	= "done"
-skeleton[]	= "router:skeleton"
-extra[]		= "router:extra"
+[block:skeleton]
+.block		= "core/page/skeleton"
+enable[]	= ":and"
+enable[]	= "router:skeleton"
 enable[]	= "content:content_0_done"
 
 [block:page_title]
@@ -88,11 +87,18 @@ type[]		= :or
 type[]		= content:content_0_type
 type[]		= router:type
 
+;[block:extra]
+;.block		= "core/value/cascade_loader"
+;output_forward	= "done"
+;extra[]	= "router:extra"
+;enable[]	= "content:content_0_done"
+
 
 [block:error_page]
 .block		= core/page/error
 enable[]	= :not
 enable[]	= content:content_0_done
+
 
 ; vim:filetype=dosini:
 

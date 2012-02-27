@@ -35,7 +35,7 @@ class B_core__out__raw extends Block
 	protected $inputs = array(
 		'data' => array(),
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	function main()

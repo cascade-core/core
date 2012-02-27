@@ -34,7 +34,7 @@ class B_core__out__set_page_title extends Block
 
 	protected $inputs = array(
 		'title' => null,
-		'title-fallback' => null,
+		'title_fallback' => null,
 		'format' => null,
 	);
 
@@ -49,7 +49,7 @@ class B_core__out__set_page_title extends Block
 		$fmt = $this->in('format');
 
 		if ($t == '') {
-			$t = $this->in('title-fallback');
+			$t = $this->in('title_fallback');
 		}
 
 		$this->template_set_page_title($t, $fmt);

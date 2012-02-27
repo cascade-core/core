@@ -39,7 +39,7 @@ class B_core__devel__version extends Block
 		'prefix' => null,	// when 'short' format, prepend this string (some delimiter or so)
 		'suffix' => null,	// when 'short' format, append this string (some delimiter or so)
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(

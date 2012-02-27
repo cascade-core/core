@@ -34,7 +34,7 @@ class B_core__out__multi_slot extends Block
 
 	protected $inputs = array(
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 		'list' => array(),
 	);
 

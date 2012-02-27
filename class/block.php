@@ -72,14 +72,14 @@ abstract class Block {
 
 	// list of inputs and their default values
 	protected $inputs = array(
-		// 'input-name' => 'default-value',
-		// 'input-name' => array('block', 'output'),
-		// '*' => 'default-value',
+		// 'input_name' => 'default_value',
+		// 'input_name' => array('block', 'output'),
+		// '*' => 'default_value',
 	);
 
 	// list of outputs (no default values)
 	protected $outputs = array(
-		// 'output-name' => true,
+		// 'output_name' => true,
 		// '*' => true,
 	);
 
@@ -617,7 +617,7 @@ abstract class Block {
 		$id = $id_suffix === null ? $this->full_id() : $this->full_id().'_'.$id_suffix;
 		$t = $this->context->get_template_engine();
 		$t->add_object($id, $slot === null ? $this->in('slot') : $slot,
-				($weight === null ? $this->in('slot-weight') : $weight) + $this->slot_weight_penalty,
+				($weight === null ? $this->in('slot_weight') : $weight) + $this->slot_weight_penalty,
 				$template, $data, $this->context);
 
 	}

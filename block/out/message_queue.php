@@ -34,7 +34,7 @@ class B_core__out__message_queue extends Block
 
 	protected $inputs = array(
 		'slot' => 'default',
-		'slot-weight' => 20,
+		'slot_weight' => 20,
 	);
 
 	protected $outputs = array(

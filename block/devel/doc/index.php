@@ -76,7 +76,7 @@ class B_core__devel__doc__index extends Block
 	protected $inputs = array(
 		'link' => DEBUG_CASCADE_GRAPH_LINK,
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(

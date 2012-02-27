@@ -31,7 +31,7 @@
 class B_core__value__template extends Block {
 
 	protected $inputs = array(
-		'escaping-fn' => null,
+		'escaping_fn' => null,
 		'*' => '',
 	);
 
@@ -49,12 +49,12 @@ class B_core__value__template extends Block {
 		foreach ($inputs as $in) {
 			if (strncmp($in, 'fmt_', 4) == 0) {
 				$fmt_strings[substr($in, 4)] = $this->in($in);
-			} else if ($in != 'escaping-fn') {
+			} else if ($in != 'escaping_fn') {
 				$values[$in] = $this->in($in);
 			}
 		}
 
-		$esc_fn = $this->in('escaping-fn');
+		$esc_fn = $this->in('escaping_fn');
 
 		foreach ($fmt_strings as $name => $fmt) {
 			$this->out($name, template_format($fmt, $values, $esc_fn));

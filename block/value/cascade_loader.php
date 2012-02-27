@@ -34,8 +34,8 @@ class B_core__value__cascade_loader extends Block
 
 	protected $inputs = array(
 		'*' => null,
-		'block-fmt' => null,
-		'output-forward' => 'done',
+		'block_fmt' => null,
+		'output_forward' => 'done',
 	);
 
 	protected $outputs = array(
@@ -48,14 +48,14 @@ class B_core__value__cascade_loader extends Block
 		$all_ok = true;
 		$any_ok = false;
 
-		$block_fmt = $this->in('block-fmt');
-		$output_forward = $this->in('output-forward');
+		$block_fmt = $this->in('block_fmt');
+		$output_forward = $this->in('output_forward');
 		if (!is_array($output_forward)) {
 			$output_forward = preg_split('/[^a-zA-Z0-9_-]+/', $output_forward, -1, PREG_SPLIT_NO_EMPTY);
 		}
 
 		foreach ((array) $this->input_names() as $i) {
-			if ($i == 'output-forward' || $i == 'block-fmt') {
+			if ($i == 'output_forward' || $i == 'block_fmt') {
 				continue;
 			}
 

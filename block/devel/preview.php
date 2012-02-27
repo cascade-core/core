@@ -36,7 +36,7 @@ class B_core__devel__preview extends Block
 		'blocks' => array(),
 		'link' => DEBUG_CASCADE_GRAPH_LINK,
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(
@@ -59,7 +59,7 @@ class B_core__devel__preview extends Block
 				'whitelist' => $this->visible_block_names(),
 				'dot_name' => 'data/graphviz/cascade-%s.%s',
 				'preview' => true,
-				'style' => 'page-content',
+				'style' => 'page_content',
 				'link' => $this->in('link'),
 				'errors' => $errors,
 			));

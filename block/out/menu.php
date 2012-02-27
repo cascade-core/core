@@ -35,11 +35,11 @@ class B_core__out__menu extends Block
 	protected $inputs = array(
 		'items' => null,
 		'layout' => 'tree',		// tree or row
-		'active-uri' => null,
-		'exact-match' => false,
-		'title-fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
+		'active_uri' => null,
+		'exact_match' => false,
+		'title_fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(
@@ -54,9 +54,9 @@ class B_core__out__menu extends Block
 			$this->template_add(null, 'core/menu', array(
 					'items' => $items,
 					'layout' => $this->in('layout'),
-					'title_fmt' => $this->in('title-fmt'),
-					'exact_match' => $this->in('exact-match'),
-					'active_uri' => $this->in('active-uri'),
+					'title_fmt' => $this->in('title_fmt'),
+					'exact_match' => $this->in('exact_match'),
+					'active_uri' => $this->in('active_uri'),
 				));
 		}
 	}

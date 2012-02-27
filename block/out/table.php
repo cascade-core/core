@@ -36,7 +36,7 @@ class B_core__out__table extends Block
 		'items' => array(),
 		'config' => array(),
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(

@@ -35,7 +35,7 @@ class B_core__devel__profiler_stats extends Block
 	protected $inputs = array(
 		'filename' => '{DIR_ROOT}/var/profiler.stats',
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(

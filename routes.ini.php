@@ -7,7 +7,7 @@
 
 ; default values
 [#]
-skeleton = core/page/skeleton
+skeleton = true
 content = false
 extra = false
 title_fmt = %s - Cascade

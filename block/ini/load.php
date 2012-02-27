@@ -33,8 +33,8 @@ class B_core__ini__load extends Block {
 	protected $inputs = array(
 		'filename' => array(),
 		'name' => null,
-		'process-sections' => true,
-		'multi-output' => false,
+		'process_sections' => true,
+		'multi_output' => false,
 	);
 
 	protected $outputs = array(
@@ -61,12 +61,12 @@ class B_core__ini__load extends Block {
 			$fn = sprintf($fn, $name);
 		}
 
-		$data = parse_ini_file($fn, $this->in('process-sections'));
+		$data = parse_ini_file($fn, $this->in('process_sections'));
 
 		if ($data === FALSE) {
 			$this->out('error', true);
 		} else {
-			if ($this->in('multi-output')) {
+			if ($this->in('multi_output')) {
 				$this->out_all($data);
 			} else {
 				$this->out('data', $data);

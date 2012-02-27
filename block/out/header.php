@@ -39,7 +39,7 @@ class B_core__out__header extends Block
 		'anchor' => null,
 		'option' => null,
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(

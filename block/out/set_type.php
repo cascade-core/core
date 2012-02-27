@@ -34,7 +34,7 @@ class B_core__out__set_type extends Block
 
 	protected $inputs = array(
 		'type' => null,
-		'type-fallback' => null,
+		'type_fallback' => null,
 	);
 
 	protected $outputs = array(
@@ -51,7 +51,7 @@ class B_core__out__set_type extends Block
 			$this->out('type', $type);
 			$this->out('done', true);
 		} else {
-			$type = $this->in('type-fallback');
+			$type = $this->in('type_fallback');
 			if ($type != '') {
 				$this->template_set_type($type);
 				$this->out('type', $type);

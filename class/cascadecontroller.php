@@ -247,11 +247,11 @@ class CascadeController {
 		foreach ($parsed_ini_with_sections as $section => $opts) {
 			@list($keyword, $id) = explode(':', $section, 2);
 			if ($keyword == 'block' && isset($id) && @($block = $opts['.block']) !== null) {
-				$force_exec = @ $opts['.force-exec'];
+				$force_exec = @ $opts['.force_exec'];
 
 				/* drop block options and keep only connections */
 				unset($opts['.block']);
-				unset($opts['.force-exec']);
+				unset($opts['.force_exec']);
 
 				/* parse connections */
 				foreach($opts as & $out) {

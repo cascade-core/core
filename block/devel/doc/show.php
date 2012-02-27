@@ -39,10 +39,10 @@ class B_core__devel__doc__show extends Block
 
 	protected $inputs = array(
 		'block' => array(),
-		'show-code' => false,
+		'show_code' => false,
 		'link' => DEBUG_CASCADE_GRAPH_LINK,
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(
@@ -60,7 +60,7 @@ class B_core__devel__doc__show extends Block
 		if (is_array($block)) {
 			$block = join('/', $block);
 		}
-		$this->expected_class = 'M_'.str_replace('/', '__', $block);
+		$this->expected_class = 'B_'.str_replace('/', '__', $block);
 
 		// PHP file
 		$filename = get_block_filename($block);
@@ -84,7 +84,7 @@ class B_core__devel__doc__show extends Block
 					'inputs' => $this->data['inputs'],
 					'outputs' => $this->data['outputs'],
 					'description' => $this->data['description'],
-					'code' => $this->in('show-code') ? $code : null,
+					'code' => $this->in('show_code') ? $code : null,
 					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
 				));
 
@@ -116,7 +116,7 @@ class B_core__devel__doc__show extends Block
 					'blocks' => array('load', 'data'),
 					'link' => $this->in('link'),
 					'slot' => $this->in('slot'),
-					'slot-weight' => $this->in('slot-weight'),
+					'slot_weight' => $this->in('slot_weight'),
 				));
 			$this->out_forward('done', 'load', 'done');
 			return;

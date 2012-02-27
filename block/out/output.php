@@ -37,7 +37,7 @@ class B_core__out__output extends Block
 		'data' => false,	// if false, all inputs are forwarded, otherwise only content of this one
 		'*' => null,		// all inputs are forwarded to template if input 'data' is false
 		'slot' => 'default',
-		'slot-weight' => 50,
+		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(

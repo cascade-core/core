@@ -34,44 +34,44 @@ class B_core__out__message extends Block
 
 	protected $inputs = array(
 		'type' => null,
-		'is-error' => null,
-		'is-success' => null,
-		'is-warning' => null,
-		'is-info' => null,
+		'is_error' => null,
+		'is_success' => null,
+		'is_warning' => null,
+		'is_info' => null,
 
 		// defaults
 		'title' => null,
 		'text' => null,
 
 		// override when error
-		'error-title' => null,
-		'error-text' => null,
+		'error_title' => null,
+		'error_text' => null,
 
 		// override when warning
-		'warning-title' => null,
-		'warning-text' => null,
+		'warning_title' => null,
+		'warning_text' => null,
 
 		// override when success
-		'success-title' => null,
-		'success-text' => null,
+		'success_title' => null,
+		'success_text' => null,
 
 		// override when info
-		'info-title' => null,
-		'info-text' => null,
+		'info_title' => null,
+		'info_text' => null,
 
 		// redirect - only if success
-		'redirect-url' => null,
-		'allow-redirect' => true,
-		'quiet-redirect' => false,
+		'redirect_url' => null,
+		'allow_redirect' => true,
+		'quiet_redirect' => false,
 
 		// http-status
-		'http-status-code' => null,
-		'http-status-message' => null,
+		'http_status_code' => null,
+		'http_status_message' => null,
 
 		'hide' => false,
 
 		'slot' => 'default',
-		'slot-weight' => 20,
+		'slot_weight' => 20,
 
 		'*' => null,
 	);
@@ -88,13 +88,13 @@ class B_core__out__message extends Block
 		}
 
 		/* resolve message type */
-		if ($this->in('is-error')) {
+		if ($this->in('is_error')) {
 			$type = 'error';
-		} else if ($this->in('is-success')) {
+		} else if ($this->in('is_success')) {
 			$type = 'success';
-		} else if ($this->in('is-warning')) {
+		} else if ($this->in('is_warning')) {
 			$type = 'warning';
-		} else if ($this->in('is-info')) {
+		} else if ($this->in('is_info')) {
 			$type = 'info';
 		} else if (!($type = $this->in('type')) || !in_array($type, array('error', 'success', 'warn', 'info'))) {
 			return;
@@ -104,7 +104,7 @@ class B_core__out__message extends Block
 		$in_vals = $this->collect_numeric_inputs();
 
 		/* get title */
-		if (($title = (string) $this->in($type.'-title')) == '') {
+		if (($title = (string) $this->in($type.'_title')) == '') {
 			$title = $this->in('title');
 		}
 		if (!empty($in_vals)) {
@@ -116,7 +116,7 @@ class B_core__out__message extends Block
 		}
 
 		/* get text */
-		if (($text = (string) $this->in($type.'-text')) == '') {
+		if (($text = (string) $this->in($type.'_text')) == '') {
 			$text = $this->in('text');
 		}
 		if (!empty($in_vals)) {
@@ -124,10 +124,10 @@ class B_core__out__message extends Block
 		}
 
 		/* http status */
-		$http_status_code = (int) $this->in('http-status-code');
+		$http_status_code = (int) $this->in('http_status_code');
 		if ($http_status_code) {
 			$this->template_option_set('root', 'http_status_code', $http_status_code);
-			$http_status_message = $this->in('http-status-message');
+			$http_status_message = $this->in('http_status_message');
 			if ($http_status_message) {
 				$this->template_option_set('root', 'http_status_message', $http_status_message);
 			}
@@ -142,14 +142,14 @@ class B_core__out__message extends Block
 		$this->template_add(null, 'core/message', $msg_data);
 
 		/* redirect if success */
-		if ($type == 'success' && $this->in('allow-redirect')) {
-			$redirect_url = vsprintf($this->in('redirect-url'), $in_vals);
+		if ($type == 'success' && $this->in('allow_redirect')) {
+			$redirect_url = vsprintf($this->in('redirect_url'), $in_vals);
 			if ($redirect_url != '') {
-				$redirect_anchor = vsprintf($this->in('redirect-anchor'), $in_vals);
+				$redirect_anchor = vsprintf($this->in('redirect_anchor'), $in_vals);
 				$this->template_option_set('root', 'redirect_url',
 					$redirect_anchor ? $redirect_url.'#'.$redirect_anchor : $redirect_url);
 
-				if (!$this->in('quiet-redirect')) {
+				if (!$this->in('quiet_redirect')) {
 					$_SESSION['message_queue'][] = $msg_data;
 				}
 			}
