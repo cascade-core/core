@@ -28,28 +28,22 @@
  * SUCH DAMAGE.
  */
 
-function TPL_html5__core__doc__index($t, $id, $d, $so)
+
+function TPL_latex__core__header($t, $id, $d, $so)
 {
 	extract($d);
 
-	$h2 = 'h'.$heading_level;
-	$h3 = 'h'.($heading_level + 1);
-
-	echo "<div class=\"doc_index\" id=\"", htmlspecialchars($id), "\">\n";
-	
-	// Header
-	echo "<$h2>", _('Blocks'), "</$h2>\n";
-
-	foreach ($blocks as $prefix => $pack) {
-		echo "<$h3>", isset($titles[$prefix]) ? $titles[$prefix] : sprintf(_('Plugin: %s'), $prefix), "</$h3>\n";
-		echo "<ul>\n";
-		foreach ($pack as $m) {
-			echo "<li><a href=\"", htmlspecialchars(sprintf($link, $m)), "\">", htmlspecialchars($m), "</a></li>";
-		}
-		echo "</ul>\n";
+	if ($option !== null && isset($so[$option])) {
+		$str = $so[$option];
+	} else if ($text !== null) {
+		$str = $text;
+	} else {
+		return;
 	}
 
-	echo "</div>\n";
-}
+	$heading = latex_heading_cmd($level);
 
+	echo "\n% core/header: ", $id, "\n";
+	echo "\\", $heading, "{", trim(latex_escape($str)), "}\n\n";
+}
 

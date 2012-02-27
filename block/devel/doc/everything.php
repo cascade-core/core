@@ -28,28 +28,58 @@
  * SUCH DAMAGE.
  */
 
-function TPL_html5__core__doc__index($t, $id, $d, $so)
+class B_core__devel__doc__everything extends B_core__devel__doc__index
 {
-	extract($d);
+	const force_exec = true;
 
-	$h2 = 'h'.$heading_level;
-	$h3 = 'h'.($heading_level + 1);
+	protected $inputs = array(
+		'link' => DEBUG_CASCADE_GRAPH_LINK,
+		'heading_level' => 2,
+		'require_description' => true,
+		'slot' => 'default',
+		'slot_weight' => 50,
+	);
 
-	echo "<div class=\"doc_index\" id=\"", htmlspecialchars($id), "\">\n";
-	
-	// Header
-	echo "<$h2>", _('Blocks'), "</$h2>\n";
+	protected $outputs = array(
+		'done' => true,
+	);
 
-	foreach ($blocks as $prefix => $pack) {
-		echo "<$h3>", isset($titles[$prefix]) ? $titles[$prefix] : sprintf(_('Plugin: %s'), $prefix), "</$h3>\n";
-		echo "<ul>\n";
-		foreach ($pack as $m) {
-			echo "<li><a href=\"", htmlspecialchars(sprintf($link, $m)), "\">", htmlspecialchars($m), "</a></li>";
+
+	public function main()
+	{
+		$link = $this->in('link');
+		$slot = $this->in('slot');
+		$slot_weight = $this->in('slot_weight');
+		$heading_level = $this->in('heading_level');
+		$require_description = $this->in('require_description');
+
+		$titles = $this->get_titles();
+		$blocks = $this->get_blocks();
+
+		foreach ($blocks as $prefix => $prefix_blocks) {
+
+			$this->cascade_add('doc_'.$prefix, 'core/out/header', null, array(
+					'level' => $heading_level,
+					'text' => isset($titles[$prefix])
+							? $titles[$prefix]
+							: sprintf(_('Plugin: %s'), $prefix),
+					'slot' => $slot,
+					'slot_weight' => $slot_weight++,
+				));	
+
+			foreach ($prefix_blocks as $id => $block) {
+				$this->cascade_add('doc_'.$prefix.'__'.$id, 'core/devel/doc/show', null, array(
+						'heading_level' => $heading_level + 1,
+						'block' => $block,
+						'link' => $link,
+						'require_description' => $require_description,
+						'slot' => $slot,
+						'slot_weight' => $slot_weight++,
+					));	
+			}
 		}
-		echo "</ul>\n";
+
+		$this->out('done', !empty($blocks));
 	}
-
-	echo "</div>\n";
 }
-
 

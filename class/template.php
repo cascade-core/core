@@ -191,6 +191,11 @@ class Template {
 		$init_filename = get_template_filename($this->slot_options['root']['type'], 'init');
 		if (file_exists($init_filename)) {
 			include $init_filename;
+		} else {
+			$core_init_filename = get_template_filename($this->slot_options['root']['type'], 'core/init');
+			if (file_exists($core_init_filename)) {
+				include $core_init_filename;
+			}
 		}
 
 		/* process root slot */

@@ -21,11 +21,21 @@ title = Hello
 content = core/page/hello
 title_fmt = %s
 
-[/doc]
+[/documentation]
 title = Documentation
 content = core/page/doc
 
-[/doc/**]
+[/documentation/everything]
+title = "Documentation (single page)"
+content = core/page/doc_everything
+
+[/documentation/everything.tex]
+title = "Documentation (single page)"
+type = latex
+content = core/page/doc_everything
+
+
+[/documentation/block/**]
 title = Documentation
 content = core/page/doc_show
 ; path_tail is '**' part

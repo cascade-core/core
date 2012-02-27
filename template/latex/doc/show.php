@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2012, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,84 +28,80 @@
  * SUCH DAMAGE.
  */
 
-function TPL_html5__core__doc__show($t, $id, $d, $so)
+function TPL_latex__core__doc__show($t, $id, $d, $so)
 {
 	extract($d);
 
-	$h2 = 'h'.$heading_level;
-	$h3 = 'h'.($heading_level + 1);
+	$h2 = latex_heading_cmd($heading_level);
+	$h3 = latex_heading_cmd($heading_level + 1);
 
-	echo "<div class=\"doc_show\" id=\"", htmlspecialchars($id), "\">\n";
+	echo "\n% core/doc/show: $id\n";
 	
 	// Header
-	echo "<$h2>";
-	printf(_('Block %s'), htmlspecialchars($block));
-	echo "</$h2>\n";
+	echo "\\$h2{";
+	printf(_('Block %s'), latex_escape($block));
+	echo "}\n";
 
 	// Class header
 	if (isset($class_header)) {
-		echo "<div class=\"class_header\"><small><tt>", htmlspecialchars($class_header), "</tt></small></div>\n";
+		echo "\\noindent {\\tt ", trim(latex_escape($class_header)), "}\\par\n";
 	}
 
 	// Location
 	if ($is_local && isset($filename)) {
-		echo "<div class=\"location\"><small>";
-		$prefix = htmlspecialchars(DIR_ROOT);
+		echo "\\noindent {";
+		$prefix = latex_escape(DIR_ROOT);
 		$prefix_len = strlen($prefix);
-		$html_filename = htmlspecialchars($filename);
+		$latex_filename = latex_escape($filename);
 
-		printf(_('Location: <a href="open://%s"><tt>%s</tt></a>'),
-				htmlspecialchars($filename),
-				strncmp($prefix, $html_filename, $prefix_len) == 0 ? '&hellip;/'.substr($html_filename, $prefix_len) : $html_filename);
-		echo "</small></div>\n";
+		printf(_('Location: {\\tt %s}'),
+				trim(strncmp($prefix, $latex_filename, $prefix_len) == 0
+					? '\\ldots{}/'.substr($latex_filename, $prefix_len)
+					: $latex_filename));
+		echo "}\\par\n";
 	}
+
+	echo "\n";
 
 	// Description
-	echo "<div class=\"description\">\n",
-		"<$h3>", _('Description'), "</$h3>\n";
+	echo "\\$h3{", _('Description'), "}\n";
 	if (empty($description)) {
-		echo "<p>", _('Sorry, no description available.'), "</p>\n";
+		echo "\n{\it ", _('Sorry, no description available.'), "}\n";
 	} else if (!is_array($description)) {
-		echo "<p>", htmlspecialchars($description), "</p>";
+		echo "\n", $description, "\n";
 	} else foreach ($description as $text) {
-		echo "<pre>", htmlspecialchars($text), "</pre>";
+		echo latex_escape($text), "\n\n";
 	}
-	echo "</div>\n";
+	echo "\n";
 
 	// Inputs
 	if (isset($inputs)) {
-		echo "<div class=\"inputs\">\n",
-			"<$h3>", _('Inputs'), "</$h3>\n",
-			"<pre>", htmlspecialchars($inputs), "</pre>\n",
-			"</div>\n";
+		echo "\\$h3{", _('Inputs'), "}\n",
+			"\\begin{verbatim}\n", preg_replace('/^ {8}/m', '', latex_expand_tabs($inputs)), "\n\\end{verbatim}\n",
+			"\n";
 	}
 
 	// Outputs
 	if (isset($outputs)) {
-		echo "<div class=\"outputs\">\n",
-			"<$h3>", _('Outputs'), "</$h3>\n",
-			"<pre>", htmlspecialchars($outputs), "</pre>\n",
-			"</div>\n";
+		echo "\\$h3{", _('Outputs'), "}\n",
+			"\\begin{verbatim}\n", preg_replace('/^ {8}/m', '', latex_expand_tabs($outputs)), "\n\\end{verbatim}\n",
+			"\n";
 	}
 
 	// Force exec
 	if (isset($force_exec)) {
-		echo "<div class=\"force_exec\">\n",
-			"<$h3>", _('Force Exec flag'), "</$h3>\n",
-			"<pre>", htmlspecialchars($force_exec), "</pre>\n",
-			"</div>\n";
+		echo	"\\$h3{", _('Force Exec flag'), "}\n",
+			"\\begin{verbatim}\n", trim(latex_expand_tabs($force_exec)), "\n\\end{verbatim}\n",
+			"\n";
 	}
 
 	// Code
 	if (isset($code)) {
-		echo "<div class=\"code\">\n",
-			"<$h3>", _('Code'), "</$h3>\n",
-			"<pre style=\"overflow: auto;\">";
-		highlight_string($code);
-		echo	"</pre>\n",
-			"</div>\n";
+		echo "\\$h3{", _('Code'), "}\n",
+			"\\begin{verbatim}\n", latex_expand_tabs($code, 4), "\n\\end{verbatim}\n",
+			"\n";
 	}
 
-	echo "</div>\n";
+	echo "% end of core/doc/show\n\n";
 }
 

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2012, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,28 +28,41 @@
  * SUCH DAMAGE.
  */
 
-function TPL_html5__core__doc__index($t, $id, $d, $so)
+function TPL_latex__core__main($t, $id, $d, $so)
 {
-	extract($d);
+	header('Content-Type: text/plain; encoding=UTF-8');
+	echo	"%\n",
+		"%  ", isset($so['page_title_format'])
+				? sprintf($so['page_title_format'], @$so['page_title'])
+				: @$so['page_title'], "\n",
+		"%\n",
+		"\\documentclass[12pt,english]{article}\n",
+		"\\usepackage{ae,aecompl}\n",
+		"\\usepackage{avant}\n",
+		"\\renewcommand{\\ttdefault}{lmtt}\n",
+		"\\renewcommand{\\familydefault}{\\rmdefault}\n",
+		"\\usepackage[T1]{fontenc}\n",
+		"\\usepackage[utf8]{inputenc}\n",
+		"\\usepackage[a4paper]{geometry}\n",
+		"\\usepackage{babel}\n",
+		"\\usepackage{graphicx}\n",
+		"\n",
+		"% shrink too big images automagicaly\n",
+		"\\newsavebox\\IBox\n",
+		"\\let\\Includegrfx\\includegraphics\n",
+		"\\renewcommand\\includegraphics[2][]{%\n",
+		"\\sbox\\IBox{\\Includegrfx[#1]{#2}}%\n",
+		"\\ifdim\\wd\\IBox>\\textwidth\\resizebox{\\textwidth}{!}{\\usebox\\IBox}\\else\n",
+		"\\usebox\\IBox\\fi}\n",
+		"\n";
 
-	$h2 = 'h'.$heading_level;
-	$h3 = 'h'.($heading_level + 1);
+	$t->process_slot('latex_preamble');
 
-	echo "<div class=\"doc_index\" id=\"", htmlspecialchars($id), "\">\n";
-	
-	// Header
-	echo "<$h2>", _('Blocks'), "</$h2>\n";
+	echo	"\n\begin{document}\n";
 
-	foreach ($blocks as $prefix => $pack) {
-		echo "<$h3>", isset($titles[$prefix]) ? $titles[$prefix] : sprintf(_('Plugin: %s'), $prefix), "</$h3>\n";
-		echo "<ul>\n";
-		foreach ($pack as $m) {
-			echo "<li><a href=\"", htmlspecialchars(sprintf($link, $m)), "\">", htmlspecialchars($m), "</a></li>";
-		}
-		echo "</ul>\n";
-	}
+	$t->process_slot('latex_body');
+	$t->process_slot('default');	// fallback
 
-	echo "</div>\n";
+	echo	"\n\end{document}\n";
 }
-
 

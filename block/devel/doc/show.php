@@ -41,6 +41,8 @@ class B_core__devel__doc__show extends Block
 		'block' => array(),
 		'show_code' => false,
 		'link' => DEBUG_CASCADE_GRAPH_LINK,
+		'require_description' => false,
+		'heading_level' => 2,
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -76,9 +78,14 @@ class B_core__devel__doc__show extends Block
 			//NDebug::barDump($this->data, 'Loaded data');
 			//NDebug::barDump(array_map(function($t) { if (is_array($t)) { $t[0] = token_name($t[0]); } return $t; }, $this->tokens), 'Tokens');
 
+			if ($this->in('require_description') && $this->data['description'] == '') {
+				return;
+			}
+
 			$this->template_add(null, 'core/doc/show', array(
 					'block' => $block,
 					'filename' => $filename,
+					'heading_level' => $this->in('heading_level'),
 					'class_header' => $this->data['class_header'],
 					'force_exec' => $this->data['force_exec'],
 					'inputs' => $this->data['inputs'],
@@ -104,6 +111,7 @@ class B_core__devel__doc__show extends Block
 			$this->template_add(null, 'core/doc/show', array(
 					'block' => $block,
 					'filename' => $filename,
+					'heading_level' => $this->in('heading_level'),
 					'description' => _('Block is composed of blocks as shown on following diagram. Note that diagram '
 							.'represents cascade before it\'s execution, not contents of the INI file.'),
 					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2012, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,28 +28,37 @@
  * SUCH DAMAGE.
  */
 
-function TPL_html5__core__doc__index($t, $id, $d, $so)
+function latex_escape($text)
 {
-	extract($d);
-
-	$h2 = 'h'.$heading_level;
-	$h3 = 'h'.($heading_level + 1);
-
-	echo "<div class=\"doc_index\" id=\"", htmlspecialchars($id), "\">\n";
-	
-	// Header
-	echo "<$h2>", _('Blocks'), "</$h2>\n";
-
-	foreach ($blocks as $prefix => $pack) {
-		echo "<$h3>", isset($titles[$prefix]) ? $titles[$prefix] : sprintf(_('Plugin: %s'), $prefix), "</$h3>\n";
-		echo "<ul>\n";
-		foreach ($pack as $m) {
-			echo "<li><a href=\"", htmlspecialchars(sprintf($link, $m)), "\">", htmlspecialchars($m), "</a></li>";
-		}
-		echo "</ul>\n";
-	}
-
-	echo "</div>\n";
+	return addcslashes($text, '$_\\');
 }
 
+
+function latex_heading_cmd($level)
+{
+	$heading = array(
+		1 => 'chapter',
+		2 => 'section',
+		3 => 'subsection',
+		4 => 'subsubsection',
+		5 => 'paragraph',
+	);
+
+	return $heading[$level];
+}
+
+
+function latex_expand_tabs($text, $spaces = 8)
+{
+	$lines = explode("\n", $text);
+	foreach ($lines as $line) {
+		while (false !== $tab_pos = strpos($line, "\t")) {
+			$line = substr($line, 0, $tab_pos)
+				.str_repeat(' ', $spaces - $tab_pos % $spaces)
+				.substr($line, $tab_pos + 1);
+		}
+		$result[] = $line;
+	}
+	return implode("\n", $result);
+}
 

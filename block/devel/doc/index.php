@@ -31,42 +31,6 @@
 /**
  * Loads and shows list of all known blocks. Links are easily usable with
  * core/deve/doc/show block.
- *
- * Example:
- *
- *	; app/core.ini.php
- *	;  (listing blocks at end of file only)
- *
- *	[block:router]
- *	.block		= core/ini/router
- *	config		= app/routes.ini.php
- *
- *	[block:doc_index]
- *	.block		= "core/devel/doc/index"
- *	.force-exec	= true
- *	enable[]	= "router:index"
- *
- *	[block:doc_show]
- *	.block		= "core/devel/doc/show"
- *	.force-exec	= true
- *	block[]		= "router:path_tail"
- *	show-code	= false
- *	enable[]	= "router:show"
- *
- *
- * 	; app/routes.ini.php
- *	;  (You will want to use core/value/cascade_loader or something like
- *	;  that, but this will do the job too.)
- *
- *	[/doc]
- *	index = true
- *	show = false
- *
- *	[/doc/**]
- *	index = false
- *	show = true
- *	; path_tail is '**' part
- *
  */
 
 class B_core__devel__doc__index extends Block
@@ -75,6 +39,7 @@ class B_core__devel__doc__index extends Block
 
 	protected $inputs = array(
 		'link' => DEBUG_CASCADE_GRAPH_LINK,
+		'heading_level' => 2,
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -91,9 +56,19 @@ class B_core__devel__doc__index extends Block
 		$this->template_add(null, 'core/doc/index', array(
 				'link' => $this->in('link'),
 				'blocks' => $blocks,
+				'heading_level' => $this->in('heading_level'),
+				'titles' => $this->get_titles(),
 			));
 
 		$this->out('done', !empty($blocks));
+	}
+
+
+	protected function get_titles() {
+		return array(
+			'' => _('Application'),
+			'core' => _('Core'),
+		);
 	}
 
 

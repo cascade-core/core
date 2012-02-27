@@ -28,28 +28,61 @@
  * SUCH DAMAGE.
  */
 
-function TPL_html5__core__doc__index($t, $id, $d, $so)
+function TPL_latex__core__version($t, $id, $d, $so)
 {
 	extract($d);
 
-	$h2 = 'h'.$heading_level;
-	$h3 = 'h'.($heading_level + 1);
+	echo "\n% core/version: ", $id, "\n";
 
-	echo "<div class=\"doc_index\" id=\"", htmlspecialchars($id), "\">\n";
-	
-	// Header
-	echo "<$h2>", _('Blocks'), "</$h2>\n";
+	switch ($format) {
+		// show only version string
+		default:
+		case 'short':
+			echo latex_escape($prefix);
+			echo "{\tt ", latex_escape($version['app']['version']), "}";
+			echo latex_escape($suffix), "\n";
+			break;
 
-	foreach ($blocks as $prefix => $pack) {
-		echo "<$h3>", isset($titles[$prefix]) ? $titles[$prefix] : sprintf(_('Plugin: %s'), $prefix), "</$h3>\n";
-		echo "<ul>\n";
-		foreach ($pack as $m) {
-			echo "<li><a href=\"", htmlspecialchars(sprintf($link, $m)), "\">", htmlspecialchars($m), "</a></li>";
-		}
-		echo "</ul>\n";
+		// show selected fields in table
+		case 'details':
+			$fields = array('version', 'date', 'note', 'error');
+
+		// show everything in table
+		case 'full':
+
+			echo "\\begin{tabular}{ll}\n";
+			foreach ($version as $part => $ver) {
+				echo "\\multicolumn{2}{l}{\bf ";
+				if ($part == 'app') {
+					echo _('Application');
+				} else if ($part == 'core') {
+					echo _('Core');
+				} else if (strncmp($part, 'plugin:', 7) == 0) {
+					printf(_('Plugin: %s'), substr($part, 7));
+				}
+				echo "} \\\\\n";
+
+				foreach (isset($fields) ? $fields : array_keys($ver) as $k) {
+					if (@$ver[$k] == '') {
+						continue;
+					}
+					echo "\t\hspace{2em} ";
+					printf(_('%s%s:'), latex_escape(strtoupper($k[0])), latex_escape(substr($k, 1)));
+					echo " & ";
+					if ($k == 'version') {
+						echo "{\\tt ", latex_escape($ver[$k]), "}";
+					} else if ($k == 'error' || $k == 'note') {
+						echo "{\\it ", latex_escape($ver[$k]), "}";
+					} else {
+						echo latex_escape($ver[$k]);
+					}
+					echo " \\\\\n";
+				}
+			}
+			echo "\n\\end{tabular}\n";
+			break;
 	}
 
-	echo "</div>\n";
+	echo "\n% end of core/version\n";
 }
-
 

@@ -38,7 +38,7 @@ always_log_banner	= true
 log_memory_usage	= true
 add_cascade_graph	= true
 animate_cascade		= false
-cascade_graph_link	= "/doc/%s"
+cascade_graph_link	= "/documentation/block/%s"
 profiler_stats_file	= "var/profiler.stats"
 
 ; default output configuration
