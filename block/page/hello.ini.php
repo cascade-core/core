@@ -7,7 +7,7 @@ title = "Cascade"
 
 [block:hello]
 .block		= core/out/raw
-.force-exec	= true
+.force_exec	= true
 ; Never do this:
 data		= "<p>Hello world!</p><p>Look at <a href='/doc'>documentation</a>!</p>"
 

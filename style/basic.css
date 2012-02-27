@@ -1,0 +1,95 @@
+/*
+ * Basic default stylesheet
+ *
+ * Use as you wish.
+ *
+ */
+
+/*************************************************************
+ *	Basic definitions
+ */
+
+.slot {
+	/* clear inner floats */
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+
+	/* no appearence */
+	border: 0px;
+	margin: 0px;
+	padding: 0px;
+}
+
+#_cascade_graph {
+	text-align: center;
+	margin: 4em 0em;
+	width: 100%;
+	border-top: 3px double #000;
+	clear: both;
+}
+	#_cascade_graph hr {
+		display: none;
+	}
+
+table.table {
+	margin: 1em 0em;
+	border-collapse: collapse;
+	border: 1px solid #ccc;
+}
+
+	table.table th,
+	table.table td {
+		padding: 0.5ex 0.5ex 0.3ex 0.5ex;
+	}
+
+	table.table th {
+		border: 1px solid #ccc;
+		font-size: 0.85em;
+		background: #f8f8f8;
+	}
+
+	table.table td {
+		border-left: 1px solid #ccc;
+		border-right: 1px solid #ccc;
+		font-size: 1em;
+	}
+
+
+/*************************************************************
+ *	Page Layout
+ */
+
+html {
+	text-align: center;
+}
+body {
+	text-align: left;
+	margin: 0em auto;
+	width: 960px;
+}
+
+.slot_header {
+	border-bottom: 1px solid #aaa;
+	margin: 0em 0em 2em 0em;
+	padding: 1em 0em 1ex 0em;
+}
+	.slot_header h1 {
+		font-size: 2.5em;
+		font-weight: normal;
+		margin: 0em;
+	}
+	.slot_header .menu {
+		margin: 1ex 0em 0em 0em;
+	}
+
+.slot_doc_index {
+	width: 29%;
+	float: left;
+}
+
+.slot_doc_main {
+	width: 69%;
+	float: right;
+}
+
