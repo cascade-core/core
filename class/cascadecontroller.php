@@ -37,7 +37,7 @@ class CascadeController {
 	private $root_namespace = array();
 
 	private $execution_time = null;	// time [ms] spent in start()
-	private $memory_usage = null;	// memory used by pipeline (after minus before)
+	private $memory_usage = null;	// memory used by cascade (after minus before)
 
 
 	public function __construct()
@@ -79,7 +79,7 @@ class CascadeController {
 		if (($m = @$this->root_namespace[$block_name])) {
 			return $m;
 		} else {
-			error_msg('Module "%s" not found in root namespace!', $block_name);
+			error_msg('Block "%s" not found in root namespace!', $block_name);
 		}
 	}
 
@@ -134,9 +134,9 @@ class CascadeController {
 
 		/* check for duplicate IDs */
 		if (array_key_exists($full_id, $this->blocks)) {
-			error_msg('Module ID "%s" already exists in pipeline!', $id);
+			error_msg('Block ID "%s" already exists in cascade!', $id);
 			$errors[] = array(
-				'error'   => 'Module ID already exists in pipeline.',
+				'error'   => 'Block ID already exists in cascade.',
 				'id'      => $id,
 				'block'   => $block,
 			);
@@ -171,7 +171,7 @@ class CascadeController {
 			$m = new $class();
 			$m->pc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
 			if (!$m->pc_connect($connections, $this->blocks)) {
-				error_msg('Module "%s": Can\'t connect inputs!', $id);
+				error_msg('Block "%s": Can\'t connect inputs!', $id);
 				$errors[] = array(
 					'error'   => 'Can\'t connect inputs.',
 					'id'      => $id,
@@ -208,9 +208,9 @@ class CascadeController {
 
 			} else {
 				/* block not found */
-				error_msg('Module "%s" not found.', $block);
+				error_msg('Block "%s" not found.', $block);
 				$errors[] = array(
-					'error'   => 'Module not found.',
+					'error'   => 'Block not found.',
 					'id'      => $id,
 					'block'   => $block,
 				);
@@ -225,7 +225,7 @@ class CascadeController {
 	{
 		/* create dummy block */
 		$m = new M_core__dummy();
-		$m->pc_init($parent, $id, $full_id, $this, $real_block, null, Module::FAILED);
+		$m->pc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED);
 		$m->pc_connect($connections, $this->blocks);
 
 		/* put block to parent's namespace */
@@ -321,8 +321,8 @@ class CascadeController {
 		if (is_array($old_stats)) {
 			return array(
 				'total_time' => $this->execution_time + $old_stats['total_time'],
-				'pipeline_time' => ($this->execution_time - $sum) + $old_stats['pipeline_time'],
-				'pipeline_count' => 1 + $old_stats['pipeline_count'],
+				'cascade_time' => ($this->execution_time - $sum) + $old_stats['cascade_time'],
+				'cascade_count' => 1 + $old_stats['cascade_count'],
 				'blocks_time' => $sum + $old_stats['blocks_time'],
 				'blocks_count' => $cnt + $old_stats['blocks_count'],
 				'blocks' => $by_block
@@ -330,8 +330,8 @@ class CascadeController {
 		} else {
 			return array(
 				'total_time' => $this->execution_time,
-				'pipeline_time' => ($this->execution_time - $sum),
-				'pipeline_count' => 1,
+				'cascade_time' => ($this->execution_time - $sum),
+				'cascade_count' => 1,
 				'blocks_time' => $sum,
 				'blocks_count' => $cnt,
 				'blocks' => $by_block
@@ -349,11 +349,11 @@ class CascadeController {
 	public function export_graphviz_dot($doc_link, $whitelist = array(), $step = null)
 	{
 		$colors = array(
-			Module::QUEUED   => '#eeeeee',	// grey
-			Module::RUNNING  => '#aaccff',	// blue -- never used
-			Module::ZOMBIE   => '#ccffaa',	// green
-			Module::DISABLED => '#cccccc',	// dark grey
-			Module::FAILED   => '#ffccaa',	// red
+			Block::QUEUED   => '#eeeeee',	// grey
+			Block::RUNNING  => '#aaccff',	// blue -- never used
+			Block::ZOMBIE   => '#ccffaa',	// green
+			Block::DISABLED => '#cccccc',	// dark grey
+			Block::FAILED   => '#ffccaa',	// red
 		);
 
 		if ($step === null) {
@@ -361,7 +361,7 @@ class CascadeController {
 		}
 
 		$gv =	 "#\n"
-			."# Pipeline visualization\n"
+			."# Cascade visualization\n"
 			."#\n"
 			."# Step: ".$step."\n"
 			."#\n"
@@ -414,8 +414,8 @@ class CascadeController {
 				."	<tr>\n"
 				."		<td bgcolor=\"".($is_created
 									? $colors[$is_running
-										? Module::RUNNING
-										: ($is_finished ? $block->status() : Module::QUEUED)]
+										? Block::RUNNING
+										: ($is_finished ? $block->status() : Block::QUEUED)]
 									:'#ffffff'
 								)."\" colspan=\"2\">\n"
 				."			<font face=\"sans bold\">".htmlspecialchars($block->id())."</font><br/>\n"

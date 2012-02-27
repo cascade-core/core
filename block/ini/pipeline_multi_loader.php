@@ -28,14 +28,14 @@
  * SUCH DAMAGE.
  */
 
-class M_core__ini__pipeline_multi_loader extends Module
+class B_core__ini__cascade_multi_loader extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
 		'list' => array(),		// array of names
 		'filename' => array(),		// format string for sprintf(filename, list[i])
-		'separe_namespaces' => false,	// if true, each loaded file will get its own namespace using core/ini/pipeline_loader
+		'separe_namespaces' => false,	// if true, each loaded file will get its own namespace using core/ini/cascade_loader
 	);
 
 	protected $outputs = array(
@@ -62,11 +62,11 @@ class M_core__ini__pipeline_multi_loader extends Module
 					$cfg_output = 'config_'.$n;
 					$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i);
 					$this->out($cfg_output, $config);
-					$this->pipeline_add($id, 'core/ini/pipeline_loader', true, array(
+					$this->cascade_add($id, 'core/ini/cascade_loader', true, array(
 							'items' => array('parent', $cfg_output),
 						));
 				} else {
-					$this->pipeline_add_from_ini($config);
+					$this->cascade_add_from_ini($config);
 				}
 			} else {
 				$done = false;

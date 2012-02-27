@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__ini__router_links extends Module {
+class B_core__ini__router_links extends Block {
 
 	protected $inputs = array(
 		'path' => null,

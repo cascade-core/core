@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__value__split extends Module {
+class B_core__value__split extends Block {
 
 	protected $inputs = array(
 		'in' => null,

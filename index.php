@@ -41,9 +41,9 @@ define('FILE_CORE_CONFIG',	DIR_CORE.'core.ini.php');
 define('FILE_APP_CONFIG',	DIR_APP.'core.ini.php');
 define('FILE_DEVEL_CONFIG',	DIR_ROOT.'core.devel.ini.php');
 
-/* Use with get_module_filename() */
+/* Use with get_block_filename() */
 define('DIR_CLASS',		'class/');
-define('DIR_MODULE',		'module/');
+define('DIR_BLOCK',		'block/');
 define('DIR_TEMPLATE',		'template/');
 
 /* Check if this is development environment */
@@ -58,40 +58,40 @@ function get_plugin_list()
 	global $plugin_list;
 
 	/* $plugin_list contains everything in plugin directory. It is not
-	 * filtered becouse PipelineController will not allow ugly module names
+	 * filtered becouse CascadeController will not allow ugly block names
 	 * to be loaded. */
 
-	return array_filter(array_keys($plugin_list), function($module) {
-			/* Same as module name check in PipelineController */
-			return !(!is_string($module) || strpos($module, '.') !== FALSE || !ctype_graph($module));
+	return array_filter(array_keys($plugin_list), function($block) {
+			/* Same as block name check in CascadeController */
+			return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
 		});
 }
 
-/* Get module's file from it's name */
-function get_module_filename($module, $extension = '.php')
+/* Get block's file from it's name */
+function get_block_filename($block, $extension = '.php')
 {
 	global $plugin_list;
 
-	@ list($head, $tail) = explode('/', $module, 2);
+	@ list($head, $tail) = explode('/', $block, 2);
 
 	/* Core */
 	if ($head == 'core') {
-		return DIR_CORE.DIR_MODULE.$tail.$extension;
+		return DIR_CORE.DIR_BLOCK.$tail.$extension;
 	}
 
 	/* Plugins */
 	if ($tail !== null && isset($plugin_list[$head])) {
-		return DIR_PLUGIN.$head.'/'.DIR_MODULE.$tail.$extension;
+		return DIR_PLUGIN.$head.'/'.DIR_BLOCK.$tail.$extension;
 	}
 
 	/* Application */
-	return DIR_APP.DIR_MODULE.$module.$extension;
+	return DIR_APP.DIR_BLOCK.$block.$extension;
 }
 
-/* Get module's class name */
-function get_module_class_name($module)
+/* Get block's class name */
+function get_block_class_name($block)
 {
-	$class_name = 'M_'.str_replace('/', '__', $module);
+	$class_name = 'M_'.str_replace('/', '__', $block);
 	if (class_exists($class_name)) {
 		return $class_name;
 	} else {
@@ -128,10 +128,10 @@ function __autoload($class)
 	$lc_class = strtolower($class);
 	@ list($head, $tail) = explode("\\", $lc_class, 2);
 
-	/* Module */
+	/* Block */
 	if ($tail === null && $class[0] == 'M' && $class[1] == '_') {
 		$m = str_replace('__', '/', substr($lc_class, 2));
-		$f = get_module_filename($m);
+		$f = get_block_filename($m);
 		if (file_exists($f)) {
 			include($f);
 		}
@@ -186,7 +186,7 @@ if (isset($core_cfg['php'])) {
 /* Enable debug logging -- a lot of messages from debug_msg() */
 define('DEBUG_LOGGING_ENABLED', !empty($core_cfg['debug']['debug_logging_enabled']));
 define('DEBUG_VERBOSE_BANNER', !empty($core_cfg['debug']['verbose_banner']));
-define('DEBUG_PIPELINE_GRAPH_LINK', @$core_cfg['debug']['pipeline_graph_link']);
+define('DEBUG_CASCADE_GRAPH_LINK', @$core_cfg['debug']['cascade_graph_link']);
 
 /* Show banner in log */
 if (!empty($core_cfg['debug']['always_log_banner'])) {
@@ -258,39 +258,39 @@ if (!empty($core_cfg['core']['auth_class'])) {
 	$default_context->set_auth($auth);
 }
 
-/* Initialize pipeline controller */
-$pipeline = new PipelineController();
-$pipeline->set_replacement_table(@$core_cfg['module-map']);
+/* Initialize cascade controller */
+$cascade = new CascadeController();
+$cascade->set_replacement_table(@$core_cfg['block-map']);
 
-/* Prepare starting modules */
-$pipeline->add_modules_from_ini(null, $core_cfg, $default_context);
+/* Prepare starting blocks */
+$cascade->add_blocks_from_ini(null, $core_cfg, $default_context);
 
-/* Execute pipeline */
-$pipeline->start();
+/* Execute cascade */
+$cascade->start();
 
 /* dump namespaces */
-//echo '<pre style="text-align: left;">', $pipeline->dump_namespaces(), '</pre>';
+//echo '<pre style="text-align: left;">', $cascade->dump_namespaces(), '</pre>';
 
-/* Visualize executed pipeline */
-if (!empty($core_cfg['debug']['add_pipeline_graph'])) {
+/* Visualize executed cascade */
+if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	/* Template object will render & cache image */
-	$template->add_object('_pipeline_graph', 'root', 95, 'core/pipeline_graph', array(
-			'pipeline' => $pipeline,
-			'dot_name' => 'data/graphviz/pipeline-%s.%s',
-			'style' => @$core_cfg['debug']['add_pipeline_graph'],
-			'link' => DEBUG_PIPELINE_GRAPH_LINK,
-			'animate' => !empty($core_cfg['debug']['animate_pipeline'])
+	$template->add_object('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
+			'cascade' => $cascade,
+			'dot_name' => 'data/graphviz/cascade-%s.%s',
+			'style' => @$core_cfg['debug']['add_cascade_graph'],
+			'link' => DEBUG_CASCADE_GRAPH_LINK,
+			'animate' => !empty($core_cfg['debug']['animate_cascade'])
 		));
 }
 
 /* Log memory usage */
 if (!empty($core_cfg['debug']['log_memory_usage'])) {
-	extra_msg('Pipeline memory usage: %1.3f B', $pipeline->get_memory_usage() / 1024);
+	extra_msg('Cascade memory usage: %1.3f B', $cascade->get_memory_usage() / 1024);
 }
 
 /* Store profiler statistics */
 if (($fn = @$core_cfg['debug']['profiler_stats_file']) !== null) {
-	file_put_contents($fn, gzcompress(serialize($pipeline->get_execution_times(unserialize(gzuncompress(file_get_contents($fn))))), 2));
+	file_put_contents($fn, gzcompress(serialize($cascade->get_execution_times(unserialize(gzuncompress(file_get_contents($fn))))), 2));
 }
 
 /* End session */

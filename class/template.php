@@ -159,7 +159,7 @@ class Template {
 		$redirect_url = @$this->slot_options['root']['redirect_url'];
 
 		/* Show core's name in header */
-		header('X-Powered-By: Dynamic Pipeline', TRUE);		// FIXME
+		header('X-Powered-By: Dynamic Cascade', TRUE);		// FIXME
 
 		/* Send custom status code & message */
 		if ($redirect_url) {

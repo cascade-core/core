@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-function TPL_css__core__pipeline_graph($t, $id, $d, $so)
+function TPL_css__core__cascade_graph($t, $id, $d, $so)
 {
 	extract($d);
 
@@ -38,7 +38,7 @@ function TPL_css__core__pipeline_graph($t, $id, $d, $so)
 		@mkdir(dirname($dot_name));
 	}
 
-	$dot = $pipeline->export_graphviz_dot();
+	$dot = $cascade->export_graphviz_dot();
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
@@ -49,11 +49,11 @@ function TPL_css__core__pipeline_graph($t, $id, $d, $so)
 
 	if (!$dot_mtime || !$png_mtime || $dot_mtime > $png_mtime || $png_mtime <= filemtime(__FILE__)) {
 		file_put_contents($dot_file, $dot);
-		$pipeline->exec_dot($dot, 'png', $png_file);
+		$cascade->exec_dot($dot, 'png', $png_file);
 	}
 
 	echo "/*\n",
-		" * Pipeline visualization:\n",
+		" * Cascade visualization:\n",
 		" *\n",
 		" * PNG: /", $png_file, "\n",
 		" * Dot: /", $dot_file, "\n",

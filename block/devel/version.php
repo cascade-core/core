@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__devel__version extends Module
+class B_core__devel__version extends Block
 {
 	const force_exec = true;
 
@@ -65,7 +65,7 @@ class M_core__devel__version extends Module
 				$need_update = true;
 			} else {
 				if ($version_mtime < filemtime(DIR_PLUGIN)) {
-					// new, deleted or renamed module
+					// new, deleted or renamed block
 					$need_update = true;
 				} else {
 					foreach (get_plugin_list() as $plugin) {

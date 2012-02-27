@@ -4,22 +4,22 @@
 done = true
 title = "Cascade skeleton"
 
-[module:skeleton]
-.module		= core/out/page
+[block:skeleton]
+.block		= core/out/page
 .force-exec	= true
 
-[module:h1]
-.module		= core/out/header
+[block:h1]
+.block		= core/out/header
 level		= 1
 text[]		= page_title:title
 slot-weight	= 1
 
-[module:menu_builder]
-.module		= core/ini/router_links
+[block:menu_builder]
+.block		= core/ini/router_links
 config		= core/routes.ini.php
 
-[module:main_menu]
-.module		= core/out/menu
+[block:main_menu]
+.block		= core/out/menu
 items[]		= menu_builder:links
 slot-weight	= 5
 

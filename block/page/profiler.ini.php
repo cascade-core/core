@@ -4,8 +4,8 @@
 done[] = profiler:done
 title = Profiler statistics
 
-[module:profiler]
-.module		= "core/devel/profiler_stats"
+[block:profiler]
+.block		= "core/devel/profiler_stats"
 .force-exec	= true
 
 

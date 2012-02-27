@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__logic__or extends Module {
+class B_core__logic__or extends Block {
 
 	protected $inputs = array(
 		'*' => null,

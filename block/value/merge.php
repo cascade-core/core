@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__value__merge extends Module {
+class B_core__value__merge extends Block {
 
 	protected $inputs = array(
 		'*' => null,

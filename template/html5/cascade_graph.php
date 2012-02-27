@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
+function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 {
 	extract($d);
 
@@ -42,14 +42,14 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 		$whitelist = array();
 	}
 
-	$dot = $pipeline->export_graphviz_dot($link, $whitelist);
+	$dot = $cascade->export_graphviz_dot($link, $whitelist);
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
 	$movie_file = sprintf($dot_name, $hash, '%06d.dot.gz');
 	$png_file = sprintf($dot_name, $hash, 'png');
 	$map_file = sprintf($dot_name, $hash, 'map');
-	debug_msg('Pipeline graph file: %s', $png_file);
+	debug_msg('Cascade graph file: %s', $png_file);
 
 	$dot_mtime = @filemtime($dot_file);
 	$png_mtime = @filemtime($png_file);
@@ -65,16 +65,16 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 
 		// prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do
 		if ($animate) {
-			$steps = $pipeline->current_step(false) + 1;
+			$steps = $cascade->current_step(false) + 1;
 			for ($t = 0; $t <= $steps; $t++) {
 				$f = sprintf($movie_file, $t);
-				file_put_contents($f, gzencode($pipeline->export_graphviz_dot($link, $whitelist, $t), 2));
+				file_put_contents($f, gzencode($cascade->export_graphviz_dot($link, $whitelist, $t), 2));
 			}
 		}
 		
 		// render graph
-		$pipeline->exec_dot($dot, 'png', $png_file);
-		$pipeline->exec_dot($dot, 'cmapx', $map_file);
+		$cascade->exec_dot($dot, 'png', $png_file);
+		$cascade->exec_dot($dot, 'cmapx', $map_file);
 	}
 
 
@@ -91,8 +91,8 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 			break;
 
 		case 'link':
-			echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_link\">",
-				"<a target=\"_blank\" href=\"", htmlspecialchars('/'.$png_file), "\">Pipeline graph</a>",
+			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_link\">",
+				"<a target=\"_blank\" href=\"", htmlspecialchars('/'.$png_file), "\">Cascade graph</a>",
 				"</div>\n";
 			break;
 
@@ -100,18 +100,18 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 		case 'image':
 		case 'page-content':
 			if ($style == 'image') {
-				echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\" style=\"clear: both;\">\n",
+				echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_dump\" style=\"clear: both;\">\n",
 					"\t<hr>\n",
-					"\t<h2>Pipeline</h2>\n",
+					"\t<h2>Cascade</h2>\n",
 					"\t<div><small>[ ",
 						"<a href=\"", htmlspecialchars('/'.$png_file), "\">png</a>",
 						" | <a href=\"", htmlspecialchars('/'.$dot_file), "\">dot</a>",
 						" | ", $hash,
 					" ]</small></div>\n";
 			} else {
-				echo "<div id=\"", htmlspecialchars($id), "\" class=\"pipeline_dump\">\n";
+				echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_dump\">\n";
 			}
-			$map_html_name = 'pipeline_graph_map__'.htmlspecialchars($id);
+			$map_html_name = 'cascade_graph_map__'.htmlspecialchars($id);
 			$map_needle = array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""');
 			$map_replacement = array('<map id="'.$map_html_name.'" name="'.$map_html_name.'">', '');
 			if (!empty($preview)) {
@@ -119,7 +119,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 				$map_replacement[] = '';
 			}
 			echo str_replace($map_needle, $map_replacement, file_get_contents(DIR_ROOT.$map_file)),
-				'<img src="', htmlspecialchars('/'.$png_file), '" usemap="pipeline_graph_map__'.htmlspecialchars($id).'">',
+				'<img src="', htmlspecialchars('/'.$png_file), '" usemap="cascade_graph_map__'.htmlspecialchars($id).'">',
 				"</div>\n";
 			//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
 			if ($style == 'page-content' && !empty($errors)) {
@@ -127,7 +127,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 				foreach($errors as $e) {
 					printf("<li><b>%s</b> (<i>%s</i>): %s</li>\n",
 							htmlspecialchars($e['id']),
-							htmlspecialchars($e['module']),
+							htmlspecialchars($e['block']),
 							htmlspecialchars($e['error']));
 				}
 				echo "</ul>\n";
@@ -135,7 +135,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 			break;
 
 		case 'nette':
-			class PipelineGraphPanelWidget implements IDebugPanel
+			class CascadeGraphPanelWidget implements IDebugPanel
 			{
 				var $id;
 				var $dot_file;
@@ -152,20 +152,20 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 				}
 
 				function getTab() {
-					return '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAABGdBTUEAALGPC/xhBQAAAAxQTFRFAAAAREREzP+q////JSI+0AAAAAF0Uk5TAEDm2GYAAAABYktHRACIBR1IAAAAN0lEQVQI12MIDWBgYMiaACPqrzoAiQtAIjTAMRQoELoSSDCCib8g7l+IRNYEBwYIAdUBkgMaBQDJKhInhoRorQAAAABJRU5ErkJggg==" alt=""> Pipeline';
+					return '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAABGdBTUEAALGPC/xhBQAAAAxQTFRFAAAAREREzP+q////JSI+0AAAAAF0Uk5TAEDm2GYAAAABYktHRACIBR1IAAAAN0lEQVQI12MIDWBgYMiaACPqrzoAiQtAIjTAMRQoELoSSDCCib8g7l+IRNYEBwYIAdUBkgMaBQDJKhInhoRorQAAAABJRU5ErkJggg==" alt=""> Cascade';
 				}
 
 				function getPanel() {
-					return '<h1>Pipeline Graph</h1><div class="nette-inner">'
+					return '<h1>Cascade Graph</h1><div class="nette-inner">'
 							."\t<div><small>[ "
 							.	"<a href=\"".htmlspecialchars('/'.$this->png_file)."\">png</a>"
 							.	" | <a href=\"".htmlspecialchars('/'.$this->dot_file)."\">dot</a>"
 							.	" | ".$this->hash
 							." ]</small></div>\n"
 							.str_replace(array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""'),
-								array('<map id="pipeline_graph_map" name="pipeline_graph_map">', ''),
+								array('<map id="cascade_graph_map" name="cascade_graph_map">', ''),
 								file_get_contents(DIR_ROOT.$this->map_file))
-							.'<img src="'.htmlspecialchars('/'.$this->png_file).'" usemap="pipeline_graph_map">'
+							.'<img src="'.htmlspecialchars('/'.$this->png_file).'" usemap="cascade_graph_map">'
 							.'</div>';
 				}
 
@@ -173,7 +173,7 @@ function TPL_html5__core__pipeline_graph($t, $id, $d, $so)
 					return $this->id;
 				}
 			}
-			$plgpw = new PipelineGraphPanelWidget($id, $hash, $dot_file, $png_file, $map_file);
+			$plgpw = new CascadeGraphPanelWidget($id, $hash, $dot_file, $png_file, $map_file);
 			NDebug::addPanel($plgpw);
 			break;
 	}

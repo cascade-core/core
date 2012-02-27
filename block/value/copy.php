@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__value__copy extends Module {
+class B_core__value__copy extends Block {
 
 	protected $inputs = array(
 		'*' => null,

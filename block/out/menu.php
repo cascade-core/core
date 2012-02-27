@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__out__menu extends Module
+class B_core__out__menu extends Block
 {
 	const force_exec = true;
 

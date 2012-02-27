@@ -28,13 +28,13 @@
  * SUCH DAMAGE.
  */
 
-class M_core__devel__preview extends Module
+class B_core__devel__preview extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'modules' => array(),
-		'link' => DEBUG_PIPELINE_GRAPH_LINK,
+		'blocks' => array(),
+		'link' => DEBUG_CASCADE_GRAPH_LINK,
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -45,19 +45,19 @@ class M_core__devel__preview extends Module
 
 	public function main()
 	{
-		/* Initialize pipeline controller */
-		$pipeline = new PipelineController();
-		$pipeline->set_replacement_table($this->get_pipeline_controller()->get_replacement_table());
+		/* Initialize cascade controller */
+		$cascade = new CascadeController();
+		$cascade->set_replacement_table($this->get_cascade_controller()->get_replacement_table());
 
-		/* Prepare starting modules */
+		/* Prepare starting blocks */
 		$errors = array();
-		$done = $pipeline->add_modules_from_ini(null, $this->in('modules'), $this->context, $errors);
+		$done = $cascade->add_blocks_from_ini(null, $this->in('blocks'), $this->context, $errors);
 
 		/* Template object will render & cache image */
-		$this->template_add('_pipeline_graph', 'core/pipeline_graph', array(
-				'pipeline' => $pipeline,
-				'whitelist' => $this->visible_module_names(),
-				'dot_name' => 'data/graphviz/pipeline-%s.%s',
+		$this->template_add('_cascade_graph', 'core/cascade_graph', array(
+				'cascade' => $cascade,
+				'whitelist' => $this->visible_block_names(),
+				'dot_name' => 'data/graphviz/cascade-%s.%s',
 				'preview' => true,
 				'style' => 'page-content',
 				'link' => $this->in('link'),

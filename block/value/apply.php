@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__value__apply extends Module {
+class B_core__value__apply extends Block {
 
 	protected $inputs = array(
 		'function' => array(),

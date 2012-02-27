@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__session__store extends Module
+class B_core__session__store extends Block
 {
 	const force_exec = true;
 

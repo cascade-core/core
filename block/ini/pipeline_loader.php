@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__ini__pipeline_loader extends Module
+class B_core__ini__cascade_loader extends Block
 {
 	const force_exec = true;
 
@@ -42,7 +42,7 @@ class M_core__ini__pipeline_loader extends Module
 
 	public function main()
 	{
-		$this->pipeline_add_from_ini($this->in('items'));
+		$this->cascade_add_from_ini($this->in('items'));
 	}
 
 }

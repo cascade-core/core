@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__ini__load extends Module {
+class B_core__ini__load extends Block {
 
 	protected $inputs = array(
 		'filename' => array(),

@@ -29,18 +29,18 @@
  */
 
 /**
- * Load and show module documentation stored in its own source code.
+ * Load and show block documentation stored in its own source code.
  *
  */
 
-class M_core__devel__doc__show extends Module
+class B_core__devel__doc__show extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'module' => array(),
+		'block' => array(),
 		'show-code' => false,
-		'link' => DEBUG_PIPELINE_GRAPH_LINK,
+		'link' => DEBUG_CASCADE_GRAPH_LINK,
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -56,15 +56,15 @@ class M_core__devel__doc__show extends Module
 
 	public function main()
 	{
-		$module = $this->in('module');
-		if (is_array($module)) {
-			$module = join('/', $module);
+		$block = $this->in('block');
+		if (is_array($block)) {
+			$block = join('/', $block);
 		}
-		$this->expected_class = 'M_'.str_replace('/', '__', $module);
+		$this->expected_class = 'M_'.str_replace('/', '__', $block);
 
 		// PHP file
-		$filename = get_module_filename($module);
-		debug_msg("%s: Loading module %s from file %s", $this->full_id(), $module, $filename);
+		$filename = get_block_filename($block);
+		debug_msg("%s: Loading block %s from file %s", $this->full_id(), $block, $filename);
 
 		if (is_readable($filename)) {
 
@@ -77,7 +77,7 @@ class M_core__devel__doc__show extends Module
 			//NDebug::barDump(array_map(function($t) { if (is_array($t)) { $t[0] = token_name($t[0]); } return $t; }, $this->tokens), 'Tokens');
 
 			$this->template_add(null, 'core/doc/show', array(
-					'module' => $module,
+					'block' => $block,
 					'filename' => $filename,
 					'class_header' => $this->data['class_header'],
 					'force_exec' => $this->data['force_exec'],
@@ -88,7 +88,7 @@ class M_core__devel__doc__show extends Module
 					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
 				));
 
-			$this->out('title', $module);
+			$this->out('title', $block);
 			$this->out('done', true);
 			unset($this->tokens);
 			unset($this->data);
@@ -97,23 +97,23 @@ class M_core__devel__doc__show extends Module
 		}
 
 		// INI file
-		$filename = get_module_filename($module, '.ini.php');
-		debug_msg("%s: Loading module %s from file %s", $this->full_id(), $module, $filename);
+		$filename = get_block_filename($block, '.ini.php');
+		debug_msg("%s: Loading block %s from file %s", $this->full_id(), $block, $filename);
 
 		if (is_readable($filename)) {
 			$this->template_add(null, 'core/doc/show', array(
-					'module' => $module,
+					'block' => $block,
 					'filename' => $filename,
-					'description' => _('Module is composed of modules as shown on following diagram. Note that diagram '
-							.'represents pipeline before it\'s execution, not contents of the INI file.'),
+					'description' => _('Block is composed of blocks as shown on following diagram. Note that diagram '
+							.'represents cascade before it\'s execution, not contents of the INI file.'),
 					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
 				));
 
-			$this->pipeline_add('load', 'core/ini/load', null, array(
+			$this->cascade_add('load', 'core/ini/load', null, array(
 					'filename' => $filename,
 				));
-			$this->pipeline_add('show_image', 'core/devel/preview', null, array(
-					'modules' => array('load', 'data'),
+			$this->cascade_add('show_image', 'core/devel/preview', null, array(
+					'blocks' => array('load', 'data'),
 					'link' => $this->in('link'),
 					'slot' => $this->in('slot'),
 					'slot-weight' => $this->in('slot-weight'),

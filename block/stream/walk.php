@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__stream__walk extends Module {
+class B_core__stream__walk extends Block {
 
 	protected $inputs = array(
 		'array' => array(),

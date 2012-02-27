@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__dummy extends Module {
+class B_core__dummy extends Block {
 
 	protected $inputs = array(
 		'*' => null

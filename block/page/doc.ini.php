@@ -4,19 +4,19 @@
 done[] = doc_index:done
 title = Documentation
 
-[module:doc_index]
-.module		= "core/devel/doc/index"
+[block:doc_index]
+.block		= "core/devel/doc/index"
 .force-exec	= true
 slot-weight	= 60
 
-[module:version_hd]
-.module		= "core/out/header"
+[block:version_hd]
+.block		= "core/out/header"
 text		= "Version"
 enable[]	= "version:done"
 slot-weight	= 30
 
-[module:version]
-.module		= "core/devel/version"
+[block:version]
+.block		= "core/devel/version"
 format		= "details"
 slot-weight	= 40
 

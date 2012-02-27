@@ -45,7 +45,7 @@ function TPL_css__core__basic($t, $id, $d, $so)
 	padding: 0px;
 }
 
-.pipeline_dump {
+.cascade_dump {
 	clear: both;
 	margin: 5em 0em 0em 0em;
 	padding: 0em;
@@ -53,10 +53,10 @@ function TPL_css__core__basic($t, $id, $d, $so)
 	color: #000;
 	text-align: center;
 }
-	.pipeline_dump hr {
+	.cascade_dump hr {
 		display: none;
 	}
-	.pipeline_dump h2 {
+	.cascade_dump h2 {
 		font-size: 1.3em;
 		font-weight: normal;
 		margin: 1ex 0em;

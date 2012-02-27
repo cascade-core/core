@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__devel__profiler_stats extends Module
+class B_core__devel__profiler_stats extends Block
 {
 	const force_exec = true;
 
@@ -42,7 +42,7 @@ class M_core__devel__profiler_stats extends Module
 		'done' => true,
 	);
 
-	private $modules_stats, $pipeline_stats;
+	private $blocks_stats, $cascade_stats;
 	private $stats_row = 0;
 	private $pct_base = 0;
 
@@ -54,14 +54,14 @@ class M_core__devel__profiler_stats extends Module
 		}
 
 		$stats = unserialize(gzuncompress($data));
-		$this->pipeline_stats = $stats;
-		$this->modules_stats = & $this->pipeline_stats['modules'];
-		arsort($this->modules_stats);
+		$this->cascade_stats = $stats;
+		$this->blocks_stats = & $this->cascade_stats['blocks'];
+		arsort($this->blocks_stats);
 
 		$table = new TableView();
 		$table->add_column('text', array(
-				'title'  => 'Module',
-				'key'    => 'module',
+				'title'  => 'Block',
+				'key'    => 'block',
 			));
 		$table->add_column('number', array(
 				'title'  => 'Total time [%]',
@@ -104,14 +104,14 @@ class M_core__devel__profiler_stats extends Module
 	{
 		switch ($this->stats_row++) {
 			case 0:
-				$this->pct_base = $this->pipeline_stats['total_time'];
+				$this->pct_base = $this->cascade_stats['total_time'];
 				return array(
-					'module' => '∑',
-					'sum' => $this->pipeline_stats['total_time'],
-					'sum_pct' => 100 * $this->pipeline_stats['total_time'] / $this->pct_base,
-					'cnt' => $this->pipeline_stats['pipeline_count'],
-					'avg' => $this->pipeline_stats['pipeline_count']
-							? $this->pipeline_stats['total_time'] / $this->pipeline_stats['pipeline_count']
+					'block' => '∑',
+					'sum' => $this->cascade_stats['total_time'],
+					'sum_pct' => 100 * $this->cascade_stats['total_time'] / $this->pct_base,
+					'cnt' => $this->cascade_stats['cascade_count'],
+					'avg' => $this->cascade_stats['cascade_count']
+							? $this->cascade_stats['total_time'] / $this->cascade_stats['cascade_count']
 							: null,
 					'min' => null,
 					'max' => null,
@@ -119,22 +119,22 @@ class M_core__devel__profiler_stats extends Module
 
 			case 1:
 				return array(
-					'module' => 'Pipeline controller',
-					'sum' => $this->pipeline_stats['pipeline_time'],
-					'sum_pct' => 100 * $this->pipeline_stats['pipeline_time'] / $this->pct_base,
-					'cnt' => $this->pipeline_stats['pipeline_count'],
-					'avg' => $this->pipeline_stats['pipeline_count']
-							? $this->pipeline_stats['pipeline_time'] / $this->pipeline_stats['pipeline_count']
+					'block' => 'Cascade controller',
+					'sum' => $this->cascade_stats['cascade_time'],
+					'sum_pct' => 100 * $this->cascade_stats['cascade_time'] / $this->pct_base,
+					'cnt' => $this->cascade_stats['cascade_count'],
+					'avg' => $this->cascade_stats['cascade_count']
+							? $this->cascade_stats['cascade_time'] / $this->cascade_stats['cascade_count']
 							: null,
 					'min' => null,
 					'max' => null,
 				);
 
 			case 2:
-				reset($this->modules_stats);
+				reset($this->blocks_stats);
 			default:
-				if ((list($key, $row) = each($this->modules_stats))) {
-					$row['module'] = $key;
+				if ((list($key, $row) = each($this->blocks_stats))) {
+					$row['block'] = $key;
 					$row['avg'] = $row['cnt'] ? (float) $row['sum'] / $row['cnt'] : null;
 					$row['sum_pct'] = 100 * $row['sum'] / $this->pct_base;
 					return $row;

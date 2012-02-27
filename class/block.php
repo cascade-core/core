@@ -38,7 +38,7 @@ abstract class Block {
 	const FAILED   = 0x08;
 
 	// Default value of 'force_exec' flag when adding this block into
-	// pipeline (not when calling add_block() from this class).
+	// cascade (not when calling add_block() from this class).
 	// This is used when force_exec arg. is null (or not set at all).
 	const force_exec = false;
 
@@ -51,7 +51,7 @@ abstract class Block {
 	);
 
 	private $id, $full_id;
-	private $pipeline_controller;
+	private $cascade_controller;
 	private $block_name;
 	private $slot_weight_penalty;		// guarantees keeping order of output objects
 
@@ -67,13 +67,13 @@ abstract class Block {
 	private $namespace = null;		// references to other blocks
 	protected $context;
 
-	private $pipeline_errors = array();	// list of errors received from pipeline controller
+	private $cascade_errors = array();	// list of errors received from cascade controller
 
 
 	// list of inputs and their default values
 	protected $inputs = array(
 		// 'input-name' => 'default-value',
-		// 'input-name' => array('MODULE', 'output'),
+		// 'input-name' => array('block', 'output'),
 		// '*' => 'default-value',
 	);
 
@@ -115,9 +115,9 @@ abstract class Block {
 	}
 
 
-	final public function get_pipeline_controller()
+	final public function get_cascade_controller()
 	{
-		return $this->pipeline_controller;
+		return $this->cascade_controller;
 	}
 
 
@@ -140,20 +140,20 @@ abstract class Block {
 
 
 	/****************************************************************************
-	 *	Part of Pipeline Controller
+	 *	Part of Cascade Controller
 	 */
 
 	// "constructor" -- called imediately after block creation
-	final public function pc_init($parent, $id, $full_id, $pipeline_controller, $block_name, $context, $initial_status = self::QUEUED)
+	final public function pc_init($parent, $id, $full_id, $cascade_controller, $block_name, $context, $initial_status = self::QUEUED)
 	{
 		// basic init
 		$this->id = $id;
 		$this->parent = $parent;
 		$this->full_id = $full_id;
-		$this->pipeline_controller = $pipeline_controller;
+		$this->cascade_controller = $cascade_controller;
 		$this->block_name = $block_name;
 		$this->context = $context;
-		$this->timestamp_create = $this->pipeline_controller->current_step();
+		$this->timestamp_create = $this->cascade_controller->current_step();
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($this->timestamp_create + 99.0); // lim -> inf = 1
 		$this->status = $initial_status;
 
@@ -204,7 +204,7 @@ abstract class Block {
 
 		// Go out
 		if ($start_name == '') {
-			$m = $this->pipeline_controller->resolve_block_name(array_shift($path));
+			$m = $this->cascade_controller->resolve_block_name(array_shift($path));
 		} else if ($start_name == 'parent') {
 			$m = $this->parent;
 		} else {
@@ -212,7 +212,7 @@ abstract class Block {
 			while ($t && !isset($t->namespace[$start_name])) {
 				$t = $t->parent;
 			}
-			$m = $t !== null ? $t->namespace[$start_name] : $this->pipeline_controller->resolve_block_name($start_name);
+			$m = $t !== null ? $t->namespace[$start_name] : $this->cascade_controller->resolve_block_name($start_name);
 		}
 
 		if (!$m) {
@@ -250,7 +250,7 @@ abstract class Block {
 				return false;
 		}
 
-		$this->timestamp_start = $this->pipeline_controller->current_step();
+		$this->timestamp_start = $this->cascade_controller->current_step();
 		$this->status = self::RUNNING;
 		debug_msg('%s: Preparing block "%s" (t = %d)', $this->block_name(), $this->id(), $this->timestamp_start);
 
@@ -288,7 +288,7 @@ abstract class Block {
 		/* abort if failed */
 		if (!$this->status == self::FAILED) {
 			error_msg('%s: Failed to prepare block "%s"', $this->block_name(), $this->id());
-			$this->timestamp_finish = $this->pipeline_controller->current_step();
+			$this->timestamp_finish = $this->cascade_controller->current_step();
 			return false;
 		}
 
@@ -305,7 +305,7 @@ abstract class Block {
 		/* abort if failed */
 		if ($this->status == self::FAILED) {
 			error_msg('%s: Failed to solve dependencies of block "%s"', $this->block_name(), $this->id());
-			$this->timestamp_finish = $this->pipeline_controller->current_step();
+			$this->timestamp_finish = $this->cascade_controller->current_step();
 			return false;
 		}
 
@@ -313,7 +313,7 @@ abstract class Block {
 		if (!$this->in('enable')) {
 			debug_msg('%s: Skipping disabled block "%s"', $this->block_name(), $this->id());
 			$this->status = self::DISABLED;
-			$this->timestamp_finish = $this->pipeline_controller->current_step();
+			$this->timestamp_finish = $this->cascade_controller->current_step();
 			return true;
 		}
 
@@ -324,7 +324,7 @@ abstract class Block {
 		$this->main();
 		$this->execution_time = (microtime(TRUE) - $t) * 1000;
 		$this->status = self::ZOMBIE;
-		$this->timestamp_finish = $this->pipeline_controller->current_step();
+		$this->timestamp_finish = $this->cascade_controller->current_step();
 
 		/* execute & evaluate forwarded outputs */
 		// TODO - nebylo by lepsi to udelat az na pozadani ?
@@ -438,7 +438,7 @@ abstract class Block {
 	final protected function in($name)
 	{
 		// TODO: Virtualni moduly -- Neexistujici moduly vzdy pritomne
-		//       v pipeline, ktere maji zvlastni jmeno osetrene zde.
+		//       v cascade, ktere maji zvlastni jmeno osetrene zde.
 		//       Umozni to velmi efektivne pristupovat k casto
 		//       pouzivanym hodnotam. Mozna by tak sel resit kontext.
 
@@ -589,11 +589,11 @@ abstract class Block {
 	}
 
 
-	// list all visible block names already in pipeline (for debugging only)
+	// list all visible block names already in cascade (for debugging only)
 	final public function visible_block_names()
 	{
 		$m = $this;
-		$names = $this->pipeline_controller->root_namespace_block_names();
+		$names = $this->cascade_controller->root_namespace_block_names();
 
 		while ($m && $m->namespace) {
 			$names = array_merge($names, array_keys($m->namespace));
@@ -660,30 +660,30 @@ abstract class Block {
 	}
 
 
-	// add block to pipeline
-	final protected function pipeline_add($id, $block, $force_exec = null, $connections = array(), $context = null)
+	// add block to cascade
+	final protected function cascade_add($id, $block, $force_exec = null, $connections = array(), $context = null)
 	{
-		$this->pipeline_errors = array();
-		return $this->pipeline_controller->add_block($this, $id, $block, $force_exec, $connections,
+		$this->cascade_errors = array();
+		return $this->cascade_controller->add_block($this, $id, $block, $force_exec, $connections,
 				$context === null ? $this->context : $context,
-				$this->pipeline_errors);
+				$this->cascade_errors);
 	}
 
 
-	// add blocks to pipeline from parsed inifile
-	final protected function pipeline_add_from_ini($parsed_ini_with_sections, $context = null)
+	// add blocks to cascade from parsed inifile
+	final protected function cascade_add_from_ini($parsed_ini_with_sections, $context = null)
 	{
-		$this->pipeline_errors = array();
-		return $this->pipeline_controller->add_blocks_from_ini($this, $parsed_ini_with_sections,
+		$this->cascade_errors = array();
+		return $this->cascade_controller->add_blocks_from_ini($this, $parsed_ini_with_sections,
 				$context === null ? $this->context : $context,
-				$this->pipeline_errors);
+				$this->cascade_errors);
 	}
 
 
-	// get errors from pipeline controller (errors can occur when pipeline_add or pipeline_add_from_ini is called)
-	final public function pipeline_get_errors()
+	// get errors from cascade controller (errors can occur when cascade_add or cascade_add_from_ini is called)
+	final public function cascade_get_errors()
 	{
-		return $this->pipeline_errors;
+		return $this->cascade_errors;
 	}
 }
 

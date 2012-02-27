@@ -4,14 +4,14 @@
 ;
 ;  - Copy this file to app/ directory and modify as you need.
 ;  - This is standard INI file (like php.ini).
-;  - Sections named "[module:???]" represents starting set of modules,
-;    where "???" is module ID. In these sections:
-;  	- Key ".module" is required; specifies module name (ie. "core/output").
-;  	- Key ".force-exec" is optional; if true, module is
+;  - Sections named "[block:???]" represents starting set of blocks,
+;    where "???" is block ID. In these sections:
+;  	- Key ".block" is required; specifies block name (ie. "core/output").
+;  	- Key ".force-exec" is optional; if true, block is
 ;  	  executed even if dependencies don't require that.
-;  	- All other keys define module's inputs. Scalar constants are
+;  	- All other keys define block's inputs. Scalar constants are
 ;  	  specified as usual; connections are written like arrays:
-;  	  	input[] = "source-module:output"
+;  	  	input[] = "source-block:output"
 ;  - All unknown options and sections are ignored, but can be used in
 ;    future versions.
 ;
@@ -36,9 +36,9 @@ default_locale		= "cs_CZ"
 debug_logging_enabled	= true
 always_log_banner	= true
 log_memory_usage	= true
-add_pipeline_graph	= true
-animate_pipeline	= false
-pipeline_graph_link	= "/doc/%s"
+add_cascade_graph	= true
+animate_cascade		= false
+cascade_graph_link	= "/doc/%s"
 profiler_stats_file	= "var/profiler.stats"
 
 ; default output configuration
@@ -49,48 +49,48 @@ default_type		= "html5"
 [define]
 ; key			= value
 
-; module replacement table
-[module-map]
-;old-module/name	= "replacement-module/name"
+; block replacement table
+[block-map]
+;old-block/name	= "replacement-block/name"
 
 
 ;
-; starting modules
+; starting blocks
 ;
 
-[module:router]
-.module		= core/ini/router
+[block:router]
+.block		= core/ini/router
 config		= core/routes.ini.php
 
-[module:content]
-.module		= "core/value/pipeline_loader"
+[block:content]
+.block		= "core/value/cascade_loader"
 output-forward	= "done,title,type"
 content[]	= "router:content"
 enable[]	= "router:done"
 
-[module:extra]
-.module		= "core/value/pipeline_loader"
+[block:extra]
+.block		= "core/value/cascade_loader"
 output-forward	= "done"
 skeleton[]	= "router:skeleton"
 extra[]		= "router:extra"
 enable[]	= "content:content_0_done"
 
-[module:page_title]
-.module		= core/out/set_page_title
+[block:page_title]
+.block		= core/out/set_page_title
 title[]		= :or
 title[]		= content:content_0_title
 title[]		= router:title
 format[]	= router:title_fmt
 
-[module:page_type]
-.module		= core/out/set_type
+[block:page_type]
+.block		= core/out/set_type
 type[]		= :or
 type[]		= content:content_0_type
 type[]		= router:type
 
 
-[module:error_page]
-.module		= core/page/error
+[block:error_page]
+.block		= core/page/error
 enable[]	= :not
 enable[]	= content:content_0_done
 

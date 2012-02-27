@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__ini__proxy extends Module {
+class B_core__ini__proxy extends Block {
 
 	protected $inputs = array(
 		'*' => null,
@@ -43,8 +43,8 @@ class M_core__ini__proxy extends Module {
 
 	public function main()
 	{
-		$m = $this->module_name();
-		$filename = get_module_filename($m, '.ini.php');
+		$m = $this->block_name();
+		$filename = get_block_filename($m, '.ini.php');
 
 		$conf = parse_ini_file($filename, TRUE);
 		if ($conf === FALSE) {
@@ -55,7 +55,7 @@ class M_core__ini__proxy extends Module {
 		if (isset($conf['policy'])) {
 			// Call policy methods. You may add policies by
 			// inheriting from and extending this class. Then use
-			// module-map in core.ini.php.
+			// block-map in core.ini.php.
 			foreach ($conf['policy'] as $policy => $arg) {
 				$method = 'policy__'.$policy;
 				if (method_exists($this, $method)) {
@@ -66,8 +66,8 @@ class M_core__ini__proxy extends Module {
 			}
 		}
 
-		// Fill pipeline
-		$done = $this->pipeline_add_from_ini($conf);
+		// Fill cascade
+		$done = $this->cascade_add_from_ini($conf);
 
 		// Copy inputs
 		if (isset($conf['copy-inputs'])) {
@@ -100,12 +100,12 @@ class M_core__ini__proxy extends Module {
 	}
 
 
-	final protected function policy__require_module($arg, & $conf)
+	final protected function policy__require_block($arg, & $conf)
 	{
-		// Check required modules
-		foreach ((array) $arg as $rq_module) {
-			if (!$this->context->is_allowed($rq_module)) {
-				debug_msg('Required module "%s" is not allowed. Aborting.', $rq_module);
+		// Check required blocks
+		foreach ((array) $arg as $rq_block) {
+			if (!$this->context->is_allowed($rq_block)) {
+				debug_msg('Required block "%s" is not allowed. Aborting.', $rq_block);
 				return;
 			}
 		}
@@ -115,12 +115,12 @@ class M_core__ini__proxy extends Module {
 
 	final protected function policy__dummy_if_denied($arg, & $conf)
 	{
-		// Silently replace denied modules with dummy. Useful when other modulesare connected to these.
+		// Silently replace denied blocks with dummy. Useful when other blocksare connected to these.
 		foreach ((array) $arg as $id) {
-			$m = @ $conf['module:'.$id]['.module'];
+			$m = @ $conf['block:'.$id]['.block'];
 			if ($m !== null && !$this->context->is_allowed($m)) {
-				debug_msg('Replacing module "%s" (%s) with dummy.', $id, $m);
-				$conf['module:'.$id]['.module'] = 'core/dummy';
+				debug_msg('Replacing block "%s" (%s) with dummy.', $id, $m);
+				$conf['block:'.$id]['.block'] = 'core/dummy';
 			}
 		}
 		return true;
@@ -128,12 +128,12 @@ class M_core__ini__proxy extends Module {
 
 	final protected function policy__skip_if_denied($arg, & $conf)
 	{
-		// Silently skip denied modules. When nothing needs these.
+		// Silently skip denied blocks. When nothing needs these.
 		foreach ((array) $arg as $id) {
-			$m = @ $conf['module:'.$id]['.module'];
+			$m = @ $conf['block:'.$id]['.block'];
 			if ($m !== null && !$this->context->is_allowed($m)) {
-				debug_msg('Skipping module "%s" (%s).', $id, $m);
-				unset($conf['module:'.$id]);
+				debug_msg('Skipping block "%s" (%s).', $id, $m);
+				unset($conf['block:'.$id]);
 			}
 		}
 		return true;

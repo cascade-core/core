@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__in__request extends Module {
+class B_core__in__request extends Block {
 
 	protected $inputs = array(
 	);

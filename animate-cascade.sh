@@ -28,12 +28,12 @@ fi
 hash="$1"
 
 # input
-last="pipeline-$hash.dot"
-mask="pipeline-$hash.*.dot.gz"
+last="cascade-$hash.dot"
+mask="cascade-$hash.*.dot.gz"
 
 # output
-dir="pipeline-$hash"
-avi="$dir/pipeline-$hash.avi"
+dir="cascade-$hash"
+avi="$dir/cascade-$hash.avi"
 
 if ! [ -f "$last" ]
 then
@@ -53,7 +53,7 @@ frame_count=`find . -type f -name "$mask" | wc -l`
 
 if [ "$frame_count" = 0 ]
 then
-	echo "Error: Zero frames to animate. Is 'debug.animate_pipeline' in core.ini.php enabled ?" >&2
+	echo "Error: Zero frames to animate. Is 'debug.animate_cascade' in core.ini.php enabled ?" >&2
 	exit 1
 fi
 

@@ -29,7 +29,7 @@
  */
 
 
-class M_core__raw__load extends Module {
+class B_core__raw__load extends Block {
 
 	protected $inputs = array(
 		'filename' => array(),

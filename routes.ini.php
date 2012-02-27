@@ -2,7 +2,7 @@
 ;
 ; Default routes for 'hello world' and documentation browser
 ;
-; Look at core/value/pipeline_loader module before you use this.
+; Look at core/value/cascade_loader block before you use this.
 ;
 
 ; default values

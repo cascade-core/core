@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-class M_core__value__template extends Module {
+class B_core__value__template extends Block {
 
 	protected $inputs = array(
 		'escaping-fn' => null,

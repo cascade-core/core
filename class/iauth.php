@@ -31,8 +31,8 @@
 interface IAuth
 {
 
-	// Check if module is allowed to current user
-	public function is_allowed($module_name, & $details = null);
+	// Check if block is allowed to current user
+	public function is_allowed($block_name, & $details = null);
 
 };
 

@@ -38,7 +38,7 @@ class Context {
 
 
 	/****************************************************************************
-	 *	For modules
+	 *	For blocks
 	 */
 
 	public function set_locale($locale)
@@ -54,7 +54,7 @@ class Context {
 
 
 	/****************************************************************************
-	 *	For Pipeline controller
+	 *	For Cascade controller
 	 */
 
 	/* update enviroment from context, returns true if changes required (for child classes) */
@@ -98,12 +98,12 @@ class Context {
 	}
 
 
-	/* Security: check if module is allowed before pipeline controller loads it */
-	public function is_allowed($module_name, & $details = null)
+	/* Security: check if block is allowed before cascade controller loads it */
+	public function is_allowed($block_name, & $details = null)
 	{
 		// Return false if access should be denied and set $details to string with explanation.
 		if ($this->auth) {
-			return $this->auth->is_allowed($module_name, $details);
+			return $this->auth->is_allowed($block_name, $details);
 		} else {
 			// If there is no Auth object, allow everything
 			return true;

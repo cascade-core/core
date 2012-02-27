@@ -36,7 +36,7 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 	
 	// Header
 	echo "<h2>";
-	printf(_('Module %s'), htmlspecialchars($module));
+	printf(_('Block %s'), htmlspecialchars($block));
 	echo "</h2>\n";
 
 	// Class header

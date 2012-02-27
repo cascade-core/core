@@ -4,18 +4,18 @@
 done = true
 title = "Page not found"
 
-[module:skeleton]
-.module		= core/out/page
+[block:skeleton]
+.block		= core/out/page
 .force-exec	= true
 
-[module:h1]
-.module		= core/out/header
+[block:h1]
+.block		= core/out/header
 level		= 1
 text[]		= page_title:title
 slot-weight	= 1
 
-[module:page_error]
-.module		= core/out/message
+[block:page_error]
+.block		= core/out/message
 .force-exec	= true
 is-error	= true
 title		= "Sorry!"

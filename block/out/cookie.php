@@ -31,7 +31,7 @@
 /**
  * Store inputs as cookies
  */
-class M_core__out__cookie extends Module
+class B_core__out__cookie extends Block
 {
 	const force_exec = true;
 

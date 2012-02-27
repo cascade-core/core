@@ -29,33 +29,33 @@
  */
 
 /**
- * Loads and shows list of all known modules. Links are easily usable with
- * core/deve/doc/show module.
+ * Loads and shows list of all known blocks. Links are easily usable with
+ * core/deve/doc/show block.
  *
  * Example:
  *
  *	; app/core.ini.php
- *	;  (listing modules at end of file only)
+ *	;  (listing blocks at end of file only)
  *
- *	[module:router]
- *	.module		= core/ini/router
+ *	[block:router]
+ *	.block		= core/ini/router
  *	config		= app/routes.ini.php
  *
- *	[module:doc_index]
- *	.module		= "core/devel/doc/index"
+ *	[block:doc_index]
+ *	.block		= "core/devel/doc/index"
  *	.force-exec	= true
  *	enable[]	= "router:index"
  *
- *	[module:doc_show]
- *	.module		= "core/devel/doc/show"
+ *	[block:doc_show]
+ *	.block		= "core/devel/doc/show"
  *	.force-exec	= true
- *	module[]	= "router:path_tail"
+ *	block[]		= "router:path_tail"
  *	show-code	= false
  *	enable[]	= "router:show"
  *
  *
  * 	; app/routes.ini.php
- *	;  (You will want to use core/value/pipeline_loader or something like
+ *	;  (You will want to use core/value/cascade_loader or something like
  *	;  that, but this will do the job too.)
  *
  *	[/doc]
@@ -69,12 +69,12 @@
  *
  */
 
-class M_core__devel__doc__index extends Module
+class B_core__devel__doc__index extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'link' => DEBUG_PIPELINE_GRAPH_LINK,
+		'link' => DEBUG_CASCADE_GRAPH_LINK,
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -86,38 +86,38 @@ class M_core__devel__doc__index extends Module
 
 	public function main()
 	{
-		$modules = $this->get_modules();
+		$blocks = $this->get_blocks();
 
 		$this->template_add(null, 'core/doc/index', array(
 				'link' => $this->in('link'),
-				'modules' => $modules,
+				'blocks' => $blocks,
 			));
 
-		$this->out('done', !empty($modules));
+		$this->out('done', !empty($blocks));
 	}
 
 
-	public static function get_modules()
+	public static function get_blocks()
 	{
 		$prefixes = array(
-			'' => DIR_APP.DIR_MODULE,
-			'core' => DIR_CORE.DIR_MODULE,
+			'' => DIR_APP.DIR_BLOCK,
+			'core' => DIR_CORE.DIR_BLOCK,
 		);
 
 		foreach (get_plugin_list() as $plugin) {
-			$prefixes[$plugin] = DIR_PLUGIN.$plugin.'/'.DIR_MODULE;
+			$prefixes[$plugin] = DIR_PLUGIN.$plugin.'/'.DIR_BLOCK;
 		}
 
-		$modules = array();
+		$blocks = array();
 
 		foreach ($prefixes as $prefix => $dir) {
 			$list = self::scan_directory($dir, $prefix);
 			if (!empty($list)) {
-				$modules[$prefix] = $list;
+				$blocks[$prefix] = $list;
 			}
 		}
 
-		return $modules;
+		return $blocks;
 	}
 
 
@@ -135,12 +135,12 @@ class M_core__devel__doc__index extends Module
 			}
 
 			$file = $dir_name.'/'.$f;
-			$module = $subdir.'/'.$f;
+			$block = $subdir.'/'.$f;
 
 			if (is_dir($file)) {
-				self::scan_directory($directory, $prefix, $module, $list);
-			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $module)) {
-				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $module);
+				self::scan_directory($directory, $prefix, $block, $list);
+			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $block)) {
+				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $block);
 			}
 		}
 

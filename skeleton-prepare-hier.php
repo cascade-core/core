@@ -36,7 +36,7 @@ if (isset($_SERVER['REMOTE_ADDR'])) {
 
 $dirs = array(
 	'app',
-	'app/module',
+	'app/block',
 	'app/style',
 	'app/template',
 	'app/default-config',
