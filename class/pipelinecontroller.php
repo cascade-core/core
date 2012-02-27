@@ -461,8 +461,8 @@ class PipelineController {
 						} else if ($out_mod->pc_output_exists($out_name)) {
 							$missing = false;
 							$v = $out_mod->pc_output_cache();
-							if (array_key_exists($out_name, $v)) {
-								$v = $v[$out_name];
+							if (array_key_exists($out_name, $v) || in_array($out_name, $out_mod->pc_outputs())) {
+								$v = @$v[$out_name];
 								$exists = true;
 								$zero = empty($v);
 								$big = is_array($v) || is_object($v);
