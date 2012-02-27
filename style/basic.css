@@ -23,10 +23,13 @@
 
 #_cascade_graph {
 	text-align: center;
-	margin: 4em 0em;
+	margin: 6em 0em 0em 0em;
+	padding: 1em 0em 3em 0em;
 	width: 100%;
 	border-top: 3px double #000;
 	clear: both;
+	color: #000;
+	background: #fff;
 }
 	#_cascade_graph hr {
 		display: none;
@@ -56,32 +59,78 @@ table.table {
 	}
 
 
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: bold;
+	margin: 2em 0em 0em 0em;
+} 
+
+h1 {
+	font-size: 2em;
+}
+
+h2 {
+	font-size: 1.7em;
+	margin-top: 1em;
+}
+h3 {
+	font-size: 1.4em;
+}
+h4 {
+	font-size: 1.2em;
+}
+h5 {
+	font-size: 1.1em;
+}
+h6 {
+	font-size: 1.0em;
+}
+
 /*************************************************************
  *	Page Layout
  */
 
-html {
+html, body {
+	color: #000;
+	background: #fff;
 	text-align: center;
+	margin: 0px;
+	padding: 0px;
+	font-family: sans-serif;
 }
-body {
+
+.slot_header,
+.slot_default,
+.slot_footer {
+	width: 960px;
 	text-align: left;
 	margin: 0em auto;
-	width: 960px;
 }
 
 .slot_header {
 	border-bottom: 1px solid #aaa;
-	margin: 0em 0em 2em 0em;
 	padding: 1em 0em 1ex 0em;
 }
+
 	.slot_header h1 {
 		font-size: 2.5em;
 		font-weight: normal;
 		margin: 0em;
 	}
+
 	.slot_header .menu {
 		margin: 1ex 0em 0em 0em;
 	}
+
+.slot_default {
+	padding: 1em 0em;
+}
+
+.slot_footer {
+	border-top: 1px solid #aaa;
+	padding: 1ex 0em 0em 0em;
+	margin-top: 2em;
+}
 
 .slot_doc_index {
 	width: 29%;
