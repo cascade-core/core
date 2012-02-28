@@ -37,11 +37,19 @@ function latex_escape($text)
 function latex_heading_cmd($level)
 {
 	$heading = array(
+		0 => 'part',
 		1 => 'chapter',
 		2 => 'section',
 		3 => 'subsection',
 		4 => 'subsubsection',
 		5 => 'paragraph',
+
+		'0*' => 'part*',
+		'1*' => 'chapter*',
+		'2*' => 'section*',
+		'3*' => 'subsection*',
+		'4*' => 'subsubsection*',
+		'5*' => 'paragraph*',
 	);
 
 	return $heading[$level];

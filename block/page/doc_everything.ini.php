@@ -7,7 +7,7 @@ title = Documentation
 [block:doc]
 .block		= "core/devel/doc/everything"
 .force_exec	= true
-heading_level	= 2
+heading_level	= 1
 require_description = false
 slot_weight	= 60
 
@@ -16,7 +16,7 @@ slot_weight	= 60
 .block		= "core/out/header"
 text		= "Version"
 enable[]	= "version:done"
-level		= 2
+level		= "1*"
 slot_weight	= 30
 
 [block:version]

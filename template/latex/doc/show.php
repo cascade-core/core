@@ -36,20 +36,22 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 	$h3 = latex_heading_cmd($heading_level + 1);
 
 	echo "\n% core/doc/show: $id\n";
+	echo "\\newpage\n";
 	
 	// Header
 	echo "\\$h2{";
 	printf(_('Block %s'), latex_escape($block));
+	echo " \\label{sec:block:", preg_replace('/^[a-z0-9]_\//', '-', $block), "}";
 	echo "}\n";
 
 	// Class header
 	if (isset($class_header)) {
-		echo "\\noindent {\\tt ", trim(latex_escape($class_header)), "}\\par\n";
+		echo "\\par\\noindent {\\tt ", trim(latex_escape($class_header)), "}\n";
 	}
 
 	// Location
 	if ($is_local && isset($filename)) {
-		echo "\\noindent {";
+		echo "\\par\\noindent {";
 		$prefix = latex_escape(DIR_ROOT);
 		$prefix_len = strlen($prefix);
 		$latex_filename = latex_escape($filename);
@@ -58,7 +60,7 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 				trim(strncmp($prefix, $latex_filename, $prefix_len) == 0
 					? '\\ldots{}/'.substr($latex_filename, $prefix_len)
 					: $latex_filename));
-		echo "}\\par\n";
+		echo "}\n";
 	}
 
 	echo "\n";
