@@ -9,7 +9,7 @@ title = "Cascade"
 .block		= core/out/raw
 .force_exec	= true
 ; Never do this:
-data		= "<p>Hello world!</p><p>Look at <a href='/doc'>documentation</a>!</p>"
+data		= "<p>Hello world!</p><p>Look at <a href='/documentation'>documentation</a>!</p>"
 
 
 ; vim:filetype=dosini:
