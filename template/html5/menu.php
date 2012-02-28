@@ -41,17 +41,21 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 		$title_fmt = null;
 	}
 
+	if (!isset($max_depth)) {
+		$max_depth = PHP_INT_MAX;
+	}
+
 	switch ($layout) {
 		default:
 		case 'tree':
 			echo "<ul id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
-			tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt);
+			tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth);
 			echo "</ul>\n";
 			break;
 
 		case 'row':
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
-			tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt);
+			tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth);
 			echo "</div>\n";
 			break;
 	}
@@ -82,7 +86,7 @@ function tpl_html5__core__menu__label($id, $item, $title_fmt)
 }
 
 
-function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt)
+function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth = PHP_INT_MAX)
 {
 	foreach ($items as $i => $item) {
 
@@ -112,9 +116,9 @@ function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $ti
 		tpl_html5__core__menu__label($id, $item, $title_fmt);
 
 		/* recursively show children */
-		if (isset($item['children'])) {
+		if (isset($item['children']) && $max_depth > 0) {
 			echo "\n<ul>\n";
-			tpl_html5__core__menu__tree($id, $item['children'], $active_uri, $exact_match, $title_fmt);
+			tpl_html5__core__menu__tree($id, $item['children'], $active_uri, $exact_match, $title_fmt, $max_depth - 1);
 			echo "</ul>\n";
 		}
 
@@ -123,7 +127,7 @@ function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $ti
 }
 
 
-function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt, $first = true)
+function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth = PHP_INT_MAX, $first = true)
 {
 	foreach ($items as $i => $item) {
 		/* is link active ? */
@@ -161,8 +165,8 @@ function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $tit
 		echo "</span>";
 
 		/* recursively show children */
-		if (isset($item['children'])) {
-			tpl_html5__core__menu__row($id, $item['children'], $active_uri, $exact_match, false);
+		if (isset($item['children']) && $max_depth > 0) {
+			tpl_html5__core__menu__row($id, $item['children'], $active_uri, $exact_match, $title_fmt, $max_depth - 1, false);
 		}
 
 	}

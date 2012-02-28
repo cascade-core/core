@@ -41,6 +41,7 @@ config		= core/routes.ini.php
 .block		= core/out/menu
 items[]		= menu_builder:links
 layout		= row
+max_depth	= 0
 slot[]		= slot_header:name
 slot_weight	= 5
 

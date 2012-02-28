@@ -38,6 +38,7 @@ class B_core__out__menu extends Block
 		'active_uri' => null,
 		'exact_match' => false,
 		'title_fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
+		'max_depth' => PHP_INT_MAX,
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -57,6 +58,7 @@ class B_core__out__menu extends Block
 					'title_fmt' => $this->in('title_fmt'),
 					'exact_match' => $this->in('exact_match'),
 					'active_uri' => $this->in('active_uri'),
+					'max_depth' => $this->in('max_depth'),
 				));
 		}
 	}
