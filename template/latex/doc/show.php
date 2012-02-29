@@ -81,13 +81,13 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 		echo "\\$h3{", _('Inputs'), "}\n",
 			"\\begin{description}\n";
 		foreach ($inputs as $input) {
-			echo "\item{\\tt ", latex_escape($input['name']), "} = {",
+			echo "\item[{\\tt ", latex_escape($input['name']), "}] = {",
 				$input['value'] == 'array()' || $input['value'] == 'array( )'
 						? '{\\it '._('not connected').'}'
 						: latex_escape($input['value']),
 				"}";
 			if (!empty($input['comment'])) {
-				echo " \\\\\n", join("\\\\\n", array_map('latex_escape', $input['comment']));
+				echo " \\hfil\\\\\n", join("\\\\\n", array_map('latex_escape', $input['comment']));
 			}
 			echo "\n";
 		}
@@ -100,9 +100,9 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 		echo "\\$h3{", _('Outputs'), "}\n",
 			"\\begin{description}\n";
 		foreach ($outputs as $output) {
-			echo "\item{\\tt ", latex_escape($output['name']), "}";
+			echo "\item[{\\tt ", latex_escape($output['name']), "}]";
 			if (!empty($output['comment'])) {
-				echo " \\\\\n", join("\\\\\n", array_map('latex_escape', $input['comment']));
+				echo " \\hfil\\\\\n", join("\\\\\n", array_map('latex_escape', $input['comment']));
 			}
 			echo "\n";
 		}
