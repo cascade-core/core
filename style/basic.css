@@ -1,5 +1,5 @@
 /*
- * Basic default stylesheet
+ * Basic stylesheet
  *
  * Use as you wish.
  *
@@ -21,6 +21,12 @@
 	padding: 0px;
 }
 
+
+/*************************************************************
+ *	Cascade visualization
+ */
+
+/*
 #_cascade_graph {
 	text-align: center;
 	margin: 6em 0em 0em 0em;
@@ -34,6 +40,53 @@
 	#_cascade_graph hr {
 		display: none;
 	}
+*/
+
+#_cascade_graph {
+	position: fixed;
+	right: 0px;
+	bottom: 0px;
+	width: 9em;
+	height: 2em;
+	border-top: 1px solid #000;
+	border-left: 1px solid #000;
+	color: #000;
+	background: #fff;
+	overflow: hidden;
+	box-shadow: 0px 0px 7px #000;
+	opacity: 0.4;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
+	filter: alpha(opacity=40);
+}
+
+	#_cascade_graph h2 {
+		font-size: 1em;
+		font-weight: bold;
+		margin: 0em;
+		padding: 0.5em;
+	}
+
+	#_cascade_graph hr {
+		display: none;
+	}
+
+	#_cascade_graph:hover {
+		width: 90%;
+		height: 90%;
+		overflow: auto;
+		opacity: 1;
+		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+		filter: alpha(opacity=100);
+	}
+		#_cascade_graph:hover h2 {
+			font-size: 1.5em;
+			padding: 1em 1em 0.5em 1em;
+		}
+
+
+/*************************************************************
+ *	Basic style for elements
+ */
 
 table.table {
 	margin: 1em 0em;
@@ -84,61 +137,5 @@ h5 {
 }
 h6 {
 	font-size: 1.0em;
-}
-
-/*************************************************************
- *	Page Layout
- */
-
-html, body {
-	color: #000;
-	background: #fff;
-	text-align: center;
-	margin: 0px;
-	padding: 0px;
-	font-family: sans-serif;
-}
-
-.slot_header,
-.slot_default,
-.slot_footer {
-	width: 960px;
-	text-align: left;
-	margin: 0em auto;
-}
-
-.slot_header {
-	border-bottom: 1px solid #aaa;
-	padding: 1em 0em 1ex 0em;
-}
-
-	.slot_header h1 {
-		font-size: 2.5em;
-		font-weight: normal;
-		margin: 0em;
-	}
-
-	.slot_header .menu {
-		margin: 1ex 0em 0em 0em;
-	}
-
-.slot_default {
-	padding: 1em 0em;
-}
-
-.slot_footer {
-	border-top: 1px solid #aaa;
-	padding: 1ex 0em 0em 0em;
-	margin-top: 2em;
-}
-
-.slot_doc_index {
-	width: 29%;
-	float: left;
-}
-
-.slot_doc_main {
-	width: 69%;
-	float: right;
 }
 

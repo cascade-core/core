@@ -6,7 +6,7 @@ title = "Cascade skeleton"
 
 [block:skeleton]
 .block		= core/out/page
-css_link	= /core/style/basic.css
+css_link	= /core/style/default.css
 
 [block:slot_header]
 .block		= core/out/slot
