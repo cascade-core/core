@@ -47,6 +47,7 @@ function TPL_latex__core__main($t, $id, $d, $so)
 		"\\geometry{verbose,tmargin=28mm,bmargin=32mm,lmargin=35mm,rmargin=20mm,headheight=14.5pt}\n",
 		"\\usepackage{babel}\n",
 		"\\usepackage{graphicx}\n",
+		"\\usepackage{tabularx}\n",
 		"\\usepackage{fancyhdr}\n",
 		"\\pagestyle{fancy}\n",
 		"\\renewcommand{\headrulewidth}{0.2pt}\n",

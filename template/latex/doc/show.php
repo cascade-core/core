@@ -79,14 +79,35 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 	// Inputs
 	if (isset($inputs)) {
 		echo "\\$h3{", _('Inputs'), "}\n",
-			"\\begin{verbatim}\n", preg_replace('/^ {8}/m', '', latex_expand_tabs($inputs)), "\n\\end{verbatim}\n",
+			"\\begin{tabularx}{\\textwidth}{|l|l|X|}\n",
+			"\\hline\n",
+			_('Input'), " & ", _('Default value'), " & ", _('Comment'), " \\\\\n",
+			"\\hline\n";
+		foreach ($inputs as $input) {
+			echo "{", latex_escape($input['name']), "} & {",
+				$input['value'] == 'array()' || $input['value'] == 'array( )'
+						? '{\\it '._('not connected').'}'
+						: latex_escape($input['value']), "} & {",
+				join("\n", array_map('latex_escape', $input['comment'])), "} \\\\\n";
+		}
+		echo	"\\hline\n",
+			"\\end{tabularx}\n",
 			"\n";
 	}
 
 	// Outputs
 	if (isset($outputs)) {
 		echo "\\$h3{", _('Outputs'), "}\n",
-			"\\begin{verbatim}\n", preg_replace('/^ {8}/m', '', latex_expand_tabs($outputs)), "\n\\end{verbatim}\n",
+			"\\begin{tabularx}{\\textwidth}{|l|X|}\n",
+			"\\hline\n",
+			_('Output'), " & ", _('Comment'), " \\\\\n",
+			"\\hline\n";
+		foreach ($outputs as $output) {
+			echo '{', latex_escape($output['name']), "} & {",
+				join("\n", array_map('latex_escape', $output['comment'])), "} \\\\\n";
+		}
+		echo	"\\hline\n",
+			"\\end{tabularx}\n",
 			"\n";
 	}
 

@@ -38,17 +38,17 @@ class B_core__devel__doc__show extends Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'block' => array(),
-		'show_code' => false,
+		'block' => array(),			// Name of the block to describe.
+		'show_code' => false,			// Show full source code of the block?
 		'link' => DEBUG_CASCADE_GRAPH_LINK,
-		'require_description' => false,
-		'heading_level' => 2,
+		'require_description' => false,		// Fail if there is no description.
+		'heading_level' => 2,			// Level of the first heading.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
 
 	protected $outputs = array(
-		'title' => true,
+		'title' => true,			// Page title
 		'done' => true,
 	);
 
@@ -228,9 +228,9 @@ class B_core__devel__doc__show extends Block
 		while (($t = current($this->tokens))) {
 			next($this->tokens);
 
-			if ($t == '{') {
+			if ($t == '{' || $t == '(') {
 				$depth++;
-			} else if ($t == '}') {
+			} else if ($t == '}' || $t == ')') {
 				$depth--;
 				if ($depth == 0) {
 					return;
@@ -241,9 +241,9 @@ class B_core__devel__doc__show extends Block
 					if ($t[0] == T_VARIABLE) {
 						$var = $t[1];
 						if ($var == '$inputs') {
-							$this->read_inputs();
+							$this->read_array('inputs');
 						} else if ($var == '$outputs') {
-							$this->read_outputs();
+							$this->read_array('outputs');
 						}
 					} else if ($t[0] == T_STRING) {
 						if ($t[1] == 'force_exec') {
@@ -273,21 +273,149 @@ class B_core__devel__doc__show extends Block
 		$this->data['force_exec'] = $str;
 	}
 
-	private function read_inputs()
+	private function read_array($array_name)
 	{
-		$str = "\t\$inputs";
+		$inputs = array();
 
-		while (($t = current($this->tokens))) {
-			next($this->tokens);
+		// wait for '='
+		if (!$this->read_array_wait_for('=')) {
+			return;
+		}
 
-			$str .= is_array($t) ? $t[1] : $t;
+		// wait for 'array'
+		if (!$this->read_array_wait_for(array(T_ARRAY))) {
+			return;
+		}
 
-			if ($t == ';') {
-				break;
+		// wait for '('
+		if (!$this->read_array_wait_for('(')) {
+			return;
+		}
+
+		// read inputs
+		while (($t = current($this->tokens)) && $t != ';') {
+			$input_comments = array();
+
+			// read key
+			$input_name = $this->read_value();
+
+			// get '=>'
+			$this->read_array_wait_for(array(T_DOUBLE_ARROW));
+
+			// read value
+			$input_value = $this->read_value($input_comments);
+
+			if (current($this->tokens) == ',') {
+				next($this->tokens);
+			}
+
+			// read remaining comments
+			$this->read_comments($input_comments);
+
+			// store gathered data
+			if ($input_name !== '') {
+				if (preg_match('/^\'[^\']*\'$/', $input_name)) {
+					$input_name = trim($input_name, "'");
+				} else if (preg_match('/^"[^"]*"$/', $input_name)) {
+					$input_name = trim($input_name, '"');
+				}
+				$this->data[$array_name][] = array(
+					'name' => $input_name,
+					'value' => $input_value,
+					'comment' => $input_comments,
+				);
 			}
 		}
 
-		$this->data['inputs'] = $str;
+		// finaly wait for ';'
+		$this->read_array_wait_for(';');
+	}
+
+
+	private function read_comments(& $comments)
+	{
+		while (($t = current($this->tokens))) {
+			if (is_array($t)) {
+				if ($t[0] == T_DOC_COMMENT) {
+					$comments[] = $this->strip_doc_comment($t[1]);
+				} else if ($t[0] == T_COMMENT) {
+					$comments[] = $this->strip_comment($t[1]);
+				} else if ($t[0] != T_WHITESPACE) {
+					return;
+				}
+			} else {
+				return;
+			}
+			next($this->tokens);
+		}
+	}
+
+
+	private function read_value(& $comments)
+	{
+		$str = '';
+		$depth = 0;
+
+		while (($t = current($this->tokens))) {
+			if ($depth == 0) {
+				if (is_array($t) && ($t[0] == T_DOUBLE_ARROW)) {
+					break;
+				} else if ($t == ';' || $t == ',' || $t == ')' || $t == ']' || $t == '}') {
+					break;
+				}
+			}
+
+			next($this->tokens);
+
+			if ($t == '{' || $t == '(' || $t == '[') {
+				$depth++;
+			} else if ($t == '}' || $t == ')' || $t == ']') {
+				$depth--;
+			}
+
+			if (is_array($t)) {
+				if ($t[0] == T_DOC_COMMENT) {
+					$comments[] = $this->strip_doc_comment($t[1]);
+				} else if ($t[0] == T_COMMENT) {
+					$comments[] = $this->strip_comment($t[1]);
+				} else if ($t[0] == T_WHITESPACE) {
+					$str .= ' ';
+				} else {
+					$str .= $t[1];
+				}
+			} else {
+				$str .= $t;
+			}
+		}
+
+		return trim($str);
+	}
+
+
+	private function read_array_wait_for($that)
+	{
+		if (is_array($that)) {
+			while (($t = current($this->tokens))) {
+				if ($t == ';') {
+					return false;
+				}
+				next($this->tokens);
+				if (is_array($t) && $t[0] == $that[0]) {
+					return true;
+				}
+			}
+		} else {
+			while (($t = current($this->tokens))) {
+				if ($t == ';') {
+					return false;
+				}
+				next($this->tokens);
+				if ($t == $that) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 
@@ -308,6 +436,17 @@ class B_core__devel__doc__show extends Block
 		$this->data['outputs'] = $str;
 	}
 
+
+	private function strip_comment($comment)
+	{
+		$begin = substr($comment, 0, 2);
+
+		if ($begin == '//') {
+			return trim(substr($comment, 2));
+		} else if ($begin == '/*') {
+			return trim(preg_replace('/^[\t ]*\* ?/m', '', substr($comment, 2, -2)));
+		}
+	}
 
 	private function strip_doc_comment($comment)
 	{

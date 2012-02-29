@@ -30,7 +30,7 @@
 
 function latex_escape($text)
 {
-	return addcslashes($text, '$_\\');
+	return addcslashes($text, '\\{}_^#&$%~');
 }
 
 
