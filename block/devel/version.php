@@ -104,7 +104,15 @@ class B_core__devel__version extends Block
 
 	private function is_git_repo_newer($ref_mtime, $basedir)
 	{
-		$head_file = $basedir.'.git/HEAD';
+		$gitdir = $basedir.'.git';
+		if (is_file($gitdir)) {
+			$repo = file_get_contents($gitdir);
+			if (preg_match('/^gitdir: (.*)/', $repo, $m)) {
+				$gitdir = realpath($m[1]);
+			}
+		}
+
+		$head_file = $gitdir.'/HEAD';
 
 		if ($ref_mtime < @filemtime($head_file)) {
 			return true;
