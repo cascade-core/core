@@ -73,7 +73,7 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 	echo "</div>\n";
 
 	// Inputs
-	if (isset($inputs)) {
+	if (!empty($inputs)) {
 		echo "<div class=\"inputs\">\n",
 			"<$h3>", _('Inputs'), "</$h3>\n",
 			"<table class=\"table\">\n",
@@ -92,7 +92,7 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 	}
 
 	// Outputs
-	if (isset($outputs)) {
+	if (!empty($outputs)) {
 		echo "<div class=\"outputs\">\n",
 			"<$h3>", _('Outputs'), "</$h3>\n",
 			"<table class=\"table\">\n",
