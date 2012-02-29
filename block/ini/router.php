@@ -94,8 +94,15 @@ class B_core__ini__router extends Block {
 	protected function route($path)
 	{
 		// load config
-		$conf = parse_ini_file($this->in('config'), TRUE);
-		if ($conf === FALSE) {
+		$config = $this->in('config');
+		if (is_string($config)) {
+			$conf = parse_ini_file($config, TRUE);
+			if ($conf === FALSE) {
+				return false;
+			}
+		} else if (is_array($config)) {
+			$conf = $config;
+		} else {
 			return false;
 		}
 

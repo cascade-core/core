@@ -2,7 +2,8 @@
 ;
 ; Default routes for 'hello world' and documentation browser
 ;
-; Look at core/value/cascade_loader block before you use this.
+; Copy this to app/routes.ini.php before you start creating your application.
+;
 ;
 
 ; default values

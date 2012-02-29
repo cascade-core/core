@@ -58,9 +58,23 @@ default_type		= "html5"
 ; starting blocks
 ;
 
+;; You probably want to use something like this:
+;
+; [block:router]
+; .block	= core/ini/router
+; config	= app/routes.ini.php
+;
+;; ... instead of these two:
+
+[block:load_routes]
+.block		= core/ini/load
+filename	= routes.examples.ini.php
+scan_plugins	= true
+
 [block:router]
 .block		= core/ini/router
-config		= core/routes.ini.php
+config[]	= load_routes:data
+enable[]	= load_routes:done
 
 [block:content]
 .block		= "core/value/cascade_loader"

@@ -35,6 +35,7 @@ class B_core__ini__load extends Block {
 		'name' => null,
 		'process_sections' => true,
 		'multi_output' => false,
+		'scan_plugins' => false,
 	);
 
 	protected $outputs = array(
@@ -49,6 +50,7 @@ class B_core__ini__load extends Block {
 	{
 		$name = $this->in('name');
 		$fn = $this->in('filename');
+		$process_sections = $this->in('process_sections');
 
 		if (is_array($name)) {
 			$name = join('/', $name);
@@ -61,7 +63,25 @@ class B_core__ini__load extends Block {
 			$fn = sprintf($fn, $name);
 		}
 
-		$data = parse_ini_file($fn, $this->in('process_sections'));
+		if ($this->in('scan_plugins')) {
+			$data = @parse_ini_file(DIR_APP.$fn, $process_sections);
+			if ($data === FALSE) {
+				$data = @parse_ini_file(DIR_CORE.$fn, $process_sections);
+				if ($data === FALSE) {
+					$data = array();
+				}
+			}
+			$plugin_data[] = $data;
+			foreach (get_plugin_list() as $plugin) {
+				$d = @parse_ini_file(DIR_PLUGIN.$plugin.'/'.$fn, $process_sections);
+				if ($d !== FALSE) {
+					$plugin_data[] = $d;
+				}
+			}
+			$data = call_user_func_array('array_merge', $plugin_data);
+		} else {
+			$data = parse_ini_file($fn, $process_sections);
+		}
 
 		if ($data === FALSE) {
 			$this->out('error', true);

@@ -35,7 +35,7 @@ slot_weight	= 1
 
 [block:menu_builder]
 .block		= core/ini/router_links
-config		= core/routes.ini.php
+config[]	= load_routes:data
 
 [block:main_menu]
 .block		= core/out/menu
