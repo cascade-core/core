@@ -44,13 +44,13 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 	switch ($layout) {
 		default:
 		case 'tree':
-			echo "<ul id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
+			echo "<ul id=\"", htmlspecialchars($id), "\" class=\"menu", isset($class) ? ' '.$class : '', "\">\n";
 			tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt);
 			echo "</ul>\n";
 			break;
 
 		case 'row':
-			echo "<div id=\"", htmlspecialchars($id), "\" class=\"menu\">\n";
+			echo "<div id=\"", htmlspecialchars($id), "\" class=\"menu", isset($class) ? ' '.$class : '', "\">\n";
 			tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt);
 			echo "</div>\n";
 			break;

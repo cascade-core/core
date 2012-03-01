@@ -38,6 +38,7 @@ class M_core__out__menu extends Module
 		'active-uri' => null,
 		'exact-match' => false,
 		'title-fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
+		'class' => null,		// Class set to top-level element.
 		'slot' => 'default',
 		'slot-weight' => 50,
 	);
@@ -57,6 +58,7 @@ class M_core__out__menu extends Module
 					'title_fmt' => $this->in('title-fmt'),
 					'exact_match' => $this->in('exact-match'),
 					'active_uri' => $this->in('active-uri'),
+					'class' => $this->in('class'),
 				));
 		}
 	}
