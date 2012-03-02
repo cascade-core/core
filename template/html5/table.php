@@ -153,7 +153,31 @@ class tpl_html5__core__table__text {
 			$title = '';
 		}
 
-		echo "<th", $this->th_attr, " align=\"left\"", $title, ">", nl2br(htmlspecialchars(@$this->opts['title'])), "</th>\n";
+		$a1 = '';
+		$a2 = '';
+
+		if (isset($this->opts['title_link'])) {
+			if (is_callable($this->opts['title_link'])) {
+				$href = $this->opts['title_link']($row_data);
+			} else {
+				if (isset($this->opts['title_link_arg'])) {
+					$args = array();
+					foreach ($this->opts['title_link_arg'] as $a) {
+						$args[] = $row_data[$a];
+					} 
+					$href = vsprintf($this->opts['title_link'], $args);
+				} else {
+					$href = $this->opts['title_link'];
+				}
+			}
+
+			if ($href != '') {
+				$a1 = '<a href="'.str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($href)).'">';
+				$a2 = '</a>';
+			}
+		}
+
+		echo "<th", $this->th_attr, " align=\"left\"", $title, ">", $a1, nl2br(htmlspecialchars(@$this->opts['title'])), $a2, "</th>\n";
 	}
 
 	function td($row_data)
