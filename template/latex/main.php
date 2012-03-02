@@ -47,6 +47,7 @@ function TPL_latex__core__main($t, $id, $d, $so)
 		"\\geometry{verbose,tmargin=28mm,bmargin=32mm,lmargin=35mm,rmargin=20mm,headheight=14.5pt}\n",
 		"\\usepackage{babel}\n",
 		"\\usepackage{graphicx}\n",
+		"\\usepackage{color}\n",
 		"\\usepackage{tabularx}\n",
 		"\\usepackage{fancyhdr}\n",
 		"\\pagestyle{fancy}\n",
@@ -56,7 +57,6 @@ function TPL_latex__core__main($t, $id, $d, $so)
 		"\\fancyhead[LE,RO]{{\sc\leftmark}}\n",
 		"\\renewcommand{\chaptermark}[1]{\markboth{\\thechapter\ #1}{}}\n",
 		"\\renewcommand{\sectionmark}[1]{\markright{\\thesection\ #1}}\n",
-
 		"\n",
 		"% shrink too big images automagicaly\n",
 		"\\newsavebox\\IBox\n",
@@ -66,6 +66,27 @@ function TPL_latex__core__main($t, $id, $d, $so)
 		"\\ifdim\\wd\\IBox>\\textwidth\\resizebox{\\textwidth}{!}{\\usebox\\IBox}\\else\n",
 		"\\usebox\\IBox\\fi}\n",
 		"\n";
+
+	if (DEVELOPMENT_ENVIRONMENT) {
+		echo	"% todo and fixme marks\n",
+			"\\definecolor{TODOcolor}{RGB}{160, 0, 0}\n",
+			"\\definecolor{TODO_TOCcolor}{RGB}{160, 64, 64}\n",
+			"\\newcommand{\\TODO}[1]{\n",
+			"	\\addtocontents{toc}{%\n",
+			"	\\noindent \\leftskip 9em \\rightskip 3em\n",
+			"	{\\scriptsize\\color{TODO_TOCcolor} {\\bf TODO:} {\\it #1}}\n",
+			"	\\par}\n",
+			"	\\par\\medskip\\noindent\\hangindent5em\n",
+			"	\\makebox[5em][l]{\\bf\\textcolor{TODOcolor}{TODO:}}{\\it #1}\\medskip}\n",
+			"\\newcommand{\\FIXME}[1]{\n",
+			"	\\addtocontents{toc}{%\n",
+			"	\\noindent \\leftskip 9em \\rightskip 3em\n",
+			"	{\\scriptsize\\color{TODO_TOCcolor} {\\bf FIXME:} {\\it #1}}\n",
+			"	\\par}\n",
+			"	\\par\\medskip\\noindent\\hangindent5em\n",
+			"	\\makebox[5em][l]{\\bf\\textcolor{TODOcolor}{FIXME:}}{\\it #1}\\medskip}\\par\n",
+			"\n";
+	}
 
 	$t->process_slot('latex_preamble');
 
