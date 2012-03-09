@@ -82,6 +82,11 @@ output_forward	= "done,title,type"
 content[]	= "router:content"
 enable[]	= "router:done"
 
+[block:error_page]
+.block		= core/page/error
+enable[]	= :not
+enable[]	= content:content_0_done
+
 [block:skeleton]
 .block		= "core/page/skeleton"
 enable[]	= ":and"
@@ -107,11 +112,6 @@ type[]		= router:type
 ;extra[]	= "router:extra"
 ;enable[]	= "content:content_0_done"
 
-
-[block:error_page]
-.block		= core/page/error
-enable[]	= :not
-enable[]	= content:content_0_done
 
 
 ; vim:filetype=dosini:
