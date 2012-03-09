@@ -249,18 +249,17 @@ class CascadeController {
 			if ($keyword == 'block' && isset($id) && @($block = $opts['.block']) !== null) {
 				$force_exec = @ $opts['.force_exec'];
 
-				/* drop block options and keep only connections */
-				unset($opts['.block']);
-				unset($opts['.force_exec']);
-
 				/* parse connections */
-				foreach($opts as & $out) {
-					if (is_array($out)) {
+				foreach($opts as $in => & $out) {
+					if ($in[0] == '.') {
+						/* drop block options and keep only connections */
+						unset($opts[$in]);
+					} else if (is_array($out)) {
 						if (count($out) == 1) {
-							// single connection
+							/* single connection */
 							$out = explode(':', $out[0], 2);
 						} else {
-							// multiple connections
+							/* multiple connections */
 							$outs = array(null);
 							foreach ($out as $o) {
 								if ($o[0] == ':') {
