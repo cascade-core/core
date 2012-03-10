@@ -98,6 +98,7 @@ table.table {
 	table.table th,
 	table.table td {
 		padding: 0.5ex 0.5ex 0.3ex 0.5ex;
+		vertical-align: baseline;
 	}
 
 	table.table th {

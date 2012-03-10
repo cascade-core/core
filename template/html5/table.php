@@ -52,11 +52,13 @@ function TPL_html5__core__table($t, $id, $table, $so)
 	}
 
 	/* header */
-	echo "<thead>\n<tr>\n";
-	foreach ($col_renderer as $col) {
-		$col->th();
+	if ($table->show_header) {
+		echo "<thead>\n<tr>\n";
+		foreach ($col_renderer as $col) {
+			$col->th();
+		}
+		echo "</tr>\n</thead>\n";
 	}
-	echo "</tr>\n</thead>\n";
 
 	/* footer */
 	if ($table->show_footer) {
@@ -118,6 +120,7 @@ class tpl_html5__core__table__text {
 	protected $opts;
 	protected $th_attr = '';
 	protected $td_attr = '';
+	protected $td_tag = 'td';
 	
 	function __construct($opts)
 	{
@@ -181,8 +184,8 @@ class tpl_html5__core__table__text {
 			$data = '';
 		}
 
-		echo "<td", $this->td_attr, $title != '' ? ' title="'.htmlspecialchars($title).'"' : '', $data, ">",
-			$this->fmt_value($row_data), "</td>\n";
+		echo "<", $this->td_tag, $this->td_attr, $title != '' ? ' title="'.htmlspecialchars($title).'"' : '', $data, ">",
+			$this->fmt_value($row_data), "</", $this->td_tag, ">\n";
 	}
 
 	function fmt_value($row_data)
@@ -260,6 +263,15 @@ class tpl_html5__core__table__text {
 		}
 
 		return $fmt_val;
+	}
+}
+
+class tpl_html5__core__table__heading extends tpl_html5__core__table__text {
+	protected $td_tag = 'th';
+
+	function __construct($opts)
+	{
+		parent::__construct($opts);
 	}
 }
 

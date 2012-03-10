@@ -37,6 +37,7 @@ class TableView {
 	private $data_array;
 	private $data_iterator;
 
+	public  $show_header;	// bool
 	public  $show_footer;	// bool
 	public  $row_data;	// callable, returns array($k => $v) which will
 				// be added to <tr> element as data-$k="$v"
