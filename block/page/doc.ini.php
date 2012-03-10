@@ -33,6 +33,19 @@ slot[]		= slot_main:name
 slot_weight	= 40
 
 
+[block:phpinfo_hd]
+.block		= "core/out/header"
+text		= "PHP Info"
+enable[]	= "phpinfo:done"
+slot[]		= slot_main:name
+slot_weight	= 60
+
+[block:phpinfo]
+.block		= "core/devel/phpinfo"
+slot[]		= slot_main:name
+slot_weight	= 70
+
+
 
 ; vim:filetype=dosini:
 
