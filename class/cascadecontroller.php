@@ -51,7 +51,7 @@ class CascadeController {
 		$t_start = microtime(TRUE);
 		reset($this->queue);
 		while((list($id, $m) = each($this->queue))) {
-			$m->pc_execute();
+			$m->cc_execute();
 		}
 		$this->execution_time = (microtime(TRUE) - $t_start) * 1000;
 		$this->memory_usage = memory_get_usage() - $mem_usage_before;
@@ -169,8 +169,8 @@ class CascadeController {
 
 			/* initialize block */
 			$m = new $class();
-			$m->pc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
-			if (!$m->pc_connect($connections, $this->blocks)) {
+			$m->cc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
+			if (!$m->cc_connect($connections, $this->blocks)) {
 				error_msg('Block "%s": Can\'t connect inputs!', $id);
 				$errors[] = array(
 					'error'   => 'Can\'t connect inputs.',
@@ -184,7 +184,7 @@ class CascadeController {
 
 			/* put block to parent's namespace */
 			if ($parent) {
-				$parent->pc_register_block($m);
+				$parent->cc_register_block($m);
 			} else {
 				$this->root_namespace[$id] = $m;
 			}
@@ -225,12 +225,12 @@ class CascadeController {
 	{
 		/* create dummy block */
 		$m = new B_core__dummy();
-		$m->pc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED);
-		$m->pc_connect($connections, $this->blocks);
+		$m->cc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED);
+		$m->cc_connect($connections, $this->blocks);
 
 		/* put block to parent's namespace */
 		if ($parent) {
-			$parent->pc_register_block($m);
+			$parent->cc_register_block($m);
 		} else {
 			$this->root_namespace[$id] = $m;
 		}
@@ -287,7 +287,7 @@ class CascadeController {
 	{
 		$str = '';
 		foreach ($this->root_namespace as $name => $m) {
-			$str .= $name."\n".$m->pc_dump_namespace(1);
+			$str .= $name."\n".$m->cc_dump_namespace(1);
 		}
 		return $str;
 	}
@@ -305,7 +305,7 @@ class CascadeController {
 		}
 
 		foreach($this->blocks as $m) {
-			$t = $m->pc_execution_time();
+			$t = $m->cc_execution_time();
 			if ($t > 0) {
 				$cnt++;
 				$sum += $t;
@@ -424,10 +424,10 @@ class CascadeController {
 
 
 			$gv_inputs = '';
-			$inputs  = $block->pc_inputs();
+			$inputs  = $block->cc_inputs();
 			$input_names = array();
 			$input_functions = array();
-			$output_names = $block->pc_outputs();
+			$output_names = $block->cc_outputs();
 
 			/* connect inputs */
 			foreach ($inputs as $in => $out) {
@@ -444,7 +444,7 @@ class CascadeController {
 						$out_mod = $out[$i];
 						$out_name = $out[$i + 1];
 
-						if (!is_object($out_mod) && ($resolved = $block->pc_resolve_block_name($out_mod))) {
+						if (!is_object($out_mod) && ($resolved = $block->cc_resolve_block_name($out_mod))) {
 							$out_mod = $resolved;
 						}
 
@@ -457,10 +457,10 @@ class CascadeController {
 						if (!is_object($out_mod)) {
 							$missing_blocks[$out_mod] = true;
 							$missing = !array_key_exists($out_mod, $whitelist);
-						} else if ($out_mod->pc_output_exists($out_name)) {
+						} else if ($out_mod->cc_output_exists($out_name)) {
 							$missing = false;
-							$v = $out_mod->pc_output_cache();
-							if (array_key_exists($out_name, $v) || in_array($out_name, $out_mod->pc_outputs())) {
+							$v = $out_mod->cc_output_cache();
+							if (array_key_exists($out_name, $v) || in_array($out_name, $out_mod->cc_outputs())) {
 								$v = @$v[$out_name];
 								$exists = true;
 								$zero = empty($v);
@@ -527,7 +527,7 @@ class CascadeController {
 			}
 
 			/*
-			$et = $block->pc_execution_time();
+			$et = $block->cc_execution_time();
 			if ($et > 10) {
 				$gv .=   "	<tr>\n"
 					."		<td align=\"center\" colspan=\"2\">\n"
@@ -542,13 +542,13 @@ class CascadeController {
 			$gv .=	$gv_inputs;
 
 			/* connect forwarded outputs */
-			foreach ($block->pc_forwarded_outputs() as $name => $src) {
+			foreach ($block->cc_forwarded_outputs() as $name => $src) {
 				list($src_mod, $src_out) = $src;
-				if (!is_object($src_mod) && ($resolved = $block->pc_resolve_block_name($src_mod))) {
+				if (!is_object($src_mod) && ($resolved = $block->cc_resolve_block_name($src_mod))) {
 					$src_mod = $resolved;
 				}
 				$src_block_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
-				$v = is_object($src_mod) ? $src_mod->pc_output_cache($src_out) : array();
+				$v = is_object($src_mod) ? $src_mod->cc_output_cache($src_out) : array();
 				$gv .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_block_id)
 						.(array_key_exists($src_out, $v) ? ":o_".get_ident($src_out).":e":'')
 					.($is_created ? "[color=royalblue" : '[color="#eeeeee"').",arrowhead=dot,arrowtail=none,dir=both,weight=0];\n";
@@ -557,7 +557,7 @@ class CascadeController {
 			$gv .= "\n";
 
 			/* recursively draw sub-namespaces */
-			$child_namespace = $block->pc_get_namespace();
+			$child_namespace = $block->cc_get_namespace();
 			if (!empty($child_namespace)) {
 				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link,
 										$whitelist, $step, $indent."\t");

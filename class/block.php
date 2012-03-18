@@ -144,7 +144,7 @@ abstract class Block {
 	 */
 
 	// "constructor" -- called imediately after block creation
-	final public function pc_init($parent, $id, $full_id, $cascade_controller, $block_name, $context, $initial_status = self::QUEUED)
+	final public function cc_init($parent, $id, $full_id, $cascade_controller, $block_name, $context, $initial_status = self::QUEUED)
 	{
 		// basic init
 		$this->id = $id;
@@ -162,7 +162,7 @@ abstract class Block {
 	}
 
 
-	final public function pc_connect(array $connections)
+	final public function cc_connect(array $connections)
 	{
 		$wildcard = array_key_exists('*', $this->inputs);
 
@@ -183,7 +183,7 @@ abstract class Block {
 	}
 
 
-	final public function pc_register_block($block)
+	final public function cc_register_block($block)
 	{
 		$id = $block->id();
 
@@ -197,7 +197,7 @@ abstract class Block {
 	}
 
 
-	final public function pc_resolve_block_name($block_name)
+	final public function cc_resolve_block_name($block_name)
 	{
 		$path = explode('.', $block_name);
 		$start_name = array_shift($path);
@@ -221,7 +221,7 @@ abstract class Block {
 
 		// Go in
 		foreach ($path as $p) {
-			if (!$m->pc_execute()) {
+			if (!$m->cc_execute()) {
 				return null;
 			}
 			$m = $m->namespace[$p];
@@ -234,7 +234,7 @@ abstract class Block {
 	}
 
 
-	final public function pc_execute()
+	final public function cc_execute()
 	{
 		switch ($this->status) {
 			case self::ZOMBIE:
@@ -268,7 +268,7 @@ abstract class Block {
 					for ($i = $out[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
 						$block_name = $out[$i];
 						$block_out = $out[$i + 1];
-						$m = $this->pc_resolve_block_name($block_name);
+						$m = $this->cc_resolve_block_name($block_name);
 						if (!$m) {
 							error_msg('%s: Can\'t connect inputs -- block "%s" not found!', $this->block_name(), $block_name);
 							$this->status = self::FAILED;
@@ -296,7 +296,7 @@ abstract class Block {
 		// TODO: Lze spoustet zavislosti az na vyzadani a ne predem vse ?
 		//		-- Pokud ano, tak bude potreba poresit preposilani vystupu.
 		foreach($dependencies as & $d) {
-			if (!$d->pc_execute()) {
+			if (!$d->cc_execute()) {
 				$this->status = self::FAILED;
 				break;
 			}
@@ -333,11 +333,11 @@ abstract class Block {
 		//	  a udelat to pri tom.
 		foreach($this->forward_list as $name => & $src) {
 			list($src_name, $src_out) = $src;
-			$m = $this->pc_resolve_block_name($src_name);
+			$m = $this->cc_resolve_block_name($src_name);
 			if ($m && (isset($m->outputs[$src_out]) || isset($m->outputs['*']))) {
 				$src[0] = $m;
-				if ($m->pc_execute()) {
-					$this->output_cache[$name] = $m->pc_get_output($src_out);
+				if ($m->cc_execute()) {
+					$this->output_cache[$name] = $m->cc_get_output($src_out);
 				} else {
 					error_msg('Source block or output not found while forwarding to "%s:%s" from "%s:%s"!',
 							$this->id(), $name, $src_name, $src_out);
@@ -357,7 +357,7 @@ abstract class Block {
 	}
 
 
-	final private function pc_get_output($name)
+	final private function cc_get_output($name)
 	{
 		if (array_key_exists($name, $this->output_cache)) {
 			// cached output
@@ -377,29 +377,29 @@ abstract class Block {
 	}
 
 
-	final public function pc_inputs()
+	final public function cc_inputs()
 	{
 		return $this->inputs;
 	}
 
 
-	final public function pc_outputs()
+	final public function cc_outputs()
 	{
 		return array_keys($this->output_cache + $this->outputs);
 	}
 
-	final public function pc_output_cache()
+	final public function cc_output_cache()
 	{
 		return $this->output_cache;
 	}
 
-	final public function pc_forwarded_outputs()
+	final public function cc_forwarded_outputs()
 	{
 		return $this->forward_list;
 	}
 
 
-	final public function pc_output_exists($name)
+	final public function cc_output_exists($name)
 	{
 		return array_key_exists($name, $this->output_cache)
 			|| array_key_exists($name, $this->outputs)
@@ -407,24 +407,24 @@ abstract class Block {
 	}
 
 
-	final public function pc_get_namespace()
+	final public function cc_get_namespace()
 	{
 		return $this->namespace;
 	}
 
 
-	final public function pc_execution_time()
+	final public function cc_execution_time()
 	{
 		return $this->execution_time;
 	}
 
 
-	final public function pc_dump_namespace($level = 1)
+	final public function cc_dump_namespace($level = 1)
 	{
 		$str = '';
 		$indent = str_repeat('. ', $level);
 		foreach ($this->namespace as $name => $m) {
-			$str .= $indent.$name."\n".($name != 'self' && $name != 'parent' && $m ? $m->pc_dump_namespace($level + 1) : '');
+			$str .= $indent.$name."\n".($name != 'self' && $name != 'parent' && $m ? $m->cc_dump_namespace($level + 1) : '');
 		}
 		return $str;
 	}
@@ -459,13 +459,13 @@ abstract class Block {
 			$n = count($ref);
 			if ($n == 2) {
 				// single output
-				return is_object($ref[0]) ? $ref[0]->pc_get_output($ref[1]) : null;
+				return is_object($ref[0]) ? $ref[0]->cc_get_output($ref[1]) : null;
 			} else {
 				// use specified function to create one value from multiple outputs
 				switch ($ref[0]) {
 					case ':or':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							$x = is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null;
+							$x = is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null;
 							if ($x) {
 								return $x;
 							}
@@ -474,7 +474,7 @@ abstract class Block {
 
 					case ':nor':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							if (is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null) {
+							if (is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null) {
 								return false;
 							}
 						}
@@ -482,7 +482,7 @@ abstract class Block {
 
 					case ':and':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							if (!(is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null)) {
+							if (!(is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null)) {
 								return false;
 							}
 						}
@@ -491,7 +491,7 @@ abstract class Block {
 					case ':not':
 					case ':nand':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							if (!(is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null)) {
+							if (!(is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null)) {
 								return true;
 							}
 						}
@@ -500,7 +500,7 @@ abstract class Block {
 					case ':merge':
 						$a = array();
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							$a[] = (array) (is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null);
+							$a[] = (array) (is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null);
 						}
 						return call_user_func('array_merge', $a);
 
@@ -513,7 +513,7 @@ abstract class Block {
 					case ':unique':
 						$a = array();
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							$a[] = is_object($ref[$i]) ? $ref[$i]->pc_get_output($ref[$i + 1]) : null;
+							$a[] = is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null;
 						}
 						switch ($ref[0]) {
 							case ':array':    return $a;
