@@ -86,7 +86,7 @@ cat <<EOF
 ;<?php
 ;	\$v = parse_ini_file(__FILE__, TRUE);
 ;	foreach(\$v as \$s => \$vv) {
-;		printf("\n; %-14s %-20s %s", \$s, \$vv["version"], \$vv["date"]);
+;		printf("\n; %-27s %-22s %s", \$s, \$vv["version"], \$vv["date"]);
 ;	}
 ;	printf("\n;\n;</pre>\n");
 ;	exit(); __HALT_COMPILER();
