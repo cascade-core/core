@@ -130,7 +130,7 @@ class CascadeController {
 		}
 
 		/* build full ID */
-		$full_id = ($parent ? $parent->id().'.' : '').$id;
+		$full_id = ($parent ? $parent->full_id().'.' : '').$id;
 
 		/* check for duplicate IDs */
 		if (array_key_exists($full_id, $this->blocks)) {
@@ -190,7 +190,7 @@ class CascadeController {
 			}
 
 			/* add block to queue */
-			$this->blocks[$id] = $m;
+			$this->blocks[$full_id] = $m;
 			if ($force_exec === null ? $class::force_exec : $force_exec) {
 				$this->queue[] = $m;
 			}
