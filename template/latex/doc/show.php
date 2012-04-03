@@ -73,7 +73,7 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 			echo "\\TODO{Add description.}\n";
 		}
 	} else if (!is_array($description)) {
-		echo "\n", $description, "\n";
+		echo "\n", latex_escape($description), "\n";
 	} else foreach ($description as $text) {
 		echo latex_escape($text), "\n\n";
 	}
@@ -105,7 +105,7 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 		foreach ($outputs as $output) {
 			echo "\item[{\\tt ", latex_escape($output['name']), "}]";
 			if (!empty($output['comment'])) {
-				echo " \\hfil\\\\\n", join("\\\\\n", array_map('latex_escape', $input['comment']));
+				echo " \\hfil\\\\\n", join("\\\\\n", array_map('latex_escape', $output['comment']));
 			}
 			echo "\n";
 		}

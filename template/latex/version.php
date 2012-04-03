@@ -58,7 +58,7 @@ function TPL_latex__core__version($t, $id, $d, $so)
 				} else if ($part == 'core') {
 					echo _('Core');
 				} else if (strncmp($part, 'plugin:', 7) == 0) {
-					printf(_('Plugin: %s'), substr($part, 7));
+					printf(_('Plugin: %s'), latex_escape(substr($part, 7)));
 				}
 				echo "} \\\\\n";
 

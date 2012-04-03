@@ -90,11 +90,11 @@ function TPL_latex__core__main($t, $id, $d, $so)
 
 	$t->process_slot('latex_preamble');
 
-	echo	"\n\begin{document}\n";
+	echo	"\n\\begin{document}\n";
 
 	$t->process_slot('latex_body');
 	$t->process_slot('default');	// fallback
 
-	echo	"\n\end{document}\n";
+	echo	"\n\\end{document}\n";
 }
 
