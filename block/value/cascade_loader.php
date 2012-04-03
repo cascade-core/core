@@ -28,18 +28,35 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Cascade loader reads all it's inputs and adds all specified blocks
+ * to cascade. Blocks can be specified as simple string (one block per
+ * input) or array of strings (many blocks per input).
+ *
+ * Block IDs are same as names of corresponding inputs with index appended.
+ *
+ * Example: When input 'content' gets value array('page/a', 'page/b'), cascade
+ * loader adds blocks 'page/a' with ID 'content_0' and 'page/b' with ID
+ * 'content_1' to cascade.
+ *
+ * This block is designed for use with core/ini/router. See default
+ * configuration for detailed example.
+ */
 class B_core__value__cascade_loader extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'*' => null,
-		'block_fmt' => null,
-		'output_forward' => 'done',
+		'*' => null,			// Blocks or lists of blocks to add.
+		'block_fmt' => null,		// Format (sprintf) applied to block name (when prefix/suffix is needed).
+		'output_forward' => 'done',	// List of outputs which will be forwarded back to this block.
 	);
 
 	protected $outputs = array(
-		'*' => true,
+		'*' => true,			// Forwarded outputs from added blocks as specified
+						// by 'output_forward' input. Output names are
+						// prefixed with source block ID. Example: 'content_0_done'
+		'done' => true,			// True when all blocks were added successfuly.
 	);
 
 
