@@ -130,21 +130,19 @@ class CascadeController {
 		}
 
 		/* build full ID */
-		$full_id = ($parent ? $parent->full_id().'.' : '').$id;
+		$full_id = ($parent ? $parent->full_id() : '').'.'.$id;
 
 		/* check for duplicate IDs */
 		if (array_key_exists($full_id, $this->blocks)) {
-			error_msg('Block ID "%s" already exists in cascade!', $id);
+			error_msg('Block ID "%s" already exists in cascade!', $full_id);
 			$errors[] = array(
 				'error'   => 'Block ID already exists in cascade.',
 				'id'      => $id,
+				'full_id' => $full_id,
 				'block'   => $block,
 			);
 			return false;
 		}
-
-		/* build class name */
-		$class = 'B_'.str_replace('/', '__', $block);
 
 		/* check permissions */
 		if (!$context->is_allowed($block, $details)) {
@@ -156,6 +154,7 @@ class CascadeController {
 			$errors[] = array(
 				'error'   => 'Permission denied.',
 				'id'      => $id,
+				'full_id' => $full_id,
 				'block'   => $block,
 				'details' => $details,
 			);
@@ -163,6 +162,8 @@ class CascadeController {
 			return false;
 		}
 
+		/* build class name */
+		$class = 'B_'.str_replace('/', '__', $block);
 
 		/* kick autoloader */
 		if (class_exists($class)) {
@@ -171,10 +172,11 @@ class CascadeController {
 			$m = new $class();
 			$m->cc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
 			if (!$m->cc_connect($connections, $this->blocks)) {
-				error_msg('Block "%s": Can\'t connect inputs!', $id);
+				error_msg('Block "%s": Can\'t connect inputs!', $full_id);
 				$errors[] = array(
 					'error'   => 'Can\'t connect inputs.',
 					'id'      => $id,
+					'full_id' => $full_id,
 					'block'   => $block,
 					'inputs'  => $connections,
 				);
@@ -212,6 +214,7 @@ class CascadeController {
 				$errors[] = array(
 					'error'   => 'Block not found.',
 					'id'      => $id,
+					'full_id' => $full_id,
 					'block'   => $block,
 				);
 				$this->add_failed_block($parent, $id, $full_id, $block, $connections);
