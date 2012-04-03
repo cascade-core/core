@@ -98,7 +98,7 @@ class Context {
 	}
 
 
-	/* Security: check if block is allowed before cascade controller loads it */
+	/* Security - Level 1: check if block is allowed before cascade controller loads it */
 	public function is_allowed($block_name, & $details = null)
 	{
 		// Return false if access should be denied and set $details to string with explanation.
@@ -106,6 +106,28 @@ class Context {
 			return $this->auth->is_allowed($block_name, $details);
 		} else {
 			// If there is no Auth object, allow everything
+			return true;
+		}
+	}
+
+	/* Security - Level 2: check permissions to specified entity */
+	public function permissions_check_item($block_name, & $item, & $details = null)
+	{
+		if ($this->auth) {
+			return $this->auth->permissions_check_item($block_name, $item, $details);
+		} else {
+			// If there is no Auth object, allow everything
+			return true;
+		}
+	}
+
+	/* Security - Level 2: check permissions to specified entity */
+	public function permissions_add_cond($block_name, & $query, $options = array())
+	{
+		if ($this->auth) {
+			return $this->auth->permissions_add_cond($block_name, $query, $options = array());
+		} else {
+			// If there is no Auth object, do nothing
 			return true;
 		}
 	}

@@ -31,8 +31,15 @@
 interface IAuth
 {
 
-	// Check if block is allowed to current user
+	// Level 1: Check if block is allowed to current user
 	public function is_allowed($block_name, & $details = null);
+
+
+	// Level 2: Check permissions to specified item
+	public function permissions_check_item($block_name, & $item, & $details = null);
+
+	// Level 2: Add permission conditions to query object (like adding where clause to sql query)
+	public function permissions_add_cond($block_name, & $query, $options = array());
 
 };
 
