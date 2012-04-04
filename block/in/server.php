@@ -39,7 +39,7 @@ class B_core__in__server extends Block {
 
 	public function main()
 	{
-		$this->out('all', & $_SERVER);
+		$this->out('all', $_SERVER);
 	}
 
 	public function get_output($name)

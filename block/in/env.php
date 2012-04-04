@@ -39,7 +39,7 @@ class B_core__in__env extends Block {
 
 	public function main()
 	{
-		$this->out('all', & $_ENV);
+		$this->out('all', $_ENV);
 	}
 
 	public function get_output($name)
