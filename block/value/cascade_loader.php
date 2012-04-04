@@ -56,14 +56,14 @@ class B_core__value__cascade_loader extends Block
 		'*' => true,			// Forwarded outputs from added blocks as specified
 						// by 'output_forward' input. Output names are
 						// prefixed with source block ID. Example: 'content_0_done'
-		'done' => true,			// True when all blocks were added successfuly.
+		'done' => true,			// True when all blocks were added successfuly and at least one block added.
 	);
 
 
 	public function main()
 	{
-		$all_ok = true;
-		$any_ok = false;
+		$all_ok = true;			// All blocks added successfuly?
+		$any_ok = false;		// Added at least one block?
 
 		$block_fmt = $this->in('block_fmt');
 		$output_forward = $this->in('output_forward');
