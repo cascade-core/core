@@ -40,6 +40,7 @@ class B_core__devel__doc__index extends Block
 	protected $inputs = array(
 		'link' => DEBUG_CASCADE_GRAPH_LINK,
 		'heading_level' => 2,
+		'regexp' => null,			// additional regexp used to filter filenames (example: '/\.ini\.php$/')
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -51,7 +52,8 @@ class B_core__devel__doc__index extends Block
 
 	public function main()
 	{
-		$blocks = $this->get_blocks();
+		$regexp = $this->in('regexp');
+		$blocks = $this->get_blocks($regexp);
 
 		$this->template_add(null, 'core/doc/index', array(
 				'link' => $this->in('link'),
@@ -72,7 +74,7 @@ class B_core__devel__doc__index extends Block
 	}
 
 
-	public static function get_blocks()
+	public static function get_blocks($regexp = null)
 	{
 		$prefixes = array(
 			'' => DIR_APP.DIR_BLOCK,
@@ -86,7 +88,7 @@ class B_core__devel__doc__index extends Block
 		$blocks = array();
 
 		foreach ($prefixes as $prefix => $dir) {
-			$list = self::scan_directory($dir, $prefix);
+			$list = self::scan_directory($dir, $prefix, $regexp);
 			if (!empty($list)) {
 				$blocks[$prefix] = $list;
 			}
@@ -96,7 +98,7 @@ class B_core__devel__doc__index extends Block
 	}
 
 
-	private static function scan_directory($directory, $prefix, $subdir = '', & $list = array())
+	private static function scan_directory($directory, $prefix, $regexp = null, $subdir = '', & $list = array())
 	{
 		$dir_name = $directory.$subdir;
 		$d = opendir($dir_name);
@@ -113,8 +115,8 @@ class B_core__devel__doc__index extends Block
 			$block = $subdir.'/'.$f;
 
 			if (is_dir($file)) {
-				self::scan_directory($directory, $prefix, $block, $list);
-			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $block)) {
+				self::scan_directory($directory, $prefix, $regexp, $block, $list);
+			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $block) && ($regexp == null || preg_match($regexp, $block))) {
 				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $block);
 			}
 		}
