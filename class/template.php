@@ -33,6 +33,7 @@ class Template {
 	private $objects = array();
 	private $slot_options = array();
 	private $current_slot_depth = 0;
+	private $reverse_router = array();
 
 
 	function add_object($id, $slot, $weight, $template, $data = array(), $context = null)
@@ -71,6 +72,37 @@ class Template {
 		} else {
 			$this->slot_options[$slot][$option][] = $value;
 		}
+	}
+
+
+	// Register reverse router for URL generator
+	function add_reverse_router($router)
+	{
+		if (is_callable($router)) {
+			$this->reverse_router[] = $router;
+			return true;
+		} else {
+			error_msg('Template::add_reverse_router(): Router must be callable (a function)!');
+			return false;
+		}
+	}
+
+
+	// Generate URL from route.
+	function url($route_name, $values /* ... */)
+	{
+		// collect args
+		$args = func_get_args();
+
+		// search & use reverse route
+		foreach ($this->reverse_router as $router) {
+			$url = call_user_func_array($router, $args);
+			if ($url !== false) {
+				return $url;
+			}
+		}
+		error_msg('Template::url(): Reverse route "%s" not found in %d reverse router(s) !', $route_name, count($this->reverse_router));
+		return false;
 	}
 
 
