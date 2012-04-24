@@ -70,7 +70,7 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 	if (empty($description)) {
 		echo "\n{\it ", _('Sorry, no description available.'), "}\n";
 		if (DEVELOPMENT_ENVIRONMENT) {
-			echo "\\TODO{Add description.}\n";
+			echo "\n\\TODO{Add description.}\n";
 		}
 	} else if (!is_array($description)) {
 		echo "\n", latex_escape($description), "\n";
