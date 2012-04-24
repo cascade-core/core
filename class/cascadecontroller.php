@@ -39,9 +39,12 @@ class CascadeController {
 	private $execution_time = null;	// time [ms] spent in start()
 	private $memory_usage = null;	// memory used by cascade (after minus before)
 
+	private $auth = null;
 
-	public function __construct()
+
+	public function __construct(IAuth $auth = null)
 	{
+		$this->auth = $auth;
 	}
 
 
@@ -55,6 +58,12 @@ class CascadeController {
 		}
 		$this->execution_time = (microtime(TRUE) - $t_start) * 1000;
 		$this->memory_usage = memory_get_usage() - $mem_usage_before;
+	}
+
+
+	public function get_auth()
+	{
+		return $this->auth;
 	}
 
 
@@ -145,7 +154,7 @@ class CascadeController {
 		}
 
 		/* check permissions */
-		if (!$context->is_allowed($block, $details)) {
+		if ($auth !== null && !$auth->is_block_allowed($block, $details)) {
 			if ($details != '') {
 				error_msg('Permission denied to block %s (%s).', $block, $details);
 			} else {
@@ -622,5 +631,6 @@ class CascadeController {
 			return false;
 		}
 	}
+
 }
 

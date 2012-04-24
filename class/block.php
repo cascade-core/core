@@ -685,5 +685,52 @@ abstract class Block {
 	{
 		return $this->cascade_errors;
 	}
+
+
+	/****************************************************************************
+	 *	Authentication & Authorization
+	 */
+
+	/* Security - Level 1: check if block is allowed before cascade controller loads it */
+	public function auth_is_block_allowed($block_name, & $details = null)
+	{
+		$auth = $this->cascade_controller->get_auth();
+
+		// Return false if access should be denied and set $details to string with explanation.
+		if ($auth !== null) {
+			return $auth->is_block_allowed($block_name, $details);
+		} else {
+			// If there is no Auth object, everything is allowed
+			return true;
+		}
+	}
+
+
+	/* Security - Level 2: check permissions to specified entity */
+	final public function auth_check_item(& $item, & $details = null)
+	{
+		$auth = $this->cascade_controller->get_auth();
+
+		if ($auth !== null) {
+			return $auth->check_item($this->block_name, $item, $details);
+		} else {
+			// If there is no Auth object, everything is allowed
+			return true;
+		}
+	}
+
+
+	/* Security - Level 2: check permissions to specified entity */
+	final public function auth_add_condition($block_name, & $query, $options = array())
+	{
+		$auth = $this->cascade_controller->get_auth();
+
+		if ($auth !== null) {
+			return $auth->add_condition($this->block_name, $query, $options = array());
+		} else {
+			// If there is no Auth object, do nothing
+			return true;
+		}
+	}
 }
 

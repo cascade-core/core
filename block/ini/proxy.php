@@ -104,7 +104,7 @@ class B_core__ini__proxy extends Block {
 	{
 		// Check required blocks
 		foreach ((array) $arg as $rq_block) {
-			if (!$this->context->is_allowed($rq_block)) {
+			if (!$this->auth_is_block_allowed($rq_block)) {
 				debug_msg('Required block "%s" is not allowed. Aborting.', $rq_block);
 				return;
 			}
@@ -118,7 +118,7 @@ class B_core__ini__proxy extends Block {
 		// Silently replace denied blocks with dummy. Useful when other blocksare connected to these.
 		foreach ((array) $arg as $id) {
 			$m = @ $conf['block:'.$id]['.block'];
-			if ($m !== null && !$this->context->is_allowed($m)) {
+			if ($m !== null && !$this->auth_is_block_allowed($m)) {
 				debug_msg('Replacing block "%s" (%s) with dummy.', $id, $m);
 				$conf['block:'.$id]['.block'] = 'core/dummy';
 			}
@@ -131,7 +131,7 @@ class B_core__ini__proxy extends Block {
 		// Silently skip denied blocks. When nothing needs these.
 		foreach ((array) $arg as $id) {
 			$m = @ $conf['block:'.$id]['.block'];
-			if ($m !== null && !$this->context->is_allowed($m)) {
+			if ($m !== null && !$this->auth_is_block_allowed($m)) {
 				debug_msg('Skipping block "%s" (%s).', $id, $m);
 				unset($conf['block:'.$id]);
 			}

@@ -32,7 +32,6 @@ class Context {
 
 	private $locale = DEFAULT_LOCALE;
 	private $template_engine = null;
-	private $auth = null;
 
 	private static $last_context_enviroment = false;
 
@@ -81,55 +80,5 @@ class Context {
 		return $this->template_engine;
 	}
 
-
-	/****************************************************************************
-	 *	Authentication & Autorisation
-	 */
-	
-	public function set_auth(IAuth $auth)
-	{
-		$this->auth = $auth;
-	}
-
-
-	public function get_auth()
-	{
-		return $this->auth;
-	}
-
-
-	/* Security - Level 1: check if block is allowed before cascade controller loads it */
-	public function is_allowed($block_name, & $details = null)
-	{
-		// Return false if access should be denied and set $details to string with explanation.
-		if ($this->auth) {
-			return $this->auth->is_allowed($block_name, $details);
-		} else {
-			// If there is no Auth object, allow everything
-			return true;
-		}
-	}
-
-	/* Security - Level 2: check permissions to specified entity */
-	public function permissions_check_item($block_name, & $item, & $details = null)
-	{
-		if ($this->auth) {
-			return $this->auth->permissions_check_item($block_name, $item, $details);
-		} else {
-			// If there is no Auth object, allow everything
-			return true;
-		}
-	}
-
-	/* Security - Level 2: check permissions to specified entity */
-	public function permissions_add_cond($block_name, & $query, $options = array())
-	{
-		if ($this->auth) {
-			return $this->auth->permissions_add_cond($block_name, $query, $options = array());
-		} else {
-			// If there is no Auth object, do nothing
-			return true;
-		}
-	}
 }
 
