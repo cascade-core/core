@@ -41,9 +41,11 @@ function TPL_latex__core__header($t, $id, $d, $so)
 		return;
 	}
 
-	$heading = latex_heading_cmd($level);
+	$cmd = latex_heading_cmd($level);
+	$latex_text = trim(latex_escape($str));
 
-	echo "\n% core/header: ", $id, "\n";
-	echo "\\", $heading, "{", trim(latex_escape($str)), "}\n\n";
+	echo	"\n% core/header: ", $id, "\n",
+		"\\", $cmd, "{", $latex_text,
+		"\\label{", trim($cmd, '*'), ":", preg_replace('/-?([:\/])-?/', '\1', preg_replace('/[^A-Za-z0-9:\/]+/', '-', $latex_text)), "}}\n\n";
 }
 

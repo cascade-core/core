@@ -36,7 +36,7 @@ class B_core__out__slot extends Block
 		'slot' => 'default',
 		'slot_weight' => 50,
 		'name' => array(),
-		'extra-class' => null,
+		'extra_class' => null,
 	);
 
 	protected $outputs = array(
@@ -55,7 +55,7 @@ class B_core__out__slot extends Block
 			$inputs = array();
 			foreach ($this->input_names() as $in) {
 				if ($in != 'slot' && $in != 'slot_weight') {
-					$inputs[str_replace('-', '_', $in)] = $this->in($in);
+					$inputs[$in] = $this->in($in);
 				}
 			}
 

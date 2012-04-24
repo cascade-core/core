@@ -35,6 +35,8 @@ set -e
 
 cd "manual"
 
+! [ -e "manual.tex" ] || rm -f "manual.tex"
+
 wget -nv -O "manual.tex" "$url"
 
 sed -n '/^\\includegraphics{\/.*}$/s/.*{\/data\/\(.*\)}.*/\1/p' manual.tex \
@@ -51,6 +53,6 @@ done
 
 sed -i manual.tex -e '/^\\includegraphics{\/.*}$/s/{\/data\/\(.*\)}/{\1}/'
 
-pdflatex manual.tex
+pdflatex manual.tex && pdflatex manual.tex
 
 
