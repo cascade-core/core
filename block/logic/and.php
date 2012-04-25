@@ -28,6 +28,9 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Do logical AND of all inputs.
+ */
 class B_core__logic__and extends Block {
 
 	protected $inputs = array(
@@ -35,8 +38,8 @@ class B_core__logic__and extends Block {
 	);
 
 	protected $outputs = array(
-		'out' => true,
-		'not' => true,
+		'out' => true,	// Result (true or false).
+		'not' => true,	// Negated result (true or false).
 	);
 
 	public function main()

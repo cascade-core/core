@@ -28,6 +28,9 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Do logical OR of all inputs. Output is first non-zero value.
+ */
 class B_core__logic__or extends Block {
 
 	protected $inputs = array(
@@ -35,8 +38,8 @@ class B_core__logic__or extends Block {
 	);
 
 	protected $outputs = array(
-		'out' => true,
-		'not' => true,
+		'out' => true,	// Result (first non-zero value).
+		'not' => true,	// Negated result (true or false).
 	);
 
 	public function main()
