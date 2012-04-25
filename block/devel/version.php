@@ -28,16 +28,23 @@
  * SUCH DAMAGE.
  */
 
-class B_core__devel__version extends Block
-{
+/**
+ * Show current version of application and optionaly also version of all
+ * plugins and core. This block executes update-version.sh script to keep
+ * version info fresh. If this script cannot be executed and/or Git is not
+ * installed on server, try using Git plugin.
+ */
+
+class B_core__devel__version extends Block {
+	
 	const force_exec = true;
 
 	protected $inputs = array(
-		'filename' => '{DIR_ROOT}var/version.ini.php',
-		'format' => 'short',	// 'short' = only app version, 'details' = everything
-		'link' => null,		// when 'short' format, link to this url
-		'prefix' => null,	// when 'short' format, prepend this string (some delimiter or so)
-		'suffix' => null,	// when 'short' format, append this string (some delimiter or so)
+		'filename' => '{DIR_ROOT}var/version.ini.php',	// Location of generated version file.
+		'format' => 'short',	// 'short' = only app version, 'details' = everything.
+		'link' => null,		// when 'short' format, link to this url.
+		'prefix' => null,	// when 'short' format, prepend this string (some delimiter or so).
+		'suffix' => null,	// when 'short' format, append this string (some delimiter or so).
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);

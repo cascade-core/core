@@ -28,12 +28,15 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show data collected by integrated profiler in nice table.
+ */
 class B_core__devel__profiler_stats extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'filename' => '{DIR_ROOT}/var/profiler.stats',
+		'filename' => '{DIR_ROOT}/var/profiler.stats',	// Location of profiler's statistics.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);

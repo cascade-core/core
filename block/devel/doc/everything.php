@@ -28,14 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show documentation of all blocks. Useful when creating printable referrence
+ * manual. It simply adds required core/devel/doc/show blocks.
+ */
 class B_core__devel__doc__everything extends B_core__devel__doc__index
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'link' => DEBUG_CASCADE_GRAPH_LINK,
-		'heading_level' => 2,
-		'require_description' => true,
+		'link' => DEBUG_CASCADE_GRAPH_LINK,	// Link to documentation.
+		'heading_level' => 2,			// Level of the first heading.
+		'require_description' => true,		// Show only documented blocks.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);

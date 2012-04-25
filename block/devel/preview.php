@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show, how would cascade look like if specified blocks were inserted
+ * into it. It uses it's own instance of cascade controller to make
+ * the  preview.
+ */
 class B_core__devel__preview extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'blocks' => array(),
-		'link' => DEBUG_CASCADE_GRAPH_LINK,
+		'blocks' => array(),			// Blocks loaded from INI file.
+		'link' => DEBUG_CASCADE_GRAPH_LINK,	// Link to documentation.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);

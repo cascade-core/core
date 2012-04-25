@@ -28,6 +28,11 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show version info, some useful informations about server, PHP, and list of
+ * installed extensions in nice table. It is not supposed to replace phpinfo()
+ * function, it only shows the most interesting data.
+ */
 class B_core__devel__phpinfo extends Block {
 
 	protected $inputs = array(
