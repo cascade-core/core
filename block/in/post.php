@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load data from $_POST superglobal variable, so other blocks can use it.
+ */
+
 class B_core__in__post extends Block {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'*' => true
+		'all' => true,		// $_POST as is.
+		'*' => true,		// Each value in $_POST is available on its own output.
 	);
 
 	public function main()

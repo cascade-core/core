@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load data from $_GET superglobal variable, so other blocks can use it.
+ */
+
 class B_core__in__get extends Block {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'*' => true
+		'all' => true,		// $_GET as is.
+		'*' => true,		// Each value in $_GET is available on its own output.
 	);
 
 	public function main()

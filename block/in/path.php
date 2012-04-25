@@ -28,17 +28,23 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Extract path from request URI and split it into chunks by slash. Then put
+ * these chunks to outputs.
+ *
+ * See also core/ini/router -- it is much more useful.
+ */
 class B_core__in__path extends Block {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'last' => true,
-		'depth' => true,
-		'path' => true,
-		'server' => true,
-		'*' => true,
+		'last' => true,		// Last part of path
+		'depth' => true,	// Length of path (in chunks)
+		'path' => true,		// Path as a string.
+		'server' => true,	// Server's hostname
+		'*' => true,		// Path chunks.
 	);
 
 	public function main()

@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load data from $_ENV superglobal variable, so other blocks can use it.
+ */
+
 class B_core__in__env extends Block {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'*' => true
+		'all' => true,		// $_ENV as is.
+		'*' => true,		// Each value in $_ENV is available on its own output.
 	);
 
 	public function main()

@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load data from $_COOKIE superglobal variable, so other blocks can use it.
+ */
+
 class B_core__in__cookie extends Block {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'*' => true
+		'all' => true,		// $_COOKIE as is.
+		'*' => true,		// Each value in $_COOKIE is available on its own output.
 	);
 
 	public function main()

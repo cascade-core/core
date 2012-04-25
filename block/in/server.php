@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load data from $_SERVER superglobal variable, so other blocks can use it.
+ */
+
 class B_core__in__server extends Block {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'*' => true
+		'all' => true,		// $_SERVER as is.
+		'*' => true,		// Each value in $_SERVER is available on its own output.
 	);
 
 	public function main()

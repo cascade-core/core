@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load data from $_REQUEST superglobal variable, so other blocks can use it.
+ */
+
 class B_core__in__request extends Block {
 
 	protected $inputs = array(
 	);
 
 	protected $outputs = array(
-		'*' => true
+		'all' => true,		// $_REQUEST as is.
+		'*' => true,		// Each value in $_REQUEST is available on its own output.
 	);
 
 	public function main()
