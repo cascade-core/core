@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Do nothing. Used as placeholder when some block is missing or denied.
+ */
+
 class B_core__dummy extends Block {
 
 	protected $inputs = array(
