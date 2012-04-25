@@ -28,16 +28,27 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Match request URI or given path against routes and pick first matching
+ * route. Then set outputs as specified by selected route.
+ *
+ * "#" section contans default values. Section name is matched pattern,
+ * where "$" prefixed names are used to remember part of URI and then set
+ * it to output when rule matches. Two stars at the end of path match rest
+ * of path and this tail is available on 'path_tail' output.
+ *
+ * Example: See routes.examples.ini.php.
+ */
 class B_core__ini__router extends Block {
 
 	protected $inputs = array(
-		'path' => null,
-		'config' => array(),
-		'canonize_path' => true,
+		'path' => null,			// Path to match.
+		'config' => array(),		// Configuration or filename where configuration is.
+		'canonize_path' => true,	// Redirect to canonical form of path? (HTTP GET method only.)
 	);
 
 	protected $outputs = array(
-		'*' => true,
+		'*' => true,			// Values from matched rule.
 	);
 
 

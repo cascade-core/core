@@ -28,12 +28,17 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Extract links from router's config file and build menu from them. Useful
+ * when website navigation is not finished yet. Works well with core/out/menu.
+ */
+
 class B_core__ini__router_links extends Block {
 
 	protected $inputs = array(
-		'path' => null,
-		'config' => array(),
-		'title_output' => 'title',
+		'path' => null,			// Path to match.
+		'config' => array(),		// Configuration or filename where configuration is.
+		'title_output' => 'title',	// Name of router's output that contains menu item title.
 	);
 
 	protected $outputs = array(

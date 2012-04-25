@@ -28,6 +28,30 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load INI file and insert its content to cascade. Used filename is determined
+ * from block name, becouse cascade controller uses this block when block
+ * specified by INI file should be inserted.
+ *
+ * Section "copy-inputs" specifies which inputs will be copied without change
+ * to which outputs. Keys are outputs, values are inputs.
+ *
+ * Section "outputs" specifies values on outputs and/or output forwarding.
+ * Syntax is same as when connecting inputs, but keys are output names.
+ *
+ * There are three policies which specify behaviour when block is denied. They
+ * are specified in "policy" section in form: policy[] = list of blocks.
+ *
+ * Policy "require_block" says, that all specified blocks must be accessible,
+ * or else no block is inserted to cascade.
+ *
+ * Policy "dummy_if_denied" says, that denied blocks are silently replaced
+ * by core/dummy.
+ *
+ * Policy "skip_if_denied" says, that denied blocks are silently skipped.
+ *
+ */
+
 class B_core__ini__proxy extends Block {
 
 	protected $inputs = array(

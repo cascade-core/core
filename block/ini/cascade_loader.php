@@ -28,12 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Insert specified blocks into cascade. It is simple wraper around
+ * Block::cascade_add_from_ini() function.
+ *
+ * See also core/value/cascade_loader.
+ */
 class B_core__ini__cascade_loader extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'items' => array(),
+		'items' => array(),	// Blocks and their connections.
 	);
 
 	protected $outputs = array(
