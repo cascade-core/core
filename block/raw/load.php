@@ -28,18 +28,21 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load raw file.
+ */
 
 class B_core__raw__load extends Block {
 
 	protected $inputs = array(
-		'filename' => array(),
-		'name' => null,
+		'filename' => array(),	// Filename
+		'name' => null,		// If set, sprintf(filename, name) is used.
 	);
 
 	protected $outputs = array(
-		'data' => true,
-		'filename' => true,
-		'error' => true,
+		'data' => true,		// Data loaded from file.
+		'filename' => true,	// Filename of loaded file.
+		'error' => true,	// True if failed.
 		'done' => true,
 	);
 
