@@ -28,6 +28,11 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Merge arrays from all inputs, prefixing their keys with name of input.
+ *
+ * See also core/prefix/split.
+ */
 class B_core__prefix__merge extends Block {
 
 	protected $inputs = array(
