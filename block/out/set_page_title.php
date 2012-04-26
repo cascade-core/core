@@ -28,14 +28,19 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Set page title using root slot option. It is useful to connect 'title' input
+ * to multiple blocks using :or function.
+ */
+
 class B_core__out__set_page_title extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'title' => null,
-		'title_fallback' => null,
-		'format' => null,
+		'title' => null,		// Title.
+		'title_fallback' => null,	// Alternative title when 'title' input is empty.
+		'format' => null,		// sprintf() format string, useful for adding extra suffix.
 	);
 
 	protected $outputs = array(

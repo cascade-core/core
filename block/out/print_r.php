@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show some data. Useful when debugging.
+ */
+
 class B_core__out__print_r extends Block
 {
 	const force_exec = true;

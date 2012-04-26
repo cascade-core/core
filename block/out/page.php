@@ -28,12 +28,15 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show page skeleton. It fills 'root' slot.
+ */
 class B_core__out__page extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'css_link' => null,
+		'css_link' => null,	// CSS file to link.
 	);
 
 	protected $outputs = array(

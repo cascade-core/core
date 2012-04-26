@@ -28,16 +28,19 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show heading.
+ */
 class B_core__out__header extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'level' => 2,
-		'text' => null,
-		'link' => null,
-		'anchor' => null,
-		'option' => null,
+		'level' => 2,		// Heading level. (1 is page title, 2 is chapter, ...)
+		'text' => null,		// Text of heading.
+		'link' => null,		// Make heading link to this URL (href attribute).
+		'anchor' => null,	// Name of heading (name attribute).
+		'option' => null,	// Load text from slot option.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);

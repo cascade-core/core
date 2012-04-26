@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show messages after redirect. Messages are stored in session.
+ */
+
 class B_core__out__message_queue extends Block
 {
 	const force_exec = true;

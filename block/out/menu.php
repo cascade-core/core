@@ -28,17 +28,20 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show menu.
+ */
 class B_core__out__menu extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'items' => null,
-		'layout' => 'tree',		// tree or row
-		'active_uri' => null,
-		'exact_match' => false,
+		'items' => null,		// Menu items.
+		'layout' => 'tree',		// Layout: tree or row.
+		'active_uri' => null,		// Highlight item linking to this URI.
+		'exact_match' => false,		// Highlight only exactly matching item.
 		'title_fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
-		'max_depth' => PHP_INT_MAX,
+		'max_depth' => PHP_INT_MAX,	// Show only items up to specified depth.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);

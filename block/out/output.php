@@ -28,14 +28,22 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show something using specified template. When new block is created by
+ * inheriting from this one, template name can be specified in $template
+ * protected property.
+ *
+ * If 'data' input is false or $template property is set, all inputs are
+ * forwarded to template, otherwise 'data' input is used.
+ */
 class B_core__out__output extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'template' => array(),	// template to use
-		'data' => false,	// if false, all inputs are forwarded, otherwise only content of this one
-		'*' => null,		// all inputs are forwarded to template if input 'data' is false
+		'template' => array(),	// Template to use.
+		'data' => false,	// If false, all inputs are forwarded, otherwise only content of this one.
+		'*' => null,		// All inputs are forwarded to template if input 'data' is false.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);

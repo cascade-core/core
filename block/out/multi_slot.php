@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Create slots. When used with core/ini/load, sections are slot names and
+ * section contents specifies all options like slot and weight.
+ */
 class B_core__out__multi_slot extends Block
 {
 	const force_exec = true;
@@ -35,7 +39,7 @@ class B_core__out__multi_slot extends Block
 	protected $inputs = array(
 		'slot' => 'default',
 		'slot_weight' => 50,
-		'list' => array(),
+		'list' => array(),	// List of slots.
 	);
 
 	protected $outputs = array(

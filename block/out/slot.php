@@ -28,6 +28,9 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Create one slot.
+ */
 class B_core__out__slot extends Block
 {
 	const force_exec = true;
@@ -35,12 +38,12 @@ class B_core__out__slot extends Block
 	protected $inputs = array(
 		'slot' => 'default',
 		'slot_weight' => 50,
-		'name' => array(),
-		'extra_class' => null,
+		'name' => array(),		// Name of the new slot.
+		'extra_class' => null,		// Class added to slot.
 	);
 
 	protected $outputs = array(
-		'name' => true,
+		'name' => true,			// Name of the new slot.
 		'done' => true,
 	);
 

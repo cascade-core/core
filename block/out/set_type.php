@@ -28,13 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Set output type using root slot option. It is useful to connect 'type' input
+ * to multiple blocks using :or function.
+ */
+
 class B_core__out__set_type extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'type' => null,
-		'type_fallback' => null,
+		'type' => null,			// Output type.
+		'type_fallback' => null,	// Alternative output type when 'type' input is empty.
 	);
 
 	protected $outputs = array(

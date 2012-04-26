@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show raw data without any processing.
+ */
+
 class B_core__out__raw extends Block
 {
 	const force_exec = true;

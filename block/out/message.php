@@ -28,47 +28,50 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Show error or success message.
+ *
+ * If redirect is requested, message can be displayed using core/out/message_queue.
+ */
 class B_core__out__message extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'type' => null,
-		'is_error' => null,
-		'is_success' => null,
-		'is_warning' => null,
-		'is_info' => null,
+		'type' => null,			// Type of message: error, success, warning, info.
+		'is_error' => null,		// Mesage is 'error'. Overrides 'type' input.
+		'is_success' => null,		// Mesage is 'success'. Overrides 'type' input.
+		'is_warning' => null,		// Mesage is 'warning'. Overrides 'type' input.
+		'is_info' => null,		// Mesage is 'info'. Overrides 'type' input.
 
-		// defaults
-		'title' => null,
-		'text' => null,
+		'title' => null,		// Default message title.
+		'text' => null,			// Default message description.
 
 		// override when error
-		'error_title' => null,
-		'error_text' => null,
+		'error_title' => null,		// Error message title.
+		'error_text' => null,		// Error message description.
 
 		// override when warning
-		'warning_title' => null,
-		'warning_text' => null,
+		'warning_title' => null,	// Warning message title.
+		'warning_text' => null,		// Warning message description.
 
 		// override when success
-		'success_title' => null,
-		'success_text' => null,
+		'success_title' => null,	// Success message title.
+		'success_text' => null,		// Success message description.
 
 		// override when info
-		'info_title' => null,
-		'info_text' => null,
+		'info_title' => null,		// Info message title.
+		'info_text' => null,		// Info message description.
 
-		// redirect - only if success
-		'redirect_url' => null,
-		'allow_redirect' => true,
-		'quiet_redirect' => false,
+		'redirect_url' => null,		// Redirect to this URI, when type is 'success'.
+		'allow_redirect' => true,	// Is redirect allowed?
+		'quiet_redirect' => false,	// Do not show message, only do redirect.
 
 		// http-status
-		'http_status_code' => null,
-		'http_status_message' => null,
+		'http_status_code' => null,	// Redirect with this HTTP status code.
+		'http_status_message' => null,	// Redirect with this HTTP status message.
 
-		'hide' => false,
+		'hide' => false,		// Do not show the message.
 
 		'slot' => 'default',
 		'slot_weight' => 20,
