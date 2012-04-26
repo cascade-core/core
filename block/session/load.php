@@ -28,16 +28,19 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Load specified session variables and set them on according outputs.
+ */
 class B_core__session__load extends Block {
 
 	protected $inputs = array(
-		'key' => array(),
+		'key' => array(),	// Key to load.
 	);
 
 	protected $outputs = array(
+		'key' => true,		// Loaded key.
+		'value' => true,	// Session value.
 		'done' => true,
-		'key' => true,
-		'value' => true,
 	);
 
 

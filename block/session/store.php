@@ -28,14 +28,18 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Store specified value into session using specified key.
+ */
+
 class B_core__session__store extends Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'key' => array(),
-		'value' => null,
-		'unset' => false,
+		'key' => array(),	// Session key.
+		'value' => null,	// Value to store.
+		'unset' => false,	// Remove key from session?
 	);
 
 	protected $outputs = array(
