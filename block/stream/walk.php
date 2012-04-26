@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Iterate over provided array. Useful for testing.
+ */
+
 class B_core__stream__walk extends Block {
 
 	protected $inputs = array(

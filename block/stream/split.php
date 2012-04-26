@@ -28,6 +28,12 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Split data accessed via iterator to multiple iterators. Numeric inputs
+ * specify sizes of slices, according numeric output then contain results. Some
+ * items may be cached when neccesary.
+ */
+
 class B_core__stream__split extends Block {
 
 	protected $inputs = array(
