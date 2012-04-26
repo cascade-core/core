@@ -28,6 +28,11 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Merge arrays from all inputs using array_merge() function.
+ *
+ * See also core/prefix/merge.
+ */
 class B_core__value__merge extends Block {
 
 	protected $inputs = array(

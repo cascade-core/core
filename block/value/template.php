@@ -28,6 +28,11 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Format values into string using template_format() function. Inputs are
+ * collected and passed as values to format function.
+ */
+
 class B_core__value__template extends Block {
 
 	protected $inputs = array(

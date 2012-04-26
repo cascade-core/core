@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Extract specified or all values from array and set them to outputs. Keys are
+ * used as output names.
+ */
 class B_core__value__split extends Block {
 
 	protected $inputs = array(

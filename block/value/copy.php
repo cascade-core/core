@@ -28,6 +28,11 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Copy all inputs to eponymous outputs. Useful as placholder when real blocks
+ * are not implemented yet.
+ */
+
 class B_core__value__copy extends Block {
 
 	protected $inputs = array(

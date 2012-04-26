@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Colect all inputs into one array. Input names are used as keys.
+ */
+
 class B_core__value__combine extends Block {
 
 	protected $inputs = array(
