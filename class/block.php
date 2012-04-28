@@ -154,7 +154,7 @@ abstract class Block {
 		$this->block_name = $block_name;
 		$this->context = $context;
 		$this->timestamp_create = $this->cascade_controller->current_step();
-		$this->slot_weight_penalty = 1.0 - 100.0 / ($this->timestamp_create + 99.0); // lim -> inf = 1
+		$this->slot_weight_penalty = 1.0 - 100.0 / ($this->timestamp_create + 100.0); // lim -> inf = 1
 		$this->status = $initial_status;
 
 		// add common inputs
