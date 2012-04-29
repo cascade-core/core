@@ -632,5 +632,97 @@ class CascadeController {
 		}
 	}
 
+
+	/**
+	 * Get names of all existing blocks grouped by their prefix (plugin).
+	 */
+	public static function get_known_blocks($regexp = null)
+	{
+		$prefixes = array(
+			'' => DIR_APP.DIR_BLOCK,
+			'core' => DIR_CORE.DIR_BLOCK,
+		);
+
+		foreach (get_plugin_list() as $plugin) {
+			$prefixes[$plugin] = DIR_PLUGIN.$plugin.'/'.DIR_BLOCK;
+		}
+
+		$blocks = array();
+
+		foreach ($prefixes as $prefix => $dir) {
+			$list = self::get_known_blocks__scan_directory($dir, $prefix, $regexp);
+			if (!empty($list)) {
+				$blocks[$prefix] = $list;
+			}
+		}
+
+		return $blocks;
+	}
+
+
+	private static function get_known_blocks__scan_directory($directory, $prefix, $regexp = null, $subdir = '', & $list = array())
+	{
+		$dir_name = $directory.$subdir;
+		$d = opendir($dir_name);
+		if (!$d) {
+			return $list;
+		}
+
+		while (($f = readdir($d)) !== FALSE) {
+			if ($f[0] == '.') {
+				continue;
+			}
+
+			$file = $dir_name.'/'.$f;
+			$block = $subdir.'/'.$f;
+
+			if (is_dir($file)) {
+				self::get_known_blocks__scan_directory($directory, $prefix, $regexp, $block, $list);
+			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $block) && ($regexp == null || preg_match($regexp, $block))) {
+				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $block);
+			}
+		}
+
+		closedir($d);
+
+		if ($subdir == '') {
+			sort($list);
+		}
+		return $list;
+	}
+
+
+	/**
+	 * Returns description of block.
+	 *
+	 * Description contains inputs and outputs with their default values,
+	 * force_exec flag and real block type.
+	 */
+	public function describe_block($block)
+	{
+		// Get class name
+		$class = get_block_class_name($block);
+		if ($class === false) {
+			return false;
+		}
+
+		// Check permissions since we creating instance of that block
+		if ($auth !== null && !$auth->is_block_allowed($block, $details)) {
+			if ($details != '') {
+				error_msg('Permission denied to block %s (%s).', $block, $details);
+			} else {
+				error_msg('Permission denied to block %s.', $block);
+			}
+			return false;
+		}
+
+		// Create instance of the block and get description
+		$b = new $class();
+		$desc = $b->cc_describe_block();
+		unset($b);
+
+		return $desc;
+	}
+
 }
 

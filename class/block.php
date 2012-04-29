@@ -121,18 +121,6 @@ abstract class Block {
 	}
 
 
-	/* Describe block, it's inputs, outputs, ... */
-	final public function describe_block()
-	{
-		return array(
-			'block' => str_replace('__', '/', preg_replace('/^M_/', '', __CLASS__)),
-			'force_exec' => self::force_exec,
-			'inputs' => $this->inputs,
-			'outputs' => $this->outputs,
-		);
-	}
-
-
 	final public function get_timestamps()
 	{
 		return array($this->timestamp_create, $this->timestamp_start, $this->timestamp_finish);
@@ -427,6 +415,18 @@ abstract class Block {
 			$str .= $indent.$name."\n".($name != 'self' && $name != 'parent' && $m ? $m->cc_dump_namespace($level + 1) : '');
 		}
 		return $str;
+	}
+
+
+	/* Describe block, it's inputs, outputs, ... */
+	final public function cc_describe_block()
+	{
+		return array(
+			'block' => str_replace('__', '/', preg_replace('/^B_/', '', __CLASS__)),
+			'force_exec' => self::force_exec,
+			'inputs' => $this->inputs,
+			'outputs' => $this->outputs,
+		);
 	}
 
 

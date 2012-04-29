@@ -58,7 +58,7 @@ class B_core__devel__doc__everything extends B_core__devel__doc__index
 		$require_description = $this->in('require_description');
 
 		$titles = $this->get_titles();
-		$blocks = $this->get_blocks();
+		$blocks = $this->get_cascade_controller()->get_known_blocks();
 
 		foreach ($blocks as $prefix => $prefix_blocks) {
 

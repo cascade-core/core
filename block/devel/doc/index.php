@@ -53,7 +53,7 @@ class B_core__devel__doc__index extends Block
 	public function main()
 	{
 		$regexp = $this->in('regexp');
-		$blocks = $this->get_blocks($regexp);
+		$blocks = $this->get_cascade_controller()->get_known_blocks($regexp);
 
 		$this->template_add(null, 'core/doc/index', array(
 				'link' => $this->in('link'),
@@ -73,60 +73,5 @@ class B_core__devel__doc__index extends Block
 		);
 	}
 
-
-	public static function get_blocks($regexp = null)
-	{
-		$prefixes = array(
-			'' => DIR_APP.DIR_BLOCK,
-			'core' => DIR_CORE.DIR_BLOCK,
-		);
-
-		foreach (get_plugin_list() as $plugin) {
-			$prefixes[$plugin] = DIR_PLUGIN.$plugin.'/'.DIR_BLOCK;
-		}
-
-		$blocks = array();
-
-		foreach ($prefixes as $prefix => $dir) {
-			$list = self::scan_directory($dir, $prefix, $regexp);
-			if (!empty($list)) {
-				$blocks[$prefix] = $list;
-			}
-		}
-
-		return $blocks;
-	}
-
-
-	private static function scan_directory($directory, $prefix, $regexp = null, $subdir = '', & $list = array())
-	{
-		$dir_name = $directory.$subdir;
-		$d = opendir($dir_name);
-		if (!$d) {
-			return $list;
-		}
-
-		while (($f = readdir($d)) !== FALSE) {
-			if ($f[0] == '.') {
-				continue;
-			}
-
-			$file = $dir_name.'/'.$f;
-			$block = $subdir.'/'.$f;
-
-			if (is_dir($file)) {
-				self::scan_directory($directory, $prefix, $regexp, $block, $list);
-			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $block) && ($regexp == null || preg_match($regexp, $block))) {
-				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $block);
-			}
-		}
-
-		closedir($d);
-
-		if ($subdir == '') {
-			sort($list);
-		}
-		return $list;
-	}
 }
 
