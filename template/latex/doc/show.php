@@ -37,6 +37,7 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 
 	echo "\n% core/doc/show: $id\n";
 	echo "\\newpage\n";
+	echo "\\begin{samepage}\n";
 	
 	// Header
 	echo "\\$h2{";
@@ -46,12 +47,17 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 
 	// Class header
 	if (isset($class_header)) {
-		echo "\\par\\noindent {\\tt ", trim(latex_escape($class_header)), "}\n";
+		echo "\\noindent {\\tt ", trim(latex_escape($class_header)), "}";
 	}
 
 	// Location
 	if ($is_local && isset($filename)) {
-		echo "\\par\\noindent {";
+		if (isset($class_header)) {
+			echo "\\\\\n";
+		} else {
+			echo "\\noindent ";
+		}
+		echo "{";
 		$prefix = latex_escape(DIR_ROOT);
 		$prefix_len = strlen($prefix);
 		$latex_filename = latex_escape($filename);
@@ -60,13 +66,14 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 				trim(strncmp($prefix, $latex_filename, $prefix_len) == 0
 					? '\\ldots{}/'.substr($latex_filename, $prefix_len)
 					: $latex_filename));
-		echo "}\n";
+		echo "}";
 	}
 
-	echo "\n";
+	echo "\n\n";
 
 	// Description
 	echo "\\$h3{", _('Description'), "}\n";
+	echo "\\end{samepage}\n";
 	if (empty($description)) {
 		echo "\n{\it ", _('Sorry, no description available.'), "}\n";
 		if (DEVELOPMENT_ENVIRONMENT) {
@@ -75,9 +82,9 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 	} else if (!is_array($description)) {
 		echo "\n", latex_escape($description), "\n";
 	} else foreach ($description as $text) {
-		echo latex_escape($text), "\n\n";
+		echo latex_escape($text), "\n";
 	}
-	echo "\n";
+	echo "\\bigskip{}\n\n";
 
 	// Inputs
 	if (!empty($inputs)) {
@@ -127,6 +134,7 @@ function TPL_latex__core__doc__show($t, $id, $d, $so)
 			"\n";
 	}
 
+	echo "\\pagebreak[3]\n";
 	echo "% end of core/doc/show\n\n";
 }
 
