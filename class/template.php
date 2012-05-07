@@ -31,6 +31,7 @@
 class Template {
 
 	private $objects = array();
+	private $slot_content = array();
 	private $slot_options = array();
 	private $current_slot_depth = 0;
 	private $reverse_router = array();
@@ -233,6 +234,12 @@ class Template {
 		/* process root slot */
 		ob_start();
 		$this->process_slot('root');
+
+		/* log what has been missed */
+		$missed_slots = array_keys(array_filter($this->slot_content));
+		if (!empty($missed_slots)) {
+			error_msg('Missed slots: %s', join(', ', $missed_slots));
+		}
 
 		if ($return_output) {
 			$out = ob_get_contents();
