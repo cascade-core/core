@@ -45,5 +45,9 @@ max_depth	= 0
 slot[]		= slot_header:name
 slot_weight	= 5
 
+[block:message_queue]
+.block		= "core/out/message_queue"
+slot[]		= "slot_default:name"
+
 ; vim:filetype=dosini:
 

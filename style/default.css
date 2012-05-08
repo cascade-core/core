@@ -69,3 +69,45 @@ body {
 }
 
 
+.message {
+        margin: 1em 5em 3em 5em;
+        border: 1px solid #666;
+        padding: 1ex;
+        text-align: center;
+
+        -moz-border-radius: 7px;
+        -webkit-border-radius: 7px;
+        -khtml-border-radius: 7px;
+        border-radius: 7px;
+
+        -moz-box-shadow:    2px 2px 3px #888;
+        -webkit-box-shadow: 2px 2px 3px #888;
+        box-shadow:         2px 2px 3px #888;
+}
+        .content_messages .message {
+                margin: 1em auto 3em auto;
+                width: 30em;
+        }
+
+        .sidebar .message,
+        .layout_canvas .message {
+                margin: 1em 0em 3em 0em;
+        }
+
+        .message h2 {
+                font-size: 1em;
+                font-weight: bold;
+                margin: 1ex 0em;
+                padding: 0px;
+        }
+
+        .message.message_success {
+                background: #7b4;
+                color: #fff;
+        }
+
+        .message.message_error {
+                background: #fea;
+                color: #c30;
+        }
+
