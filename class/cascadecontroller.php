@@ -154,7 +154,7 @@ class CascadeController {
 		}
 
 		/* check permissions */
-		if ($auth !== null && !$auth->is_block_allowed($block, $details)) {
+		if ($this->auth !== null && !$this->auth->is_block_allowed($block, $details)) {
 			if ($details != '') {
 				error_msg('Permission denied to block %s (%s).', $block, $details);
 			} else {
@@ -707,7 +707,7 @@ class CascadeController {
 		}
 
 		// Check permissions since we creating instance of that block
-		if ($auth !== null && !$auth->is_block_allowed($block, $details)) {
+		if ($this->auth !== null && !$this->auth->is_block_allowed($block, $details)) {
 			if ($details != '') {
 				error_msg('Permission denied to block %s (%s).', $block, $details);
 			} else {
