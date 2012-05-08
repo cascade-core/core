@@ -153,6 +153,7 @@ class B_core__out__message extends Block
 					$redirect_anchor ? $redirect_url.'#'.$redirect_anchor : $redirect_url);
 
 				if (!$this->in('quiet_redirect')) {
+					debug_msg('Storing message for later use.');
 					$_SESSION['message_queue'][] = $msg_data;
 				}
 			}

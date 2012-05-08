@@ -294,9 +294,6 @@ if (($fn = @$core_cfg['debug']['profiler_stats_file']) !== null) {
 	file_put_contents($fn, gzcompress(serialize($cascade->get_execution_times(unserialize(gzuncompress(file_get_contents($fn))))), 2));
 }
 
-/* End session */
-session_write_close();
-
 /* Generate output */
 $template->start();
 

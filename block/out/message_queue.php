@@ -48,10 +48,9 @@ class B_core__out__message_queue extends Block
 	{
 		if (is_array(@$_SESSION['message_queue'])) {
 			foreach ($_SESSION['message_queue'] as $id => $msg_data) {
+				$msg_data['msg_id'] = $id;
 				$this->template_add($id, 'core/message', $msg_data);
 			}
-
-			unset($_SESSION['message_queue']);
 		}
 	}
 }

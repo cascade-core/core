@@ -32,6 +32,10 @@ function TPL_html5__core__message($t, $id, $d, $so)
 {
 	extract($d);
 
+	if (isset($msg_id)) {
+		unset($_SESSION['message_queue'][$msg_id]);
+	}
+
 	echo "<div id=\"", htmlspecialchars($id), "\" class=\"message message_", $type, "\">\n",
 		"<h2>", htmlspecialchars($title), "</h2>",
 		($text != '' ? "<p>".htmlspecialchars($text)."</p>" : ''),

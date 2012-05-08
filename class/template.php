@@ -215,6 +215,7 @@ class Template {
 
 		/* process redirect (no output, headers only) */
 		if ($redirect_url) {
+			session_write_close();
 			debug_msg('Redirecting to "%s" (%d %s)', $redirect_url, $code, $message);
 			header('Location: '.$redirect_url, TRUE, $code != 200 ? $code : 301);
 			return;
