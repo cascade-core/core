@@ -121,6 +121,12 @@ class Template {
 	}
 
 
+	function is_slot_empty($slot_name)
+	{
+		return empty($this->slot_content[$slot_name]);
+	}
+
+
 	function process_slot($slot_name)
 	{
 		static $options = array();
