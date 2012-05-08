@@ -312,14 +312,14 @@ function write_ini_file_row($f, $k, $v) {
 }
 
 
-function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE)
+function write_ini_file($filename, $array, $sections = FALSE, $header = ";\074?php exit(); __HALT_COMPILER; ?\076\n")
 {
 	$f = fopen($filename, 'w');
 	if ($f === FALSE) {
 		return FALSE;
 	}
 
-	if ($header !== FALSE) {
+	if ($header != '') {
 		fwrite($f, $header);
 		fwrite($f, "\n");
 	}
