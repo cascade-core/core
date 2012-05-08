@@ -240,7 +240,7 @@ abstract class Block {
 
 		$this->timestamp_start = $this->cascade_controller->current_step();
 		$this->status = self::RUNNING;
-		debug_msg('%s: Preparing block "%s" (t = %d)', $this->block_name(), $this->id(), $this->timestamp_start);
+		debug_msg('%s: Preparing block "%s" (t = %d)', $this->block_name(), $this->full_id(), $this->timestamp_start);
 
 		/* dereference block names and build dependency list */
 		$dependencies = array();
@@ -250,7 +250,7 @@ abstract class Block {
 				$n = count($out);
 				if ($n == 0) {
 					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of block "%s" is not defined!',
-							$this->block_name(), $in, $this->id());
+							$this->block_name(), $in, $this->full_id());
 					$this->status = self::FAILED;
 				} else {
 					for ($i = $out[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
@@ -275,7 +275,7 @@ abstract class Block {
 
 		/* abort if failed */
 		if (!$this->status == self::FAILED) {
-			error_msg('%s: Failed to prepare block "%s"', $this->block_name(), $this->id());
+			error_msg('%s: Failed to prepare block "%s"', $this->block_name(), $this->full_id());
 			$this->timestamp_finish = $this->cascade_controller->current_step();
 			return false;
 		}
@@ -292,21 +292,21 @@ abstract class Block {
 
 		/* abort if failed */
 		if ($this->status == self::FAILED) {
-			error_msg('%s: Failed to solve dependencies of block "%s"', $this->block_name(), $this->id());
+			error_msg('%s: Failed to solve dependencies of block "%s"', $this->block_name(), $this->full_id());
 			$this->timestamp_finish = $this->cascade_controller->current_step();
 			return false;
 		}
 
 		/* do not execute if disabled */
 		if (!$this->in('enable')) {
-			debug_msg('%s: Skipping disabled block "%s"', $this->block_name(), $this->id());
+			debug_msg('%s: Skipping disabled block "%s"', $this->block_name(), $this->full_id());
 			$this->status = self::DISABLED;
 			$this->timestamp_finish = $this->cascade_controller->current_step();
 			return true;
 		}
 
 		/* execute main */
-		debug_msg('%s: Starting block "%s"', $this->block_name(), $this->id());
+		debug_msg('%s: Starting block "%s"', $this->block_name(), $this->full_id());
 		$this->context->update_enviroment();
 		$t = microtime(TRUE);
 		$this->main();
@@ -328,13 +328,13 @@ abstract class Block {
 					$this->output_cache[$name] = $m->cc_get_output($src_out);
 				} else {
 					error_msg('Source block or output not found while forwarding to "%s:%s" from "%s:%s"!',
-							$this->id(), $name, $src_name, $src_out);
+							$this->full_id(), $name, $src_name, $src_out);
 					$this->status = self::FAILED;
 					break;
 				}
 			} else {
 				error_msg('Can\'t forward output "%s:%s" from "%s:%s" !',
-						$this->id, $name, $src_name, $src_out);
+						$this->full_id, $name, $src_name, $src_out);
 				$this->status = self::FAILED;
 				break;
 			}

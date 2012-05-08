@@ -176,6 +176,7 @@ class CascadeController {
 
 		/* kick autoloader */
 		if (class_exists($class)) {
+			debug_msg('Adding block "%s" (%s)', $full_id, $block);
 
 			/* initialize block */
 			$m = new $class();
