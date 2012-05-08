@@ -44,6 +44,8 @@ class B_core__devel__phpinfo extends Block {
 		'done' => true,
 	);
 
+	const force_exec = true;
+
 
 	public function main()
 	{
