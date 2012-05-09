@@ -31,8 +31,10 @@
 class Template {
 
 	private $objects = array();
+	private $slot_content = array();
 	private $slot_options = array();
 	private $current_slot_depth = 0;
+	private $reverse_router = array();
 
 
 	function add_object($id, $slot, $weight, $template, $data = array(), $context = null)
@@ -74,6 +76,37 @@ class Template {
 	}
 
 
+	// Register reverse router for URL generator
+	function add_reverse_router($router)
+	{
+		if (is_callable($router)) {
+			$this->reverse_router[] = $router;
+			return true;
+		} else {
+			error_msg('Template::add_reverse_router(): Router must be callable (a function)!');
+			return false;
+		}
+	}
+
+
+	// Generate URL from route.
+	function url($route_name, $values /* ... */)
+	{
+		// collect args
+		$args = func_get_args();
+
+		// search & use reverse route
+		foreach ($this->reverse_router as $router) {
+			$url = call_user_func_array($router, $args);
+			if ($url !== false) {
+				return $url;
+			}
+		}
+		error_msg('Template::url(): Reverse route "%s" not found in %d reverse router(s) !', $route_name, count($this->reverse_router));
+		return false;
+	}
+
+
 	function load_template($output_type, $template_name, $function_name, $indent = '')
 	{
 		$f = get_template_filename($output_type, $template_name);
@@ -85,6 +118,12 @@ class Template {
 			debug_msg('%s Can\'t load "%s" - file "%s" not found.', $indent, substr($f, strlen(DIR_ROOT)), str_replace(DIR_ROOT, '', $f));
 		}
 		return function_exists($function_name);
+	}
+
+
+	function is_slot_empty($slot_name)
+	{
+		return empty($this->slot_content[$slot_name]);
 	}
 
 
@@ -159,7 +198,7 @@ class Template {
 		$redirect_url = @$this->slot_options['root']['redirect_url'];
 
 		/* Show core's name in header */
-		header('X-Powered-By: Dynamic Pipeline', TRUE);		// FIXME
+		header('X-Powered-By: Dynamic Cascade', TRUE);		// FIXME
 
 		/* Send custom status code & message */
 		if ($redirect_url) {
@@ -176,6 +215,7 @@ class Template {
 
 		/* process redirect (no output, headers only) */
 		if ($redirect_url) {
+			session_write_close();
 			debug_msg('Redirecting to "%s" (%d %s)', $redirect_url, $code, $message);
 			header('Location: '.$redirect_url, TRUE, $code != 200 ? $code : 301);
 			return;
@@ -191,11 +231,22 @@ class Template {
 		$init_filename = get_template_filename($this->slot_options['root']['type'], 'init');
 		if (file_exists($init_filename)) {
 			include $init_filename;
+		} else {
+			$core_init_filename = get_template_filename($this->slot_options['root']['type'], 'core/init');
+			if (file_exists($core_init_filename)) {
+				include $core_init_filename;
+			}
 		}
 
 		/* process root slot */
 		ob_start();
 		$this->process_slot('root');
+
+		/* log what has been missed */
+		$missed_slots = array_keys(array_filter($this->slot_content));
+		if (!empty($missed_slots)) {
+			error_msg('Missed slots: %s', join(', ', $missed_slots));
+		}
 
 		if ($return_output) {
 			$out = ob_get_contents();

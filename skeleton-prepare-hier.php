@@ -36,7 +36,7 @@ if (isset($_SERVER['REMOTE_ADDR'])) {
 
 $dirs = array(
 	'app',
-	'app/module',
+	'app/block',
 	'app/style',
 	'app/template',
 	'app/default-config',
@@ -71,5 +71,15 @@ if (!file_exists('./index.php') && copy('./core/skeleton-index.php', './index.ph
 
 if (!file_exists('./.gitignore')) {
 	file_put_contents('./.gitignore', "./data\n./var\n");
+}
+
+if (!file_exists('./favicon.ico')) {
+	file_put_contents('./favicon.ico', base64_decode(
+		 'AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+		.'AAAAAABVVVUAqv/MAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+		.'AAAAAAAAAAAAAAAAMAAAMzMzMzMwIiAzMzMzMzAiIAAzMzMzMCIgMwMwAAAwERAzAzAiIDAREDMw'
+		.'ACIgMAAAMzMwIiAzMzMzMAAiIDAAADMDMCIgMCIgMwMwERAwIiAAMzAREDAiIDMzMAAAMBEQMzMz'
+		.'MzMwERAzMzMzMzAAADMzMzMzMzMzMzMzMzOD/wAAg/8AAID/AACDYAAAg2AAAIOAAACD4AAA/4AA'
+		.'AINgAACDYAAAgOAAAIPgAACD/wAAg/8AAIP/AAD//wAA'));
 }
 

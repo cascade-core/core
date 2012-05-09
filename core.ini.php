@@ -1,17 +1,17 @@
-; <?php exit(); ?>
+; <?php exit(); __halt_compiler(); ?>
 ; 
 ; Core fallback config file
 ;
 ;  - Copy this file to app/ directory and modify as you need.
 ;  - This is standard INI file (like php.ini).
-;  - Sections named "[module:???]" represents starting set of modules,
-;    where "???" is module ID. In these sections:
-;  	- Key ".module" is required; specifies module name (ie. "core/output").
-;  	- Key ".force-exec" is optional; if true, module is
+;  - Sections named "[block:???]" represents starting set of blocks,
+;    where "???" is block ID. In these sections:
+;  	- Key ".block" is required; specifies block name (ie. "core/output").
+;  	- Key ".force-exec" is optional; if true, block is
 ;  	  executed even if dependencies don't require that.
-;  	- All other keys define module's inputs. Scalar constants are
+;  	- All other keys define block's inputs. Scalar constants are
 ;  	  specified as usual; connections are written like arrays:
-;  	  	input[] = "source-module:output"
+;  	  	input[] = "source-block:output"
 ;  - All unknown options and sections are ignored, but can be used in
 ;    future versions.
 ;
@@ -36,8 +36,9 @@ default_locale		= "cs_CZ"
 debug_logging_enabled	= true
 always_log_banner	= true
 log_memory_usage	= true
-add_pipeline_graph	= true
-pipeline_graph_link	= "/doc/%s"
+add_cascade_graph	= true
+animate_cascade		= false
+cascade_graph_link	= "/documentation/block/%s"
 profiler_stats_file	= "var/profiler.stats"
 
 ; default output configuration
@@ -48,89 +49,70 @@ default_type		= "html5"
 [define]
 ; key			= value
 
-; module replacement table
-[module-map]
-;old-module/name	= "replacement-module/name"
+; block replacement table
+[block-map]
+;old-block/name	= "replacement-block/name"
 
 
 ;
-; starting modules
+; starting blocks
 ;
 
-[module:router]
-.module		= core/ini/router
-config		= core/routes.ini.php
-
-[module:skeleton]
-.module		= core/out/page
-.force-exec	= true
-
-[module:hello]
-.module		= core/out/raw
-.force-exec	= true
-; Never do this:
-data		= "<p>Hello world!</p><p>Look at <a href='/doc'>documentation</a>!</p>"
-enable[]	= "router:hello"
-
-[module:doc_index_hd]
-.module		= "core/out/header"
-text		= "Documentation Index"
-level		= 1
-enable[]	= "version:done"
-slot-weight	= 10
-
-[module:doc_index]
-.module		= "core/devel/doc/index"
-.force-exec	= true
-slot-weight	= 60
-enable[]	= "router:index"
-
-[module:version_hd]
-.module		= "core/out/header"
-text		= "Version"
-enable[]	= "version:done"
-slot-weight	= 30
-
-[module:version]
-.module		= "core/devel/version"
-format		= "details"
-slot-weight	= 40
-enable[]	= "router:index"
-
-[module:doc_show]
-.module		= "core/devel/doc/show"
-.force-exec	= true
-module[]	= "router:path_tail"
-show-code	= false
-enable[]	= "router:show"
-
-;;
-;; Use something like this for real sites:
-;;
+;; You probably want to use something like this:
 ;
-;[module:page]
-;.module	= "core/value/pipeline_loader"
-;.force-exec	= true
-;output-forward	= "done,title"
-;content[]	= "router:content"
+; [block:router]
+; .block	= core/ini/router
+; config	= app/routes.ini.php
+;
+;; ... instead of these two:
+
+[block:load_routes]
+.block		= core/ini/load
+filename	= routes.examples.ini.php
+scan_plugins	= true
+
+[block:router]
+.block		= core/ini/router
+config[]	= load_routes:data
+enable[]	= load_routes:done
+
+[block:content]
+.block		= "core/value/cascade_loader"
+output_forward	= "done,title,type"
+content[]	= "router:content"
+enable[]	= "router:done"
+
+[block:error_page]
+.block		= core/page/error
+enable[]	= :not
+enable[]	= content:content_0_done
+
+[block:skeleton]
+.block		= "core/page/skeleton"
+enable[]	= ":and"
+enable[]	= "router:skeleton"
+enable[]	= "content:content_0_done"
+
+[block:page_title]
+.block		= core/out/set_page_title
+title[]		= :or
+title[]		= content:content_0_title
+title[]		= router:title
+format[]	= router:title_fmt
+
+[block:page_type]
+.block		= core/out/set_type
+type[]		= :or
+type[]		= content:content_0_type
+type[]		= router:type
+
+;[block:extra]
+;.block		= "core/value/cascade_loader"
+;output_forward	= "done"
 ;extra[]	= "router:extra"
-;enable[]	= "router:done"
-;
-;[module:page_title]
-;.module	= core/out/set_page_title
-;.force-exec	= true
-;title[]	= page:content_0_title
-;title-fallback[] = router:title
-;format[]	= router:title_fmt
-;
-;[module:page_error]
-;.module	= core/out/message
-;.force-exec	= true
-;is-error	= true
-;title		= "Sorry!"
-;text		= "Page not found."
-;http-status-code = 404
-;hide[]		= page:content_0_done
+;enable[]	= "content:content_0_done"
+
+
 
 ; vim:filetype=dosini:
 

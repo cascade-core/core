@@ -314,7 +314,10 @@ function write_ini_file_row($f, $k, $v, $quotes) {
 }
 
 
-function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $footer = "; vim\072filetype=dosini:", $quotes = true)
+function write_ini_file($filename, $array, $sections = FALSE,
+			$header = ";\074?php exit(); __HALT_COMPILER; ?\076\n",
+			$footer = "; vim\072filetype=dosini:",
+			$quotes = true)
 {
 	$f = fopen($filename, 'w');
 	if ($f === FALSE) {
@@ -325,7 +328,7 @@ function write_ini_file($filename, $array, $sections = FALSE, $header = FALSE, $
 		return FALSE;
 	}
 
-	if ($header !== FALSE) {
+	if ($header != '') {
 		fwrite($f, $header);
 		fwrite($f, "\n");
 	}

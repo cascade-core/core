@@ -1,0 +1,113 @@
+/*
+ * Default stylesheet
+ *
+ * Use as you wish.
+ *
+ */
+
+@import url(/core/style/basic.css);
+
+
+/*************************************************************
+ *	Page Layout
+ */
+
+html, body {
+	color: #000;
+	background: #fff;
+	text-align: center;
+	margin: 0px;
+	padding: 0px;
+	font-family: sans-serif;
+}
+
+body {
+	margin: 0em 0em 6em 0em;
+}
+
+.slot_header,
+.slot_default,
+.slot_footer {
+	width: 960px;
+	text-align: left;
+	margin: 0em auto;
+}
+
+.slot_header {
+	border-bottom: 1px solid #aaa;
+	padding: 1em 0em 1ex 0em;
+}
+
+	.slot_header h1 {
+		font-size: 2.5em;
+		font-weight: normal;
+		margin: 0em;
+	}
+
+	.slot_header .menu {
+		margin: 1ex 0em 0em 0em;
+	}
+
+.slot_default {
+	padding: 1em 0em;
+}
+
+.slot_footer {
+	border-top: 1px solid #aaa;
+	padding: 1ex 0em 0em 0em;
+	margin-top: 2em;
+}
+
+.slot_doc_index {
+	width: 29%;
+	float: left;
+}
+
+.slot_doc_main {
+	width: 69%;
+	float: right;
+}
+
+
+.message {
+        margin: 1em 5em 3em 5em;
+        border: 1px solid #666;
+        padding: 1ex;
+        text-align: center;
+
+        -moz-border-radius: 7px;
+        -webkit-border-radius: 7px;
+        -khtml-border-radius: 7px;
+        border-radius: 7px;
+
+        -moz-box-shadow:    2px 2px 3px #888;
+        -webkit-box-shadow: 2px 2px 3px #888;
+        box-shadow:         2px 2px 3px #888;
+}
+        .content_messages .message {
+                margin: 1em auto 3em auto;
+                width: 30em;
+        }
+
+        .sidebar .message,
+        .layout_canvas .message {
+                margin: 1em 0em 3em 0em;
+        }
+
+        .message h2 {
+                font-size: 1em;
+                font-weight: bold;
+                margin: 1ex 0em;
+                padding: 0px;
+        }
+
+        .message.message_success {
+                background: #7b4;
+                color: #fff;
+        }
+
+        .message.message_error {
+                background: #fea;
+                color: #c30;
+        }
+

@@ -33,13 +33,14 @@ class TableView {
 	private $class;
 	private $row_class;
 	private $columns;
-	private $actions;	// Links shown in footer
+	private $actions;		// Links shown in footer
 	private $data_array;
 	private $data_iterator;
 
-	public  $show_footer;	// bool
-	public  $row_data;	// callable, returns array($k => $v) which will
-				// be added to <tr> element as data-$k="$v"
+	public  $show_header = true;	// bool
+	public  $show_footer = false;	// bool
+	public  $row_data;		// callable, returns array($k => $v) which will
+					// be added to <tr> element as data-$k="$v"
 
 
 	public function __construct()

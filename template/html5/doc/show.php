@@ -32,12 +32,15 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 {
 	extract($d);
 
+	$h2 = 'h'.$heading_level;
+	$h3 = 'h'.($heading_level + 1);
+
 	echo "<div class=\"doc_show\" id=\"", htmlspecialchars($id), "\">\n";
 	
 	// Header
-	echo "<h2>";
-	printf(_('Module %s'), htmlspecialchars($module));
-	echo "</h2>\n";
+	echo "<$h2>";
+	printf(_('Block %s'), htmlspecialchars($block));
+	echo "</$h2>\n";
 
 	// Class header
 	if (isset($class_header)) {
@@ -59,7 +62,7 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 
 	// Description
 	echo "<div class=\"description\">\n",
-		"<h3>", _('Description'), "</h3>\n";
+		"<$h3>", _('Description'), "</$h3>\n";
 	if (empty($description)) {
 		echo "<p>", _('Sorry, no description available.'), "</p>\n";
 	} else if (!is_array($description)) {
@@ -69,34 +72,53 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 	}
 	echo "</div>\n";
 
-	// Force exec
-	if (isset($force_exec)) {
-		echo "<div class=\"force_exec\">\n",
-			"<h3>", _('Force Exec flag'), "</h3>\n",
-			"<pre>", htmlspecialchars($force_exec), "</pre>\n",
-			"</div>\n";
-	}
-
 	// Inputs
-	if (isset($inputs)) {
+	if (!empty($inputs)) {
 		echo "<div class=\"inputs\">\n",
-			"<h3>", _('Inputs'), "</h3>\n",
-			"<pre>", htmlspecialchars($inputs), "</pre>\n",
+			"<$h3>", _('Inputs'), "</$h3>\n",
+			"<table class=\"table\">\n",
+			"<tr><th>", _('Input'), "</th><th>", _('Default value'), "</th><th>", _('Comment'), "</th></tr>\n";
+		foreach ($inputs as $input) {
+			echo "<tr>",
+				"<td>", htmlspecialchars($input['name']), "</td>",
+				"<td>", $input['value'] == 'array()' || $input['value'] == 'array( )'
+						? '<i>'._('not connected').'</i>'
+						: htmlspecialchars($input['value']), "</td>",
+				"<td>", join("\n", array_map('htmlspecialchars', $input['comment'])), "</td>",
+				"</tr>";
+		}
+		echo	"</table>\n",
 			"</div>\n";
 	}
 
 	// Outputs
-	if (isset($outputs)) {
+	if (!empty($outputs)) {
 		echo "<div class=\"outputs\">\n",
-			"<h3>", _('Outputs'), "</h3>\n",
-			"<pre>", htmlspecialchars($outputs), "</pre>\n",
+			"<$h3>", _('Outputs'), "</$h3>\n",
+			"<table class=\"table\">\n",
+			"<tr><th>", _('Output'), "</th><th>", _('Comment'), "</th></tr>\n";
+		foreach ($outputs as $output) {
+			echo "<tr>",
+				"<td>", htmlspecialchars($output['name']), "</td>",
+				"<td>", join("\n", array_map('htmlspecialchars', $output['comment'])), "</td>",
+				"</tr>";
+		}
+		echo	"</table>\n",
+			"</div>\n";
+	}
+
+	// Force exec
+	if (isset($force_exec)) {
+		echo "<div class=\"force_exec\">\n",
+			"<$h3>", _('Force Exec flag'), "</$h3>\n",
+			"<pre>", htmlspecialchars(trim($force_exec)), "</pre>\n",
 			"</div>\n";
 	}
 
 	// Code
 	if (isset($code)) {
 		echo "<div class=\"code\">\n",
-			"<h3>", _('Code'), "</h3>\n",
+			"<$h3>", _('Code'), "</$h3>\n",
 			"<pre style=\"overflow: auto;\">";
 		highlight_string($code);
 		echo	"</pre>\n",
