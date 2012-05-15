@@ -52,19 +52,23 @@ class B_core__devel__phpinfo extends Block {
 		$extensions = get_loaded_extensions();
 		usort($extensions, 'strcoll');
 
-		$uid = posix_getuid();
-		$user = posix_getpwuid($uid);
+		if (function_exists('posix_getuid')) {
+			$uid = posix_getuid();
+			$user = posix_getpwuid($uid);
+		}
 
-		$gid = posix_getgid();
-		$group = posix_getgrgid($gid);
+		if (function_exists('posix_getgid')) {
+			$gid = posix_getgid();
+			$group = posix_getgrgid($gid);
+		}
 
 		$info = array(
 			array(_('PHP version:'), phpversion()),
 			array(_('Zend engine version:'), zend_version()),
 			array(_('Server system:'), php_uname()),
 			array(_('Web root directory:'), DIR_ROOT),
-			array(_('Effective user ID:'), sprintf(_('%s (%s)'), $user['name'], $uid)),
-			array(_('Effective group ID:'), sprintf(_('%s (%s)'), $group['name'], $gid)),
+			array(_('Effective user ID:'), isset($uid) ? sprintf(_('%s (%s)'), $user['name'], $uid) : null),
+			array(_('Effective group ID:'), isset($gid) ? sprintf(_('%s (%s)'), $group['name'], $gid) : null),
 			array(_('Installed extensions:'), join(', ', $extensions)),
 		);
 
