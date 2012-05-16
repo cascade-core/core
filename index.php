@@ -49,6 +49,10 @@ define('DIR_TEMPLATE',		'template/');
 /* Check if this is development environment */
 define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
 
+/* Add bin directory to $PATH, so bundled tools can be used */
+putenv('PATH='.DIR_ROOT.'bin'.(DIRECTORY_SEPARATOR == '/' ? ':' : ';').getenv('PATH'));
+
+
 require(DIR_CORE.'utils.php');
 
 
