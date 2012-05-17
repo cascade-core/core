@@ -125,7 +125,7 @@ function get_template_filename($output_type, $template_name, $extension = '.php'
 }
 
 /* Class autoloader */
-function __autoload($class)
+spl_autoload_register(function ($class)
 {
 	global $plugin_list;
 
@@ -165,7 +165,7 @@ function __autoload($class)
 		include($af);
 		return;
 	}
-}
+});
 
 
 /* Load core configuration */
