@@ -157,7 +157,7 @@ function format_bytes($bytes)
 }
 
 
-function template_format($template, array $values, $escaping_function = 'htmlspecialchars', array $raw_values = array())
+function template_format($template, $values, $escaping_function = 'htmlspecialchars', array $raw_values = array())
 {
 	$available_functions = array(
 		'sprintf'	=> 'sprintf',
@@ -292,7 +292,7 @@ function template_format($template, array $values, $escaping_function = 'htmlspe
 }
 
 
-function filename_format($template, array $values) {
+function filename_format($template, $values = array()) {
 	return template_format($template, $values, null, get_defined_constants());
 }
 
