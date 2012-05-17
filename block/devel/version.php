@@ -56,12 +56,43 @@ class B_core__devel__version extends Block {
 	public function main()
 	{
 		$version_file = template_format($this->in('filename'), get_defined_constants(), null);
+		$format = $this->in('format');
+
+		// Update version.ini if required
+		if (DIRECTORY_SEPARATOR == '\\') {
+			/* Windows detected -- Do nothing.
+			 * IIS will not survive that little bash script and there is no Bash anyway. Use git plugin instead.
+			 */
+		} else if ($this->is_update_needed()) {
+			if (system(escapeshellarg(DIR_CORE.'update-version.sh')) === FALSE) {
+				error_msg('Cannot update version info, executing update-version.sh failed.');
+			}
+			touch($version_file);	// be sure that file is created even if script failed
+		}
+
+		// Get version data
+		$version = parse_ini_file($version_file, TRUE);
+
+		// Show version (if present)
+		if (!empty($version)) {
+			$this->template_add(null, 'core/version', array(
+					'version' => $version,
+					'format'  => $format,
+					'link'    => $this->in('link'),
+					'prefix'  => $this->in('prefix'),
+					'suffix'  => $this->in('suffix'),
+				));
+			$this->out('done', true);
+		}
+	}
+
+
+	/// Check if version.ini needs update
+	private function is_update_needed($version_file)
+	{
 		$version_mtime = @filemtime($version_file);
 		$version_size = @filesize($version_size);
 
-		$format = $this->in('format');
-
-		// Check if version.ini needs update
 		$need_update = false;
 		if (!$version_mtime || ($version_size < 10 && $version_mtime + 28800 < time()) || $this->is_git_repo_newer($version_mtime, DIR_ROOT)) {
 			// Short format needs only app version, so do not check everything
@@ -85,29 +116,9 @@ class B_core__devel__version extends Block {
 			}
 		}
 
-		// Update version.ini
-		if ($need_update) {
-			if (system(escapeshellarg(DIR_CORE.'update-version.sh')) === FALSE) {
-				error_msg('Cannot update version info, executing update-version.sh failed.');
-			}
-			touch($version_file);	// be sure that file is created even if script failed
-		}
-
-		// Get version data
-		$version = parse_ini_file($version_file, TRUE);
-
-		// Show version (if present)
-		if (!empty($version)) {
-			$this->template_add(null, 'core/version', array(
-					'version' => $version,
-					'format'  => $format,
-					'link'    => $this->in('link'),
-					'prefix'  => $this->in('prefix'),
-					'suffix'  => $this->in('suffix'),
-				));
-			$this->out('done', true);
-		}
+		return $need_update;
 	}
+
 
 	private function is_git_repo_newer($ref_mtime, $basedir)
 	{
