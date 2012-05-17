@@ -244,9 +244,6 @@ if (isset($core_cfg['output']['default_type'])) {
 	$template->slot_option_set('root', 'type', $core_cfg['output']['default_type']);
 }
 
-/* Start session */
-session_start();
-
 /* Call app's init file(s) */
 if (!empty($core_cfg['core']['app_init_file'])) {
 	foreach((array) $core_cfg['core']['app_init_file'] as $f) {
