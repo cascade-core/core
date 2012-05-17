@@ -51,8 +51,8 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 	$map_url    = filename_format($dot_url_tpl,  array('hash' => $hash, 'ext' => 'map'));
 	debug_msg('Cascade graph file: %s', $png_file);
 
-	$dot_dir = dirname($dot_file);
-	if (!is_dir($dot_dir)) {
+	// Create directory if missing and if file is on ordinary filesystem
+	if (parse_url($dot_file, PHP_URL_SCHEME) == '' && ($dot_dir = dirname($dot_file)) != '' && !is_dir($dot_dir)) {
 		mkdir($dot_dir);
 	}
 
