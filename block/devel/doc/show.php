@@ -40,7 +40,7 @@ class B_core__devel__doc__show extends Block
 	protected $inputs = array(
 		'block' => array(),			// Name of the block to describe.
 		'show_code' => false,			// Show full source code of the block?
-		'link' => DEBUG_CASCADE_GRAPH_LINK,	// Link to documentation.
+		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
 		'require_description' => false,		// Fail if there is no description.
 		'heading_level' => 2,			// Level of the first heading.
 		'slot' => 'default',

@@ -190,7 +190,9 @@ if (isset($core_cfg['php'])) {
 /* Enable debug logging -- a lot of messages from debug_msg() */
 define('DEBUG_LOGGING_ENABLED', !empty($core_cfg['debug']['debug_logging_enabled']));
 define('DEBUG_VERBOSE_BANNER', !empty($core_cfg['debug']['verbose_banner']));
-define('DEBUG_CASCADE_GRAPH_LINK', @$core_cfg['debug']['cascade_graph_link']);
+define('DEBUG_CASCADE_GRAPH_FILE',     @$core_cfg['debug']['cascade_graph_file']);
+define('DEBUG_CASCADE_GRAPH_URL',      @$core_cfg['debug']['cascade_graph_url']);
+define('DEBUG_CASCADE_GRAPH_DOC_LINK', @$core_cfg['debug']['cascade_graph_doc_link']);
 
 /* Show banner in log */
 if (!empty($core_cfg['debug']['always_log_banner'])) {
@@ -281,10 +283,11 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	/* Template object will render & cache image */
 	$template->add_object('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
 			'cascade' => $cascade,
-			'dot_name' => 'data/graphviz/cascade-%s.%s',
+			'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
+			'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
+			'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,
+			'animate' => !empty($core_cfg['debug']['animate_cascade']),
 			'style' => @$core_cfg['debug']['add_cascade_graph'],
-			'link' => DEBUG_CASCADE_GRAPH_LINK,
-			'animate' => !empty($core_cfg['debug']['animate_cascade'])
 		));
 }
 

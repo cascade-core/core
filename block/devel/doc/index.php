@@ -38,7 +38,7 @@ class B_core__devel__doc__index extends Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'link' => DEBUG_CASCADE_GRAPH_LINK,	// Link to documentation.
+		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
 		'heading_level' => 2,			// Level of the first heading.
 		'regexp' => null,			// additional regexp used to filter filenames (example: '/\.ini\.php$/').
 		'slot' => 'default',

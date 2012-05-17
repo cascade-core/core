@@ -39,7 +39,7 @@ class B_core__devel__preview extends Block
 
 	protected $inputs = array(
 		'blocks' => array(),			// Blocks loaded from INI file.
-		'link' => DEBUG_CASCADE_GRAPH_LINK,	// Link to documentation.
+		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -61,12 +61,13 @@ class B_core__devel__preview extends Block
 		/* Template object will render & cache image */
 		$this->template_add('_cascade_graph', 'core/cascade_graph', array(
 				'cascade' => $cascade,
-				'whitelist' => $this->visible_block_names(),
-				'dot_name' => 'data/graphviz/cascade-%s.%s',
-				'preview' => true,
-				'style' => 'page_content',
+				'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
+				'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
 				'link' => $this->in('link'),
+				'preview' => true,
+				'whitelist' => $this->visible_block_names(),
 				'errors' => $errors,
+				'style' => 'page_content',
 			));
 
 		$this->out('done', $done);

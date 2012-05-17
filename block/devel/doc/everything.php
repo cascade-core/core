@@ -37,7 +37,7 @@ class B_core__devel__doc__everything extends B_core__devel__doc__index
 	const force_exec = true;
 
 	protected $inputs = array(
-		'link' => DEBUG_CASCADE_GRAPH_LINK,	// Link to documentation.
+		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
 		'heading_level' => 2,			// Level of the first heading.
 		'require_description' => true,		// Show only documented blocks.
 		'slot' => 'default',

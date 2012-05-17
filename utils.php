@@ -292,6 +292,11 @@ function template_format($template, array $values, $escaping_function = 'htmlspe
 }
 
 
+function filename_format($template, array $values) {
+	return template_format($template, $values, null, get_defined_constants());
+}
+
+
 function write_ini_file_row($f, $k, $v, $quotes) {
 	fwrite($f, $k);
 	fwrite($f, ' = ');

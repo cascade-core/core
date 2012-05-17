@@ -38,7 +38,9 @@ always_log_banner	= true
 log_memory_usage	= true
 add_cascade_graph	= true
 animate_cascade		= false
-cascade_graph_link	= "/documentation/block/%s"
+cascade_graph_file	= "{DIR_ROOT}data/graphviz/cascade-{hash}.{ext}"
+cascade_graph_url	= "/data/graphviz/cascade-{hash}.{ext}"
+cascade_graph_doc_link	= "/documentation/block/{block}"
 profiler_stats_file	= "var/profiler.stats"
 
 ; default output configuration
