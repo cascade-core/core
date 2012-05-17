@@ -246,9 +246,11 @@ if (isset($core_cfg['output']['default_type'])) {
 /* Start session */
 session_start();
 
-/* Call app's init file */
+/* Call app's init file(s) */
 if (!empty($core_cfg['core']['app_init_file'])) {
-	require(DIR_ROOT.$core_cfg['core']['app_init_file']);
+	foreach((array) $core_cfg['core']['app_init_file'] as $f) {
+		require(DIR_ROOT.$f);
+	}
 }
 
 /* Initialize default context */
