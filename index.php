@@ -193,6 +193,7 @@ define('DEBUG_VERBOSE_BANNER', !empty($core_cfg['debug']['verbose_banner']));
 define('DEBUG_CASCADE_GRAPH_FILE',     @$core_cfg['debug']['cascade_graph_file']);
 define('DEBUG_CASCADE_GRAPH_URL',      @$core_cfg['debug']['cascade_graph_url']);
 define('DEBUG_CASCADE_GRAPH_DOC_LINK', @$core_cfg['debug']['cascade_graph_doc_link']);
+define('DEBUG_PROFILER_STATS_FILE',    @$core_cfg['debug']['profiler_stats_file']);
 
 /* Show banner in log */
 if (!empty($core_cfg['debug']['always_log_banner'])) {
@@ -299,8 +300,11 @@ if (!empty($core_cfg['debug']['log_memory_usage'])) {
 }
 
 /* Store profiler statistics */
-if (($fn = @$core_cfg['debug']['profiler_stats_file']) !== null) {
-	file_put_contents($fn, gzcompress(serialize($cascade->get_execution_times(unserialize(gzuncompress(file_get_contents($fn))))), 2));
+if (DEBUG_PROFILER_STATS_FILE) {
+	$fn = filename_format(DEBUG_PROFILER_STATS_FILE);
+	$old_stats = file_exists($fn) ? unserialize(gzuncompress(file_get_contents($fn))) : array();
+	file_put_contents($fn, gzcompress(serialize($cascade->get_execution_times($old_stats)), 2));
+	unset($fn, $old_stats);
 }
 
 /* Generate output */

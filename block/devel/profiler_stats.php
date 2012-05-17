@@ -36,7 +36,7 @@ class B_core__devel__profiler_stats extends Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'filename' => '{DIR_ROOT}/var/profiler.stats',	// Location of profiler's statistics.
+		'filename' => DEBUG_PROFILER_STATS_FILE,	// Location of profiler's statistics.
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -51,7 +51,7 @@ class B_core__devel__profiler_stats extends Block
 
 	public function main()
 	{
-		$data = file_get_contents(template_format($this->in('filename'), get_defined_constants(), null));
+		$data = file_get_contents(filename_format($this->in('filename')));
 		if ($data === FALSE) {
 			return;
 		}
