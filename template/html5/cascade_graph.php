@@ -65,6 +65,8 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 			|| $png_mtime <= filemtime(__FILE__) || $map_mtime <= filemtime(__FILE__)
 			|| (!empty($animate) && !file_exists(sprintf($movie_file, 0))))
 	{
+		debug_msg('Rendering graph ...');
+
 		// store dot file, it will be rendered later
 		file_put_contents($dot_file, $dot);
 
@@ -77,9 +79,9 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 			}
 		}
 		
-		// render graph
-		$cascade->exec_dot($dot, 'png', $png_file);
-		$cascade->exec_dot($dot, 'cmapx', $map_file);
+		// render graph (when target is not ordinary file, direct streaming may be broken)
+		file_put_contents($png_file, $cascade->exec_dot($dot, 'png'));
+		file_put_contents($map_file, $cascade->exec_dot($dot, 'cmapx'));
 	}
 
 
