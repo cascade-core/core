@@ -39,6 +39,8 @@ class Template {
 
 	function add_object($id, $slot, $weight, $template, $data = array(), $context = null)
 	{
+		debug_msg('New object: id = "%s", slot = "%s", weight = %d, template = "%s"', $id, $slot, $weight, $template);
+
 		if (array_key_exists($id, $this->objects)) {
 			error_msg('Duplicate ID "%s"!', $id);
 			return false;
