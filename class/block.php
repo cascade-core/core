@@ -691,8 +691,15 @@ abstract class Block {
 	 *	Authentication & Authorization
 	 */
 
+	/* Get auth object from cascade controller */
+	final public function auth()
+	{
+		return $this->cascade_controller->get_auth();
+	}
+
+
 	/* Security - Level 1: check if block is allowed before cascade controller loads it */
-	public function auth_is_block_allowed($block_name, & $details = null)
+	final public function auth_is_block_allowed($block_name, & $details = null)
 	{
 		$auth = $this->cascade_controller->get_auth();
 
