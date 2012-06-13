@@ -33,7 +33,7 @@ chdir('..');
 
 echo
 	"\n",
-	"\tModule reuse statistics:\n",
+	"\tBlock reuse statistics:\n",
 	"\n";
 
 function show($label, $value) {
@@ -64,19 +64,19 @@ foreach ($routes as $r) {
 
 	$route_count++;
 
-	$content = parse_ini_file('app/module/page/'.$c_name.'.ini.php', true);
+	$content = parse_ini_file('app/block/page/'.$c_name.'.ini.php', true);
 
 	foreach ($content as $k => $c) {
-		if (preg_match('/^module:/', $k)) {
-			@ $usage[$c['.module']]++;
+		if (preg_match('/^block:/', $k)) {
+			@ $usage[$c['.block']]++;
 		}
 	}
 }
 arsort($usage);
 
 show("Route count", $route_count);
-show("Module instances used", array_sum($usage));
-show("Average module usage", array_sum($usage) / $route_count);
+show("Block instances used", array_sum($usage));
+show("Average block usage", array_sum($usage) / $route_count);
 
 $vals = array_values($usage);
 show("Median", $vals[round(count($usage) / 2)]);
