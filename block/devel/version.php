@@ -63,7 +63,7 @@ class B_core__devel__version extends Block {
 			/* Windows detected -- Do nothing.
 			 * IIS will not survive that little bash script and there is no Bash anyway. Use git plugin instead.
 			 */
-		} else if ($this->is_update_needed()) {
+		} else if ($this->is_update_needed($version_file, $format)) {
 			if (system(escapeshellarg(DIR_CORE.'update-version.sh')) === FALSE) {
 				error_msg('Cannot update version info, executing update-version.sh failed.');
 			}
@@ -88,7 +88,7 @@ class B_core__devel__version extends Block {
 
 
 	/// Check if version.ini needs update
-	private function is_update_needed($version_file)
+	private function is_update_needed($version_file, $format)
 	{
 		$version_mtime = @filemtime($version_file);
 		$version_size = @filesize($version_size);
