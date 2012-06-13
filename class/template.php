@@ -248,7 +248,7 @@ class Template {
 		$missed_slots = array_keys(array_filter($this->slot_content));
 		if (!empty($missed_slots)) {
 			foreach ($missed_slots as $s) {
-				error_msg('Missed slot: %s (%d objects: %s)', $s, count($this->slot_content[$s]),
+				debug_msg('Missed slot: %s (%d objects: %s)', $s, count($this->slot_content[$s]),
 						join(', ', array_map(function($a) { return $a[2]; }, $this->slot_content[$s])));
 			}
 		}
