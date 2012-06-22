@@ -40,7 +40,6 @@ class B_core__devel__doc__index extends Block
 	protected $inputs = array(
 		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
 		'heading_level' => 2,			// Level of the first heading.
-		'regexp' => null,			// additional regexp used to filter filenames (example: '/\.ini\.php$/').
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -52,8 +51,7 @@ class B_core__devel__doc__index extends Block
 
 	public function main()
 	{
-		$regexp = $this->in('regexp');
-		$blocks = $this->get_cascade_controller()->get_known_blocks($regexp);
+		$blocks = $this->get_cascade_controller()->get_known_blocks();
 
 		$this->template_add(null, 'core/doc/index', array(
 				'link' => $this->in('link'),

@@ -64,16 +64,23 @@ class B_core__ini__proxy extends Block {
 
 	const force_exec = true;
 
+	private $conf = null;
+
+
+	/**
+	 * Set configuration loaded by IniBlockStorage when creating instance.
+	 */
+	public function set_configuration($conf)
+	{
+		$this->conf = $conf;
+	}
+
 
 	public function main()
 	{
-		$m = $this->block_name();
-		$filename = get_block_filename($m, '.ini.php');
-
-		$conf = parse_ini_file($filename, TRUE);
-		if ($conf === FALSE) {
-			return;
-		}
+		// Get configuration
+		$conf = $this->conf;
+		unset($this->conf);	// no need for this anymore
 
 		// Policy checks
 		if (isset($conf['policy'])) {

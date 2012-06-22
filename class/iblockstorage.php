@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2012, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,47 +29,49 @@
  */
 
 /**
- * Show, how would cascade look like if specified blocks were inserted
- * into it. It uses it's own instance of cascade controller to make
- * the  preview.
+ * Load configuration of blocks. It allows loading blocks from many 
+ * different storages like simple INI files, SQL database or cloud blob 
+ * storage.
  */
-class B_core__devel__preview extends Block
-{
-	const force_exec = true;
+interface IBlockStorage {
 
-	protected $inputs = array(
-		'blocks' => array(),			// Blocks loaded from INI file.
-		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
-		'slot' => 'default',
-		'slot_weight' => 50,
-	);
+	/**
+	 * Returns true if there is no way that this storage can modify or 
+	 * create blocks. When creating or modifying block, first storage that 
+	 * returns true will be used.
+	 */
+	public function is_read_only();
 
-	protected $outputs = array(
-		'done' => true,
-	);
 
-	public function main()
-	{
-		/* Initialize cascade controller */
-		$cascade = $this->get_cascade_controller()->clone_empty();
+	/**
+	 * Create instance of requested block and give it loaded configuration. 
+	 * No further initialisation here, that is job for cascade controller. 
+	 * Returns created instance or false.
+	 */
+	public function create_block_instance ($block);
 
-		/* Prepare starting blocks */
-		$errors = array();
-		$done = $cascade->add_blocks_from_ini(null, $this->in('blocks'), $this->context, $errors);
+	/**
+	 * Load block configuration. Returns false if block is not found.
+	 */
+	public function load_block ($block);
 
-		/* Template object will render & cache image */
-		$this->template_add('_cascade_graph', 'core/cascade_graph', array(
-				'cascade' => $cascade,
-				'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
-				'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
-				'link' => $this->in('link'),
-				'preview' => true,
-				'whitelist' => $this->visible_block_names(),
-				'errors' => $errors,
-				'style' => 'page_content',
-			));
 
-		$this->out('done', $done);
-	}
+	/**
+	 * Store block configuration.
+	 */
+	public function store_block ($block, $config);
+
+
+	/**
+	 * Get time (unix timestamp) of last modification of the block.
+	 */
+	public function block_mtime ($block);
+
+
+	/**
+	 * List all available blocks in this storage.
+	 */
+	public function get_known_blocks (& $blocks = array());
+
 }
 

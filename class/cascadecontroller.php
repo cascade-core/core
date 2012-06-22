@@ -40,11 +40,28 @@ class CascadeController {
 	private $memory_usage = null;	// memory used by cascade (after minus before)
 
 	private $auth = null;
+	private $block_storages = array();
 
 
-	public function __construct(IAuth $auth = null)
+	public function __construct(IAuth $auth = null, $replacement_table)
 	{
 		$this->auth = $auth;
+
+		if ($replacement_table != null) {
+			$this->replacement = $replacement_table;
+		}
+	}
+
+
+	/**
+	 * Create new instance of cascade controller and copy current 
+	 * configuration. Useful for making preview of cascade.
+	 */
+	public function clone_empty()
+	{
+		$other = new CascadeController($this->auth, $this->replacement);
+		$other->block_storages = $this->block_storages;
+		return $other;
 	}
 
 
@@ -53,8 +70,8 @@ class CascadeController {
 		$mem_usage_before = memory_get_usage();
 		$t_start = microtime(TRUE);
 		reset($this->queue);
-		while((list($id, $m) = each($this->queue))) {
-			$m->cc_execute();
+		while((list($id, $b) = each($this->queue))) {
+			$b->cc_execute();
 		}
 		$this->execution_time = (microtime(TRUE) - $t_start) * 1000;
 		$this->memory_usage = memory_get_usage() - $mem_usage_before;
@@ -67,26 +84,22 @@ class CascadeController {
 	}
 
 
-	public function set_replacement_table($table)
-	{
-		if (is_array($table)) {
-			$this->replacement = $table;
-		} else {
-			$this->replacement = array();
-		}
-	}
-
-
 	public function get_replacement_table()
 	{
 		return $this->replacement;
 	}
 
 
+	public function add_block_storage(IBlockStorage $storage, $storage_id)
+	{
+		$this->block_storages[$storage_id] = $storage;
+	}
+
+
 	public function resolve_block_name($block_name)
 	{
-		if (($m = @$this->root_namespace[$block_name])) {
-			return $m;
+		if (($b = @$this->root_namespace[$block_name])) {
+			return $b;
 		} else {
 			error_msg('Block "%s" not found in root namespace!', $block_name);
 		}
@@ -171,17 +184,19 @@ class CascadeController {
 			return false;
 		}
 
-		/* build class name */
-		$class = 'B_'.str_replace('/', '__', $block);
+		/* ask storages in specified order until block is created */
+		foreach ($this->block_storages as $s_name => $s) {
+			/* create instance or try next storage */
+			$b = $s->create_block_instance($block);
+			if (!$b) {
+				continue;
+			}
 
-		/* kick autoloader */
-		if (class_exists($class)) {
-			debug_msg('Adding block "%s" (%s)', $full_id, $block);
+			debug_msg('Adding block "%s" (%s) from %s', $full_id, $block, $s_name);
 
-			/* initialize block */
-			$m = new $class();
-			$m->cc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
-			if (!$m->cc_connect($connections, $this->blocks)) {
+			/* initialize and connect block */
+			$b->cc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
+			if (!$b->cc_connect($connections, $this->blocks)) {
 				error_msg('Block "%s": Can\'t connect inputs!', $full_id);
 				$errors[] = array(
 					'error'   => 'Can\'t connect inputs.',
@@ -196,56 +211,45 @@ class CascadeController {
 
 			/* put block to parent's namespace */
 			if ($parent) {
-				$parent->cc_register_block($m);
+				$parent->cc_register_block($b);
 			} else {
-				$this->root_namespace[$id] = $m;
+				$this->root_namespace[$id] = $b;
 			}
 
 			/* add block to queue */
-			$this->blocks[$full_id] = $m;
-			if ($force_exec === null ? $class::force_exec : $force_exec) {
-				$this->queue[] = $m;
+			$this->blocks[$full_id] = $b;
+			if ($force_exec === null ? $b::force_exec : $force_exec) {
+				$this->queue[] = $b;
 			}
 
 			return true;
-
-		} else {
-			/* class not found, check if ini file exists */
-			$f = get_block_filename($block, '.ini.php');
-
-			if ($block != 'core/ini/proxy' && is_file($f)) {
-				/* load core/ini/proxy for this ini file */
-				debug_msg('Loading core/ini/proxy for "%s".', $f);
-				return $this->add_block($parent, $id, 'core/ini/proxy', $force_exec, $connections, $context, $errors, $block);
-
-			} else {
-				/* block not found */
-				error_msg('Block "%s" not found.', $block);
-				$errors[] = array(
-					'error'   => 'Block not found.',
-					'id'      => $id,
-					'full_id' => $full_id,
-					'block'   => $block,
-				);
-				$this->add_failed_block($parent, $id, $full_id, $block, $connections);
-				return false;
-			}
 		}
+
+		/* block not found */
+		error_msg('Block "%s" not found.', $block);
+		$errors[] = array(
+			'error'   => 'Block not found.',
+			'id'      => $id,
+			'full_id' => $full_id,
+			'block'   => $block,
+		);
+		$this->add_failed_block($parent, $id, $full_id, $block, $connections);
+		return false;
 	}
 
 
 	private function add_failed_block($parent, $id, $full_id, $real_block, array $connections)
 	{
 		/* create dummy block */
-		$m = new B_core__dummy();
-		$m->cc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED);
-		$m->cc_connect($connections, $this->blocks);
+		$b = new B_core__dummy();
+		$b->cc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED);
+		$b->cc_connect($connections, $this->blocks);
 
 		/* put block to parent's namespace */
 		if ($parent) {
-			$parent->cc_register_block($m);
+			$parent->cc_register_block($b);
 		} else {
-			$this->root_namespace[$id] = $m;
+			$this->root_namespace[$id] = $b;
 		}
 
 		return true;
@@ -299,8 +303,8 @@ class CascadeController {
 	public function dump_namespaces()
 	{
 		$str = '';
-		foreach ($this->root_namespace as $name => $m) {
-			$str .= $name."\n".$m->cc_dump_namespace(1);
+		foreach ($this->root_namespace as $name => $b) {
+			$str .= $name."\n".$b->cc_dump_namespace(1);
 		}
 		return $str;
 	}
@@ -317,12 +321,12 @@ class CascadeController {
 			$by_block = array();
 		}
 
-		foreach($this->blocks as $m) {
-			$t = $m->cc_execution_time();
+		foreach($this->blocks as $b) {
+			$t = $b->cc_execution_time();
 			if ($t > 0) {
 				$cnt++;
 				$sum += $t;
-				$bm = & $by_block[$m->block_name()];
+				$bm = & $by_block[$b->block_name()];
 				@$bm['sum'] += $t;		// arsort() uses first field in array
 				@$bm['cnt']++;
 				@$bm['min'] = $bm['min'] === null ? $t : min($t, $bm['min']);
@@ -637,59 +641,19 @@ class CascadeController {
 	/**
 	 * Get names of all existing blocks grouped by their prefix (plugin).
 	 */
-	public static function get_known_blocks($regexp = null)
+	public function get_known_blocks($regexp = null)
 	{
-		$prefixes = array(
-			'' => DIR_APP.DIR_BLOCK,
-			'core' => DIR_CORE.DIR_BLOCK,
-		);
-
-		foreach (get_plugin_list() as $plugin) {
-			$prefixes[$plugin] = DIR_PLUGIN.$plugin.'/'.DIR_BLOCK;
-		}
-
 		$blocks = array();
 
-		foreach ($prefixes as $prefix => $dir) {
-			$list = self::get_known_blocks__scan_directory($dir, $prefix, $regexp);
-			if (!empty($list)) {
-				$blocks[$prefix] = $list;
-			}
+		foreach ($this->block_storages as $s) {
+			$s->get_known_blocks($blocks);
+		}
+
+		foreach ($blocks as $plugin => $b) {
+			sort($blocks[$plugin]);
 		}
 
 		return $blocks;
-	}
-
-
-	private static function get_known_blocks__scan_directory($directory, $prefix, $regexp = null, $subdir = '', & $list = array())
-	{
-		$dir_name = $directory.$subdir;
-		$d = opendir($dir_name);
-		if (!$d) {
-			return $list;
-		}
-
-		while (($f = readdir($d)) !== FALSE) {
-			if ($f[0] == '.') {
-				continue;
-			}
-
-			$file = $dir_name.'/'.$f;
-			$block = $subdir.'/'.$f;
-
-			if (is_dir($file)) {
-				self::get_known_blocks__scan_directory($directory, $prefix, $regexp, $block, $list);
-			} else if (preg_match('/^[\/a-zA-Z0-9_]+(\.ini)?\.php$/', $block) && ($regexp == null || preg_match($regexp, $block))) {
-				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace('/^\/([\/a-zA-Z0-9_-]+)(?:\.ini)?\.php$/', '$1', $block);
-			}
-		}
-
-		closedir($d);
-
-		if ($subdir == '') {
-			sort($list);
-		}
-		return $list;
 	}
 
 
@@ -701,6 +665,8 @@ class CascadeController {
 	 */
 	public function describe_block($block)
 	{
+		// TODO: Use block storage to retrive informations.
+
 		// Get class name
 		$class = get_block_class_name($block);
 		if ($class === false) {

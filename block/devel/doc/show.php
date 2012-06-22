@@ -33,6 +33,8 @@
  *
  */
 
+// TODO: Use block storage to retrive informations.
+
 class B_core__devel__doc__show extends Block
 {
 	const force_exec = true;
@@ -351,7 +353,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function read_value(& $comments)
+	private function read_value(& $comments = null)
 	{
 		$str = '';
 		$depth = 0;

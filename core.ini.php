@@ -55,6 +55,10 @@ default_type		= "html5"
 [block-map]
 ;old-block/name	= "replacement-block/name"
 
+; list of enabled block storages (class names)
+[block-storage]
+ClassBlockStorage	= true
+IniBlockStorage		= true
 
 ;
 ; starting blocks

@@ -266,8 +266,18 @@ if (!empty($core_cfg['core']['auth_class'])) {
 }
 
 /* Initialize cascade controller */
-$cascade = new CascadeController($auth);
-$cascade->set_replacement_table(@$core_cfg['block-map']);
+$cascade = new CascadeController($auth, @$core_cfg['block-map']);
+
+/* Initialize block storages */
+foreach (empty($core_cfg['block-storage'])
+		? array('ClassBlockStorage' => true, 'IniBlockStorage' => true)
+		: $core_cfg['block-storage']
+	as $storage_class => $storage_opts)
+{
+	debug_msg('Initializing block storage "%s" ...', $storage_class);
+	$s = new $storage_class($storage_opts);
+	$cascade->add_block_storage($s, $storage_class);
+}
 
 /* Prepare starting blocks */
 $cascade->add_blocks_from_ini(null, $core_cfg, $default_context);
