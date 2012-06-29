@@ -39,6 +39,9 @@ class B_core__devel__doc__index extends Block
 
 	protected $inputs = array(
 		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
+		'writable_only' => false,		// Show only blocks from writable storages. It does 
+							// not mean that listed blocks are writable, only
+							// that storage is capable of writing.
 		'heading_level' => 2,			// Level of the first heading.
 		'slot' => 'default',
 		'slot_weight' => 50,
@@ -51,7 +54,8 @@ class B_core__devel__doc__index extends Block
 
 	public function main()
 	{
-		$blocks = $this->get_cascade_controller()->get_known_blocks();
+		$writable_only = $this->in('writable_only');
+		$blocks = $this->get_cascade_controller()->get_known_blocks($writable_only);
 
 		$this->template_add(null, 'core/doc/index', array(
 				'link' => $this->in('link'),

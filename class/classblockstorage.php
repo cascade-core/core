@@ -41,6 +41,13 @@ class ClassBlockStorage implements IBlockStorage {
 	protected $filename_match_regexp = '/^[\/a-zA-Z0-9_]+\.php$/';
 	protected $filename_to_block_regexp ='/^\/([\/a-zA-Z0-9_-]+)\.php$/'; 
 
+	/**
+	 * Constructor will get options from core.ini.php file, but this 
+	 * storage use no options.
+	 */
+	public function __construct($storage_opts)
+	{
+	}
 
 	/**
 	 * Returns true if there is no way that this storage can modify or 
@@ -99,7 +106,7 @@ class ClassBlockStorage implements IBlockStorage {
 	public function block_mtime ($block)
 	{
 		$filename = get_block_filename($block, '.php');
-		return filemtime($filename);
+		return @filemtime($filename);
 	}
 
 

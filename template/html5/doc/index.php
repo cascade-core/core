@@ -41,6 +41,9 @@ function TPL_html5__core__doc__index($t, $id, $d, $so)
 	echo "<$h2>", _('Blocks'), "</$h2>\n";
 
 	foreach ($blocks as $prefix => $pack) {
+		if (empty($pack)) {
+			continue;
+		}
 		echo "<$h3>", isset($titles[$prefix]) ? $titles[$prefix] : sprintf(_('Plugin: %s'), $prefix), "</$h3>\n";
 		echo "<ul>\n";
 		foreach ($pack as $m) {

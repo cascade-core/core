@@ -35,6 +35,12 @@
  */
 interface IBlockStorage {
 
+
+	/**
+	 * Constructor will get options from core.ini.php file.
+	 */
+	public function __construct($storage_opts);
+
 	/**
 	 * Returns true if there is no way that this storage can modify or 
 	 * create blocks. When creating or modifying block, first storage that 

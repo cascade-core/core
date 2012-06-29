@@ -84,17 +84,23 @@ class IniBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	{
 		$filename = get_block_filename($block, '.ini.php');
 
-		if (!is_writable($filename)) {
-			return false;
-		}
-
-		$saved = write_ini_file($dst_file, $new_cfg, TRUE);
+		$saved = write_ini_file($filename, $config, TRUE);
 		if (!$saved) {
-			error_msg('Failed to write INI file "%s".', $dst_file);
+			error_msg('Failed to write INI file "%s".', $filename);
 			return false;
 		}
 
 		return true;
+	}
+
+
+	/**
+	 * Get time (unix timestamp) of last modification of the block.
+	 */
+	public function block_mtime ($block)
+	{
+		$filename = get_block_filename($block, '.ini.php');
+		return @filemtime($filename);
 	}
 
 }

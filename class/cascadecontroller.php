@@ -96,6 +96,12 @@ class CascadeController {
 	}
 
 
+	public function get_block_storages()
+	{
+		return $this->block_storages;
+	}
+
+
 	public function resolve_block_name($block_name)
 	{
 		if (($b = @$this->root_namespace[$block_name])) {
@@ -641,12 +647,14 @@ class CascadeController {
 	/**
 	 * Get names of all existing blocks grouped by their prefix (plugin).
 	 */
-	public function get_known_blocks($regexp = null)
+	public function get_known_blocks($writable_only = false)
 	{
 		$blocks = array();
 
 		foreach ($this->block_storages as $s) {
-			$s->get_known_blocks($blocks);
+			if (!$writable_only || !$s->is_read_only()) {
+				$s->get_known_blocks($blocks);
+			}
 		}
 
 		foreach ($blocks as $plugin => $b) {
