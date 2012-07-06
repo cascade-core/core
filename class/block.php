@@ -265,7 +265,7 @@ abstract class Block {
 							$out[$i] = $m;
 						} else {
 							error_msg('Can\'t connect input "%s:%s" to "%s:%s" !',
-									$this->id, $in, $block_name, $block_out);
+									$this->full_id(), $in, $block_name, $block_out);
 							$this->status = self::FAILED;
 						}
 					}
@@ -320,32 +320,40 @@ abstract class Block {
 		//	  Lepe bude pockat az se budou resit zavislosti na pozadani
 		//	  a udelat to pri tom.
 		foreach($this->forward_list as $name => & $src) {
-			list($src_name, $src_out) = $src;
-			$m = $this->cc_resolve_block_name($src_name);
-			if ($m && (isset($m->outputs[$src_out]) || isset($m->outputs['*']))) {
-				$src[0] = $m;
-				if ($m->cc_execute()) {
-					$this->output_cache[$name] = $m->cc_get_output($src_out);
-				} else {
-					error_msg('Source block or output not found while forwarding to "%s:%s" from "%s:%s"!',
-							$this->full_id(), $name, $src_name, $src_out);
-					$this->status = self::FAILED;
-					break;
-				}
-			} else {
-				error_msg('Can\'t forward output "%s:%s" from "%s:%s" !',
-						$this->full_id, $name, $src_name, $src_out);
+			$n = count($src);
+			if ($n == 0) {
+				error_msg('%s: Can\'t forward output to "%s:%s" -- no source output defined!', $this->block_name(), $this->full_id(), $name);
 				$this->status = self::FAILED;
-				break;
+			} else {
+				for ($i = $src[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
+					$block_name = $src[$i];
+					$block_out = $src[$i + 1];
+					$b = $this->cc_resolve_block_name($block_name);
+					if (!$b) {
+						error_msg('%s: Can\'t forward output to "%s:%s" -- block "%s" not found!',
+								$this->block_name(), $this->full_id(), $name, $block_name);
+						$this->status = self::FAILED;
+					} else if (isset($b->outputs[$block_out]) || isset($b->outputs['*'])) {
+						if (is_object($b) && !$b->cc_execute()) {
+							error_msg('Can\'t forward output to "%s:%s" -- block "%s" has failed!',
+								$this->full_id(), $name, $block_name);
+						}
+						$src[$i] = $b;
+					} else {
+						error_msg('Can\'t forward output to "%s:%s" from "%s:%s" !',
+							$this->full_id(), $name, $block_name, $block_out);
+						$this->status = self::FAILED;
+					}
+				}
+				$this->output_cache[$name] = $this->collect_outputs($src);
 			}
-
 		}
 
 		return true;
 	}
 
 
-	final private function cc_get_output($name)
+	final public function cc_get_output($name)
 	{
 		if (array_key_exists($name, $this->output_cache)) {
 			// cached output
@@ -387,11 +395,11 @@ abstract class Block {
 	}
 
 
-	final public function cc_output_exists($name)
+	final public function cc_output_exists($name, $accept_wildcard = true)
 	{
 		return array_key_exists($name, $this->output_cache)
 			|| array_key_exists($name, $this->outputs)
-			|| array_key_exists('*', $this->outputs);
+			|| ($accept_wildcard && array_key_exists('*', $this->outputs));
 	}
 
 
@@ -453,6 +461,12 @@ abstract class Block {
 			return null;
 		}
 
+		return $this->collect_outputs($ref);
+	}
+
+
+	private function collect_outputs(& $ref)
+	{
 		// read input
 		if (is_array($ref)) {
 			// read from output
@@ -527,6 +541,7 @@ abstract class Block {
 
 					default:
 						error_msg('%s: Input "%s" requires unknown operator "%s"!', $this->block_name(), $name, $ref[0]);
+						$this->status = self::FAILED;
 						return null;
 				}
 			}
@@ -583,9 +598,13 @@ abstract class Block {
 
 
 	// forward output from another block
-	final protected function out_forward($name, $source_block, $source_name)
+	final protected function out_forward($name, $source_block, $source_name = null)
 	{
-		$this->forward_list[$name] = array($source_block, $source_name);
+		if ($source_name === null && is_array($source_block)) {
+			$this->forward_list[$name] = $source_block;
+		} else {
+			$this->forward_list[$name] = array($source_block, $source_name);
+		}
 	}
 
 

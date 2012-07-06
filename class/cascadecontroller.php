@@ -450,6 +450,7 @@ class CascadeController {
 			$inputs  = $block->cc_inputs();
 			$input_names = array();
 			$input_functions = array();
+			$output_functions = array();
 			$output_names = $block->cc_outputs();
 
 			/* connect inputs */
@@ -482,14 +483,12 @@ class CascadeController {
 							$missing = !array_key_exists($out_mod, $whitelist);
 						} else if ($out_mod->cc_output_exists($out_name)) {
 							$missing = false;
-							$v = $out_mod->cc_output_cache();
-							if (array_key_exists($out_name, $v) || in_array($out_name, $out_mod->cc_outputs())) {
-								$v = @$v[$out_name];
+							if ($out_mod->cc_output_exists($out_name, false)) {
+								$v = $out_mod->cc_get_output($out_name);
 								$exists = true;
 								$zero = empty($v);
 								$big = is_array($v) || is_object($v);
 							} else {
-								$v = null;
 								$exists = false;
 								$zero = true;
 								$big = false;
@@ -510,6 +509,31 @@ class CascadeController {
 					}
 				}
 			}
+
+			/* connect forwarded outputs */
+			foreach ($block->cc_forwarded_outputs() as $name => $src) {
+				$n = count($src);
+				if (!is_object($src[0]) && $src[0][0] == ':') {
+					$function = $src[0];
+					$output_functions[$name] = $function;
+				} else {
+					$function = null;
+				}
+				for ($i = $function !== null ? 1 : 0; $i < $n - 1; $i += 2) {
+					$src_mod = $src[$i];
+					$src_out = $src[$i + 1];
+					$src_block_id = $src_mod;
+					$has_output = false;
+					if (is_object($src_mod) || ($src_mod = $block->cc_resolve_block_name($src_mod))) {
+						$src_block_id = $src_mod->full_id();
+						$has_output = $src_mod->cc_output_exists($src_out, false);
+					}
+					$gv_inputs .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_block_id)
+							.($has_output ? ":o_".get_ident($src_out).":e":'')
+							.($is_created ? "[color=royalblue" : '[color="#eeeeee"').",arrowhead=dot,arrowtail=none,dir=both,weight=0];\n";
+				}
+			}
+			$gv_inputs .= "\n";
 
 			reset($input_names);
 			reset($output_names);
@@ -537,7 +561,9 @@ class CascadeController {
 					}
 					if ($out !== false) {
 						$gv .= "\t\t\t<td align=\"right\" port=\"o_".get_ident($out)."\">"
-							.htmlspecialchars($out)."</td>\n";
+							.htmlspecialchars($out)
+							.(isset($output_functions[$out]) ? ' ('.htmlspecialchars($output_functions[$out]).')' : '')
+							."</td>\n";
 					} else {
 						$gv .= "\t\t\t<td></td>\n";
 					}
@@ -563,21 +589,6 @@ class CascadeController {
 
 			$gv .=	"\t\t</table>>];\n";
 			$gv .=	$gv_inputs;
-
-			/* connect forwarded outputs */
-			foreach ($block->cc_forwarded_outputs() as $name => $src) {
-				list($src_mod, $src_out) = $src;
-				if (!is_object($src_mod) && ($resolved = $block->cc_resolve_block_name($src_mod))) {
-					$src_mod = $resolved;
-				}
-				$src_block_id = is_object($src_mod) ? $src_mod->full_id() : $src_mod;
-				$v = is_object($src_mod) ? $src_mod->cc_output_cache($src_out) : array();
-				$gv .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_block_id)
-						.(array_key_exists($src_out, $v) ? ":o_".get_ident($src_out).":e":'')
-					.($is_created ? "[color=royalblue" : '[color="#eeeeee"').",arrowhead=dot,arrowtail=none,dir=both,weight=0];\n";
-			}
-
-			$gv .= "\n";
 
 			/* recursively draw sub-namespaces */
 			$child_namespace = $block->cc_get_namespace();
