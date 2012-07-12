@@ -251,6 +251,11 @@ if (!empty($core_cfg['core']['app_init_file'])) {
 	}
 }
 
+/* Start session if not started yet */
+if (!isset($_SESSION)) {
+	session_start();
+}
+
 /* Initialize default context */
 $context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
 $default_context = new $context_class();
