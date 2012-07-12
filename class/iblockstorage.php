@@ -69,6 +69,12 @@ interface IBlockStorage {
 
 
 	/**
+	 * Delete block configuration.
+	 */
+	public function delete_block ($block);
+
+
+	/**
 	 * Get time (unix timestamp) of last modification of the block.
 	 */
 	public function block_mtime ($block);

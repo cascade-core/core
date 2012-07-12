@@ -83,14 +83,32 @@ class IniBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	public function store_block ($block, $config)
 	{
 		$filename = get_block_filename($block, '.ini.php');
+		$dir = dirname($filename);
+
+		if (!file_exists($dir)) {
+			if (!mkdir($dir, 0777, true)) {
+				error_msg('Failed to create directory "%s" while storing block "%s".', $dir, $block);
+			}
+		}
 
 		$saved = write_ini_file($filename, $config, TRUE);
 		if (!$saved) {
-			error_msg('Failed to write INI file "%s".', $filename);
+			error_msg('Failed to write INI file "%s" while storing block "%s".', $filename, $block);
 			return false;
 		}
 
 		return true;
+	}
+
+
+	/**
+	 * Delete block configuration.
+	 */
+	public function delete_block ($block)
+	{
+		$filename = get_block_filename($block, '.ini.php');
+
+		return file_exists($filename) && unlink($filename);
 	}
 
 
