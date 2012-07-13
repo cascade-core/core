@@ -600,7 +600,9 @@ abstract class Block {
 	// forward output from another block
 	final protected function out_forward($name, $source_block, $source_name = null)
 	{
-		if ($source_name === null && is_array($source_block)) {
+		if (!array_key_exists($name, $this->outputs) && !array_key_exists('*', $this->outputs)) {
+			error_msg('%s: Output "%s" does not exist!', $this->block_name(), $name);
+		} else if ($source_name === null && is_array($source_block)) {
 			$this->forward_list[$name] = $source_block;
 		} else {
 			$this->forward_list[$name] = array($source_block, $source_name);
