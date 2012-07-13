@@ -119,11 +119,17 @@ class B_core__out__message extends Block
 		}
 
 		/* get text */
-		if (($text = (string) $this->in($type.'_text')) == '') {
+		if (($text = $this->in($type.'_text')) == '') {
 			$text = $this->in('text');
 		}
 		if (!empty($in_vals)) {
-			$text = vsprintf($text, $in_vals);
+			if (is_array($text)) {
+				foreach ($text as & $t) {
+					$t = vsprintf($t, $in_vals);
+				}
+			} else {
+				$text = vsprintf($text, $in_vals);
+			}
 		}
 
 		/* http status */

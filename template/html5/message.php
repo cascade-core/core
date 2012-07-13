@@ -37,8 +37,16 @@ function TPL_html5__core__message($t, $id, $d, $so)
 	}
 
 	echo "<div id=\"", htmlspecialchars($id), "\" class=\"message message_", $type, "\">\n",
-		"<h2>", htmlspecialchars($title), "</h2>",
-		($text != '' ? "<p>".htmlspecialchars($text)."</p>" : ''),
-		"</div>";
+		"\t<h2>", htmlspecialchars($title), "</h2>\n";
+
+	if (is_array($text)) {
+		foreach ($text as $t) {
+			echo "\t<p>", htmlspecialchars($t), "</p>\n";
+		}
+	} else if ($text != '') {
+		echo "\t<p>", htmlspecialchars($text), "</p>\n";
+	}
+
+	echo "</div>\n\n";
 }
 
