@@ -65,8 +65,10 @@ class B_core__ini__load extends Block {
 		}
 
 		if ($name !== null) {
-			$fn = sprintf($fn, $name);
+			$fn = filename_format(sprintf($fn, $name));
 		}
+
+		$fn = filename_format($fn);
 
 		if ($this->in('scan_plugins')) {
 			$data = @parse_ini_file(DIR_APP.$fn, $process_sections);
