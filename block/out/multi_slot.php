@@ -43,6 +43,8 @@ class B_core__out__multi_slot extends Block
 	);
 
 	protected $outputs = array(
+		'*' => true,
+		'done' => true,
 	);
 
 	public function main()
@@ -61,7 +63,10 @@ class B_core__out__multi_slot extends Block
 				$this->template_add_to_slot($name, @$opts['slot'], @$opts['weight'], 'core/slot', array(
 						'name' => $name,
 					) + $opts);
+
+				$this->out($name, $name);
 			}
+			$this->out('done', true);
 		}
 	}
 }
