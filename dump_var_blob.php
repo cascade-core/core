@@ -33,77 +33,10 @@ if (isset($_SERVER['REMOTE_ADDR'])) {
         die('Please execute this from your command line!');
 }
 
-
-chdir('..');
-
-echo
-	"\n",
-	"\tBlock reuse statistics:\n",
-	"\n";
-
-function show($label, $value) {
-	printf("%-25s %s\n", $label.':', $value);
+if (count($argv) != 2) {
+	die('Usage: '.$argv[0].' file');
 }
 
-$routes = parse_ini_file('app/routes.ini.php', true);
-
-if (isset($routes['#'])) {
-	$defaults = $routes['#'];
-	unset($routes['#']);
-} else {
-	$defaults = array();
-}
-
-$route_count = 0;
-$usage = array();
-
-foreach ($routes as $r) {
-	if (isset($r['content'])) {
-		$c_name = $r['content'];
-	} else {
-		$c_name = @ $defaults['content'];
-	}
-	if ($c_name == '') {
-		continue;
-	}
-
-	$route_count++;
-
-	$content = parse_ini_file('app/block/page/'.$c_name.'.ini.php', true);
-
-	foreach ($content as $k => $c) {
-		if (preg_match('/^block:/', $k)) {
-			@ $usage[$c['.block']]++;
-		}
-	}
-}
-arsort($usage);
-
-show("Route count", $route_count);
-show("Block instances used", array_sum($usage));
-show("Average block usage", array_sum($usage) / $route_count);
-
-$vals = array_values($usage);
-show("Median", $vals[round(count($usage) / 2)]);
-
+var_export(unserialize(gzuncompress((file_get_contents($argv[1])))));
 echo "\n";
-
-foreach ($usage as $m => $c) {
-	show($m, $c);
-}
-echo "\n";
-
-$max = max($usage) + 1;
-$hist = array_pad(array(), $max + 1, 0);
-
-foreach ($usage as $v) {
-	$hist[$v]++;
-}
-
-echo "Histogram:\n";
-show('Use count', 'Block count');
-for ($i = 1; $i <= $max; $i++) {
-	show($i, $hist[$i]);
-}
-
 

@@ -73,7 +73,7 @@ class IniBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	{
 		$filename = get_block_filename($block, '.ini.php');
 
-		return parse_ini_file($filename, TRUE);
+		return file_exists($filename) ? parse_ini_file($filename, TRUE) : null;
 	}
 
 

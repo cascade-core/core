@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /*
  * Copyright (c) 2012, Josef Kufner  <jk@frozen-doe.net>
@@ -29,81 +28,26 @@
  * SUCH DAMAGE.
  */
 
-if (isset($_SERVER['REMOTE_ADDR'])) {
-        die('Please execute this from your command line!');
-}
+class B_core__ini__router_invalidate_cache extends Block
+{
+	protected $inputs = array(
+	);
+
+	protected $outputs = array(
+		'done' => true,
+	);
+
+	const force_exec = true;
 
 
-chdir('..');
-
-echo
-	"\n",
-	"\tBlock reuse statistics:\n",
-	"\n";
-
-function show($label, $value) {
-	printf("%-25s %s\n", $label.':', $value);
-}
-
-$routes = parse_ini_file('app/routes.ini.php', true);
-
-if (isset($routes['#'])) {
-	$defaults = $routes['#'];
-	unset($routes['#']);
-} else {
-	$defaults = array();
-}
-
-$route_count = 0;
-$usage = array();
-
-foreach ($routes as $r) {
-	if (isset($r['content'])) {
-		$c_name = $r['content'];
-	} else {
-		$c_name = @ $defaults['content'];
-	}
-	if ($c_name == '') {
-		continue;
-	}
-
-	$route_count++;
-
-	$content = parse_ini_file('app/block/page/'.$c_name.'.ini.php', true);
-
-	foreach ($content as $k => $c) {
-		if (preg_match('/^block:/', $k)) {
-			@ $usage[$c['.block']]++;
+	public function main()
+	{
+		if (defined('ROUTER_CACHE_FILE') && file_exists(ROUTER_CACHE_FILE)) {
+			unlink(ROUTER_CACHE_FILE);
 		}
+		$this->out('done');
 	}
-}
-arsort($usage);
 
-show("Route count", $route_count);
-show("Block instances used", array_sum($usage));
-show("Average block usage", array_sum($usage) / $route_count);
-
-$vals = array_values($usage);
-show("Median", $vals[round(count($usage) / 2)]);
-
-echo "\n";
-
-foreach ($usage as $m => $c) {
-	show($m, $c);
-}
-echo "\n";
-
-$max = max($usage) + 1;
-$hist = array_pad(array(), $max + 1, 0);
-
-foreach ($usage as $v) {
-	$hist[$v]++;
-}
-
-echo "Histogram:\n";
-show('Use count', 'Block count');
-for ($i = 1; $i <= $max; $i++) {
-	show($i, $hist[$i]);
 }
 
 

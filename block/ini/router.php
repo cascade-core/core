@@ -44,6 +44,7 @@ class B_core__ini__router extends Block {
 	protected $inputs = array(
 		'path' => null,			// Path to match.
 		'config' => array(),		// Configuration or filename where configuration is.
+		'scan_blocks' => true,		// Load configuration from blocks too?
 		'canonize_path' => true,	// Redirect to canonical form of path? (HTTP GET method only.)
 	);
 
@@ -84,7 +85,8 @@ class B_core__ini__router extends Block {
 			return;
 		}
 
-		$args = $this->route($uri_path);
+		$config = $this->load_config();
+		$args = $this->route($config, $uri_path);
 
 		if ($args !== false) {
 			// match found
@@ -102,7 +104,7 @@ class B_core__ini__router extends Block {
 	}
 
 
-	protected function route($path)
+	protected function load_config()
 	{
 		// load config
 		$config = $this->in('config');
@@ -111,12 +113,99 @@ class B_core__ini__router extends Block {
 			if ($conf === FALSE) {
 				return false;
 			}
+			$conf_mtime = filemtime($config);
 		} else if (is_array($config)) {
 			$conf = $config;
+			$conf_mtime = null;
 		} else {
 			return false;
 		}
 
+		// scan blocks, add results to $conf
+		if (array_key_exists('scan-blocks', $conf)) {
+			$this->scan_blocks($conf, $conf_mtime, $conf['scan-blocks']);
+		}
+
+		return $conf;
+	}
+
+
+	public function scan_blocks(& $conf, $conf_mtime, $scan_opts)
+	{
+		if (!empty($scan_opts['cache_file'])) {
+			$cache_file = filename_format(@$scan_opts['cache_file']);
+			$cache_mtime = $cache_file ? @filemtime($cache_file) : 0;
+			if (!defined('ROUTER_CACHE_FILE')) {
+				define('ROUTER_CACHE_FILE', $cache_file);
+			}
+		} else {
+			$cache_file = null;
+			$cache_mtime = null;
+		}
+
+		// Is cache up-to-date
+		if ($cache_file && $conf_mtime < $cache_mtime && filemtime(__FILE__) < $cache_mtime) {
+			$cache_content = unserialize(gzuncompress(file_get_contents($cache_file)));
+			if (is_array($cache_content)) {
+				$conf = $cache_content;
+				return;
+			}
+		}
+
+		$block_var = empty($scan_opts['block_var']) ? 'content' : $scan_opts['block_var'];
+
+		// Do scan
+		debug_msg('Scanning blocks for routes... Cache file: %s', $cache_file ? $cache_file : 'none');
+		$blocks = $this->get_cascade_controller()->get_known_blocks();
+		$storages = $this->get_cascade_controller()->get_block_storages();
+		foreach ($blocks as $plugin => $plugin_blocks) {				// From each block ...
+			foreach ($plugin_blocks as $block) {
+				foreach ($storages as $storage_id => $src_storage) {		// ... in each storage ...
+					$b = $src_storage->load_block($block);
+					if (is_array($b)) {
+						foreach ($b as $k => $v) {			// ... and each part of block configuration ...
+							if (strncmp('route:', $k, 6) == 0) {
+								$v[$block_var] = $block;
+								$conf[substr($k, 6)] = $v;	// ... get route description.
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// TODO: Optimize this... But who cares? It is cached anyway.
+		uksort($conf, function ($a, $b) {
+			$a_star = substr_compare($a, '**', -2, 2);
+			$b_star = substr_compare($b, '**', -2, 2);
+			if ($a_star != $b_star) {
+				return $b_star - $a_star;
+			}
+
+			$dollars = substr_count($a, '$') - substr_count($b, '$');
+			if ($dollars != 0) {
+				return $dollars;
+			}
+
+			$slashes = substr_count($b, '/') - substr_count($a, '/');
+			if ($slashes != 0) {
+				return $a_star || $b_star ? - $slashes : $slashes;
+			}
+
+			return strcmp($a, $b);
+		});
+		//echo "<pre style='text-align:left;margin:1em;'>\n", join("\n", array_keys($conf)), "\n</pre>\n";
+
+		// Save to cache
+		if ($cache_file) {
+			file_put_contents($cache_file, gzcompress(serialize($conf), 2));
+		}
+		return $conf;
+	}
+
+	
+	protected function route($conf, $path)
+	{
 		// default args
 		if (array_key_exists('#', $conf)) {
 			$defaults = $conf['#'];
@@ -171,5 +260,6 @@ class B_core__ini__router extends Block {
 		// no match
 		return false;
 	}
+
 }
 
