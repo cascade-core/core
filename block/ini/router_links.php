@@ -33,12 +33,17 @@
  * when website navigation is not finished yet. Works well with core/out/menu.
  */
 
-class B_core__ini__router_links extends Block {
+class B_core__ini__router_links extends B_core__ini__router {
 
 	protected $inputs = array(
-		'path' => null,			// Path to match.
-		'config' => array(),		// Configuration or filename where configuration is.
-		'title_output' => 'title',	// Name of router's output that contains menu item title.
+		'config' => null,		// Configuration or filename where configuration is.
+		'flat_list' => false,		// Build flat listing instead of tree structure
+		'title_key' => 'title',		// Key used for title in menu item
+		'title_fmt' => '{title}',	// Format of title (use any variable set in routes)
+		'link_key' => 'link',		// Key used for link in menu item
+		'link_fmt' => '{ROUTE}',	// Format of title (use any variable set in routes)
+		'children_key' => 'children_key', // Key used for nesting children items
+		'enable_key' => null,		// This value must be set to show the item
 	);
 
 	protected $outputs = array(
@@ -50,20 +55,16 @@ class B_core__ini__router_links extends Block {
 	public function main()
 	{
 		// load config
-		$config = $this->in('config');
-		if (is_string($config)) {
-			$conf = parse_ini_file($config, TRUE);
-			if ($conf === FALSE) {
-				return false;
-			}
-		} else if (is_array($config)) {
-			$conf = $config;
-		} else {
-			return false;
-		}
+		$conf = $this->load_config();
+
+		$flat_list = $this->in('flat_list');
+		$title_key = $this->in('title_key');
+		$title_fmt = $this->in('title_fmt');
+		$link_key = $this->in('link_key');
+		$link_fmt = $this->in('link_fmt');
+		$enable_key = $this->in('enable_key');
 
 		$links = array();
-		$title_key = $this->in('title_output');
 
 		// default args
 		if (array_key_exists('#', $conf)) {
@@ -73,33 +74,62 @@ class B_core__ini__router_links extends Block {
 			$defaults = array();
 		}
 
+		if (array_key_exists('scan-blocks', $conf)) {
+			$scan_opts = $conf['scan-blocks'];
+			$block_var = $scan_opts['block_var'];
+		} else {
+			$block_var = null;
+		}
+
+		if ($enable_key == 'BLOCK') {
+			$enable_key = $block_var;
+		}
+
 		// build list
-		foreach ($conf as $link => $outputs) {
-			if (strstr($link, '/$') == FALSE && preg_match('/\/\*\*$/', $link) == FALSE) {
-				if (array_key_exists($title_key, $outputs)) {
-					$title = $outputs[$title_key];
-				} else {
-					$title = @ $defaults[$title_key];
+		foreach ($conf as $route => $outputs) {
+			if ($route[0] != '/') {
+				continue;
+			}
+			if ($enable_key != null && empty($outputs[$enable_key])) {
+				continue;
+			}
+			if ($flat_list || (strstr($route, '/$') == FALSE && preg_match('/\/\*\*$/', $route) == FALSE)) {
+				$val = array_merge($defaults, $outputs);
+				$val['ROUTE'] = $route;
+				if ($block_var != null) {
+					$val['BLOCK'] = @ $val[$block_var];
 				}
+				$title = template_format($title_fmt, $val);
+				$link = template_format($link_fmt, $val);
+
 				if ($title == '') {
 					$title = $link;
 				}
 
-				$parent = & $links;
-				$link_parts = explode('/', $link);
-				$parent_parts = array_slice($link_parts, 1, -1);
-				$this_part = end($link_parts);
-				foreach($parent_parts as $part) {
-					$parent = & $parent[$part]['children'];
-				}
+				if ($flat_list) {
+					$links[] = array(
+						$title_key => $title,
+						$link_key => $link,
+					);
+				} else {
+					$parent = & $links;
+					$link_parts = explode('/', $route);
+					$parent_parts = array_slice($link_parts, 1, -1);
+					$this_part = end($link_parts);
+					foreach($parent_parts as $part) {
+						$parent = & $parent[$part]['children'];
+					}
 
-				$parent[$this_part]['link']  = $link;
-				$parent[$this_part]['title'] = $title;
+					$parent[$this_part][$link_key]  = $link;
+					$parent[$this_part][$title_key] = $title;
+				}
 			}
 		}
 
+		sort($links);
+
 		$this->out('links', $links);
-		$this->out('done', true);
+		$this->out('done', !empty($conf));
 	}
 }
 

@@ -44,7 +44,6 @@ class B_core__ini__router extends Block {
 	protected $inputs = array(
 		'path' => null,			// Path to match.
 		'config' => array(),		// Configuration or filename where configuration is.
-		'scan_blocks' => true,		// Load configuration from blocks too?
 		'canonize_path' => true,	// Redirect to canonical form of path? (HTTP GET method only.)
 	);
 
