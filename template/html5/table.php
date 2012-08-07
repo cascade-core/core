@@ -256,6 +256,15 @@ class tpl_html5__core__table__text {
 			$fmt_val = htmlspecialchars($value);
 		}
 
+		if (isset($this->opts['value_class']) && $fmt_val !== null) {
+			if (is_callable($this->opts['value_class'])) {
+				$c = $this->opts['value_class']($row_data);
+			} else {
+				$c = $this->opts['value_class'];
+			}
+			$fmt_val = '<span class="'.htmlspecialchars($c).'">'.$fmt_val.'</span>';
+		}
+
 		if (isset($this->opts['link'])) {
 			if (is_callable($this->opts['link'])) {
 				$href = $this->opts['link']($row_data);
