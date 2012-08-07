@@ -209,34 +209,37 @@ class tpl_html5__core__table__text {
 		}
 
 		echo "<", $this->td_tag, $this->td_attr, $title != '' ? ' title="'.htmlspecialchars($title).'"' : '', $data, ">",
-			$this->fmt_value($row_data), "</", $this->td_tag, ">\n";
+			$this->fmt_value($this->raw_value($row_data), $row_data), "</", $this->td_tag, ">\n";
 	}
 
-	function fmt_value($row_data)
+	function raw_value($row_data)
 	{
 		if (isset($this->opts['value'])) {
 			if (is_callable($this->opts['value'])) {
-				$value = $this->opts['value']($row_data);
+				return $this->opts['value']($row_data);
 			} else {
-				$value = $this->opts['value'];
+				return $this->opts['value'];
 			}
 		} else if (isset($this->opts['key'])) {
 			if (is_array($this->opts['key'])) {
-				$value = $row_data;
+				return $row_data;
 				foreach ($this->opts['key'] as $k) {
 					if (isset($value[$k])) {
-						$value = $value[$k];
+						return $value[$k];
 					} else {
-						$value = null;
-						break;
+						return null;
 					}
 				}
 			} else {
-				$value = $row_data[$this->opts['key']];
+				return $row_data[$this->opts['key']];
 			}
 		} else {
-			$value = null;
+			return null;
 		}
+	}
+
+	function fmt_value($value, $row_data)
+	{
 		$fmt = @$this->opts['format'];
 
 		if ($value === null) {
@@ -309,6 +312,24 @@ class tpl_html5__core__table__number extends tpl_html5__core__table__text {
 	}
 }
 
+class tpl_html5__core__table__percentage extends tpl_html5__core__table__number {
+
+	function __construct($opts)
+	{
+		parent::__construct($opts);
+	}
+
+	function fmt_value($value, $row_data)
+	{
+		if ($value == null) {
+			return parent::fmt_value($value, $row_data);
+		} else {
+			return '<span class="value">' . parent::fmt_value($value, $row_data) . '</span>'
+				.'<span class="percent_bar" style="width:'.ceil($value).'%"></span>';
+		}
+	}
+}
+
 class tpl_html5__core__table__checkbox extends tpl_html5__core__table__text {
 
 	function th()
@@ -323,7 +344,7 @@ class tpl_html5__core__table__checkbox extends tpl_html5__core__table__text {
 
 	function td($row_data)
 	{
-		echo "<td", $this->td_attr, "><input type=\"checkbox\" value=\"", $this->fmt_value($row_data), "\" tabindex=\"1\"></td>\n";
+		echo "<td", $this->td_attr, "><input type=\"checkbox\" value=\"", $this->fmt_value($this->raw_value($row_data), $row_data), "\" tabindex=\"1\"></td>\n";
 	}
 
 }

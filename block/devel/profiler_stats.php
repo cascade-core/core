@@ -66,7 +66,7 @@ class B_core__devel__profiler_stats extends Block
 				'title'  => 'Block',
 				'key'    => 'block',
 			));
-		$table->add_column('number', array(
+		$table->add_column('percentage', array(
 				'title'  => 'Total time [%]',
 				'key'    => 'sum_pct',
 				'format' => '%1.1f',

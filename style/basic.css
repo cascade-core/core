@@ -113,7 +113,15 @@ table.table {
 		font-size: 1em;
 	}
 
-
+	table.table td span.percent_bar {
+                display: block;
+                margin: -4px auto 0px -2px;
+                padding: 0px;
+                height: 0px;
+                border: 2px solid #ccc;
+                background: #ccc;
+                text-align: left;
+        }
 
 h1, h2, h3, h4, h5, h6 {
 	font-weight: bold;
