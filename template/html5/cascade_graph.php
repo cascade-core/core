@@ -142,7 +142,7 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 			break;
 
 		case 'nette':
-			class CascadeGraphPanelWidget implements IDebugPanel
+			class CascadeGraphPanelWidget implements IBarPanel
 			{
 				var $id;
 				var $dot_file;
@@ -187,7 +187,7 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 				}
 			}
 			$plgpw = new CascadeGraphPanelWidget($id, $hash, $dot_file, $dot_url, $png_file, $png_url, $map_file, $map_url);
-			NDebug::addPanel($plgpw);
+			NDebugger::addPanel($plgpw);
 			break;
 	}
 }
