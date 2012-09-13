@@ -77,8 +77,8 @@ class B_core__devel__doc__show extends Block
 
 			$this->start();
 
-			//NDebug::barDump($this->data, 'Loaded data');
-			//NDebug::barDump(array_map(function($t) { if (is_array($t)) { $t[0] = token_name($t[0]); } return $t; }, $this->tokens), 'Tokens');
+			//NDebugger::barDump($this->data, 'Loaded data');
+			//NDebugger::barDump(array_map(function($t) { if (is_array($t)) { $t[0] = token_name($t[0]); } return $t; }, $this->tokens), 'Tokens');
 
 			if ($this->in('require_description') && $this->data['description'] == '') {
 				return;

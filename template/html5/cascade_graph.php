@@ -87,7 +87,7 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 
 	// autodetect graph style
 	if ((int) $d['style'] === 1) {
-		$style = class_exists('NDebug') && NDebug::isEnabled() ? 'nette' : 'image';
+		$style = class_exists('NDebugger') && NDebugger::isEnabled() ? 'nette' : 'image';
 	} else {
 		$style = $d['style'];
 	}
