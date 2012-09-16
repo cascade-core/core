@@ -78,10 +78,21 @@ class B_core__value__cascade_loader extends Block
 
 			$mod = $this->in($i);
 			foreach ((array) $mod as $m => $mod2) {
+				if ($mod2 == '') {
+					continue;
+				}
+
 				$id = preg_replace('/[^a-zA-Z0-9_]+/', '_', $i.'_'.$m);
-				$block = $this->cascade_add($id, $block_fmt !== null ? sprintf($block_fmt, $mod2) : $mod2, true, array(
+				$type = $block_fmt !== null ? sprintf($block_fmt, $mod2) : $mod2;
+
+				if ($type == '') {
+					continue;
+				}
+
+				$block = $this->cascade_add($id, $type, true, array(
 						//'enable' => array('parent', 'done'),
 					));
+
 				if ($block !== false) {
 					$any_ok = true;
 					foreach ($output_forward as $out) {
