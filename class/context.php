@@ -36,6 +36,15 @@ class Context {
 	private static $last_context_enviroment = false;
 
 
+	public function __construct()
+	{
+		// Nothing to do... yet.
+		//
+		// Don't forget to call this from derived classes, even if this
+		// is empty now.
+	}
+
+
 	/****************************************************************************
 	 *	For blocks
 	 */
