@@ -128,7 +128,7 @@ class CascadeController {
 	}
 
 
-	public function add_block($parent, $id, $block, $force_exec, array $connections, Context $context, & $errors = null, $real_block = null)
+	private function create_block_instance($block, & $errors = null, & $storage_name = null)
 	{
 		/* check replacement table */
 		for ($step = 32; isset($this->replacement[$block]) && $step > 0; $step--) {
@@ -141,32 +141,6 @@ class CascadeController {
 			$errors[] = array(
 				'error'   => 'Invalid block name.',
 				'id'      => $id,
-				'block'   => $block,
-			);
-			return false;
-		}
-
-		/* check malformed IDs */
-		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
-			error_msg('Invalid block ID: %s', $id);
-			$errors[] = array(
-				'error'   => 'Invalid block ID.',
-				'id'      => $id,
-				'block'   => $block,
-			);
-			return false;
-		}
-
-		/* build full ID */
-		$full_id = ($parent ? $parent->full_id() : '').'.'.$id;
-
-		/* check for duplicate IDs */
-		if (array_key_exists($full_id, $this->blocks)) {
-			error_msg('Block ID "%s" already exists in cascade!', $full_id);
-			$errors[] = array(
-				'error'   => 'Block ID already exists in cascade.',
-				'id'      => $id,
-				'full_id' => $full_id,
 				'block'   => $block,
 			);
 			return false;
@@ -194,53 +168,90 @@ class CascadeController {
 		foreach ($this->block_storages as $s_name => $s) {
 			/* create instance or try next storage */
 			$b = $s->create_block_instance($block);
-			if (!$b) {
-				continue;
+			if ($b) {
+				$storage_name = $s_name;
+				return $b;
 			}
-
-			debug_msg('Adding block "%s" (%s) from %s', $full_id, $block, $s_name);
-
-			/* initialize and connect block */
-			$b->cc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
-			if (!$b->cc_connect($connections, $this->blocks)) {
-				error_msg('Block "%s": Can\'t connect inputs!', $full_id);
-				$errors[] = array(
-					'error'   => 'Can\'t connect inputs.',
-					'id'      => $id,
-					'full_id' => $full_id,
-					'block'   => $block,
-					'inputs'  => $connections,
-				);
-				$this->add_failed_block($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
-				return false;
-			}
-
-			/* put block to parent's namespace */
-			if ($parent) {
-				$parent->cc_register_block($b);
-			} else {
-				$this->root_namespace[$id] = $b;
-			}
-
-			/* add block to queue */
-			$this->blocks[$full_id] = $b;
-			if ($force_exec === null ? $b::force_exec : $force_exec) {
-				$this->queue[] = $b;
-			}
-
-			return true;
 		}
 
-		/* block not found */
-		error_msg('Block "%s" not found.', $block);
-		$errors[] = array(
-			'error'   => 'Block not found.',
-			'id'      => $id,
-			'full_id' => $full_id,
-			'block'   => $block,
-		);
-		$this->add_failed_block($parent, $id, $full_id, $block, $connections);
 		return false;
+	}
+
+
+	public function add_block($parent, $id, $block, $force_exec, array $connections, Context $context, & $errors = null, $real_block = null)
+	{
+		/* check malformed IDs */
+		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
+			error_msg('Invalid block ID: %s', $id);
+			$errors[] = array(
+				'error'   => 'Invalid block ID.',
+				'id'      => $id,
+				'block'   => $block,
+			);
+			return false;
+		}
+
+		/* build full ID */
+		$full_id = ($parent ? $parent->full_id() : '').'.'.$id;
+
+		/* check for duplicate IDs */
+		if (array_key_exists($full_id, $this->blocks)) {
+			error_msg('Block ID "%s" already exists in cascade!', $full_id);
+			$errors[] = array(
+				'error'   => 'Block ID already exists in cascade.',
+				'id'      => $id,
+				'full_id' => $full_id,
+				'block'   => $block,
+			);
+			return false;
+		}
+
+		/* create block instance */
+		$b = $this->create_block_instance($block, $errors, $storage_name);
+		if (!$b) {
+			/* block not found */
+			error_msg('Block "%s" not found.', $block);
+			$errors[] = array(
+				'error'   => 'Block not found.',
+				'id'      => $id,
+				'full_id' => $full_id,
+				'block'   => $block,
+			);
+			$this->add_failed_block($parent, $id, $full_id, $block, $connections);
+			return false;
+		}
+
+		debug_msg('Adding block "%s" (%s) from %s', $full_id, $block, $storage_name);
+
+		/* initialize and connect block */
+		$b->cc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
+		if (!$b->cc_connect($connections, $this->blocks)) {
+			error_msg('Block "%s": Can\'t connect inputs!', $full_id);
+			$errors[] = array(
+				'error'   => 'Can\'t connect inputs.',
+				'id'      => $id,
+				'full_id' => $full_id,
+				'block'   => $block,
+				'inputs'  => $connections,
+			);
+			$this->add_failed_block($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
+			return false;
+		}
+
+		/* put block to parent's namespace */
+		if ($parent) {
+			$parent->cc_register_block($b);
+		} else {
+			$this->root_namespace[$id] = $b;
+		}
+
+		/* add block to queue */
+		$this->blocks[$full_id] = $b;
+		if ($force_exec === null ? $b::force_exec : $force_exec) {
+			$this->queue[] = $b;
+		}
+
+		return true;
 	}
 
 
@@ -685,26 +696,13 @@ class CascadeController {
 	 */
 	public function describe_block($block)
 	{
-		// TODO: Use block storage to retrive informations.
-
-		// Get class name
-		$class = get_block_class_name($block);
-		if ($class === false) {
+		/* create instance of the block */
+		$b = $this->create_block_instance($block);
+		if (!$b) {
 			return false;
 		}
 
-		// Check permissions since we creating instance of that block
-		if ($this->auth !== null && !$this->auth->is_block_allowed($block, $details)) {
-			if ($details != '') {
-				error_msg('Permission denied to block %s (%s).', $block, $details);
-			} else {
-				error_msg('Permission denied to block %s.', $block);
-			}
-			return false;
-		}
-
-		// Create instance of the block and get description
-		$b = new $class();
+		/* get description */
 		$desc = $b->cc_describe_block();
 		unset($b);
 
