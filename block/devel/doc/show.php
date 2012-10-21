@@ -64,6 +64,7 @@ class B_core__devel__doc__show extends Block
 		if (is_array($block)) {
 			$block = join('/', $block);
 		}
+		$block = str_replace('-', '_', $block);
 		$this->expected_class = 'B_'.str_replace('/', '__', $block);
 
 		// PHP file

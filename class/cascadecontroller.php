@@ -429,7 +429,8 @@ class CascadeController {
 
 			/* add block header */
 			$subgraph .= $indent."m_".get_ident($id).";\n";
-			$gv .=	 "\tm_".get_ident($id)." [URL=\"".template_format($doc_link, array('block' => $block->block_name()))."\",target=\"_blank\","
+			$gv .=	 "\tm_".get_ident($id)." [URL=\"".template_format($doc_link, array('block' => str_replace('_', '-', $block->block_name())))."\","
+						."target=\"_blank\","
 						.($is_created ? '':'fontcolor="#eeeeee",')
 						."label=<<table border=\"1\"".($is_created ? '':' color="#eeeeee"')
 								." bgcolor=\"#ffffff\" cellborder=\"0\" cellspacing=\"0\">\n"

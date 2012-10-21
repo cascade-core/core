@@ -47,7 +47,8 @@ function TPL_html5__core__doc__index($t, $id, $d, $so)
 		echo "<$h3>", isset($titles[$prefix]) ? $titles[$prefix] : sprintf(_('Plugin: %s'), $prefix), "</$h3>\n";
 		echo "<ul>\n";
 		foreach ($pack as $m) {
-			echo "<li><a href=\"", htmlspecialchars(filename_format($link, array('block' => $m))), "\">", htmlspecialchars($m), "</a></li>";
+			echo "<li><a href=\"", htmlspecialchars(filename_format($link, array('block' => str_replace('_', '-', $m)))), "\">",
+			       	htmlspecialchars($m), "</a></li>";
 		}
 		echo "</ul>\n";
 	}
