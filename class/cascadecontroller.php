@@ -43,6 +43,7 @@ class CascadeController {
 	private $block_storages = array();
 
 	private $on_empty_cbl;
+	private $on_finished_cbl;
 
 
 	public function __construct(IAuth $auth = null, $replacement_table)
@@ -54,6 +55,7 @@ class CascadeController {
 		}
 
 		$this->on_empty_cbl = new CallbackList();
+		$this->on_finished_cbl = new CallbackList();
 	}
 
 
@@ -87,6 +89,8 @@ class CascadeController {
 
 		$this->execution_time = (microtime(TRUE) - $t_start) * 1000;
 		$this->memory_usage = memory_get_usage() - $mem_usage_before;
+
+		$this->on_finished_cbl->__invoke();
 	}
 
 
@@ -102,9 +106,16 @@ class CascadeController {
 	}
 
 
-	public function register_callback_on_empty($block, $method)
+	public function register_callback_on_empty(Block $block, $method)
 	{
 		$block->cc_add_note('on empty cb.');
+		return $this->on_empty_cbl->append($block, $method);
+	}
+
+
+	public function register_callback_on_finished(Block $block, $method)
+	{
+		$block->cc_add_note('on finished cb.');
 		return $this->on_empty_cbl->append($block, $method);
 	}
 
