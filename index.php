@@ -194,6 +194,8 @@ define('DEBUG_CASCADE_GRAPH_FILE',     @$core_cfg['debug']['cascade_graph_file']
 define('DEBUG_CASCADE_GRAPH_URL',      @$core_cfg['debug']['cascade_graph_url']);
 define('DEBUG_CASCADE_GRAPH_DOC_LINK', @$core_cfg['debug']['cascade_graph_doc_link']);
 define('DEBUG_PROFILER_STATS_FILE',    @$core_cfg['debug']['profiler_stats_file']);
+define('DEBUG_CASCADE_GRAPH_ANIMATE',  !empty($core_cfg['debug']['animate_cascade']));
+define('DEBUG_CASCADE_GRAPH_ADD',      @$core_cfg['debug']['add_cascade_graph']);
 
 /* Show banner in log */
 if (!empty($core_cfg['debug']['always_log_banner'])) {
@@ -226,22 +228,10 @@ if (function_exists('mb_internal_encoding')) {
 	mb_internal_encoding('UTF-8');
 }
 
-/* initialize template engine */
-if (isset($core_cfg['template']['engine-class'])) {
-	$template = new $core_cfg['template']['engine-class']();
-} else {
-	$template = new Template();
-}
-
 /* fix $_GET from lighttpd */
 if (!empty($core_cfg['core']['fix_lighttpd_get']) && strstr($_SERVER['REQUEST_URI'],'?')) {
 	$_SERVER['QUERY_STRING'] = preg_replace('#^.*?\?#','',$_SERVER['REQUEST_URI']);
 	parse_str($_SERVER['QUERY_STRING'], $_GET);
-}
-
-/* set default output type */
-if (isset($core_cfg['output']['default_type'])) {
-	$template->slot_option_set('root', 'type', $core_cfg['output']['default_type']);
 }
 
 /* Call app's init file(s) */
@@ -260,7 +250,6 @@ if (!isset($_SESSION)) {
 $context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
 $default_context = new $context_class();
 $default_context->set_locale(DEFAULT_LOCALE);
-$default_context->set_template_engine($template);
 
 /* Initialize auth object (if set) */
 if (!empty($core_cfg['core']['auth_class'])) {
@@ -293,19 +282,6 @@ $cascade->start();
 /* dump namespaces */
 //echo '<pre style="text-align: left;">', $cascade->dump_namespaces(), '</pre>';
 
-/* Visualize executed cascade */
-if (!empty($core_cfg['debug']['add_cascade_graph'])) {
-	/* Template object will render & cache image */
-	$template->add_object('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
-			'cascade' => $cascade,
-			'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
-			'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
-			'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,
-			'animate' => !empty($core_cfg['debug']['animate_cascade']),
-			'style' => @$core_cfg['debug']['add_cascade_graph'],
-		));
-}
-
 /* Log memory usage */
 if (!empty($core_cfg['debug']['log_memory_usage'])) {
 	extra_msg('Cascade memory usage: %1.3f B', $cascade->get_memory_usage() / 1024);
@@ -318,7 +294,4 @@ if (DEBUG_PROFILER_STATS_FILE) {
 	file_put_contents($fn, gzcompress(serialize($cascade->get_execution_times($old_stats)), 2));
 	unset($fn, $old_stats);
 }
-
-/* Generate output */
-$template->start();
 

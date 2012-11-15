@@ -62,6 +62,7 @@ abstract class Block {
 	private $timestamp_create = null;	// when was block created ?
 	private $timestamp_start = null;	// when block execution started ?
 	private $timestamp_finish = null;	// when block execution finished ?
+	private $notes = null;			// notes attached to blocks in graph
 
 	private $parent = null;			// parent block
 	private $namespace = null;		// references to other blocks
@@ -435,6 +436,22 @@ abstract class Block {
 			'inputs' => $this->inputs,
 			'outputs' => $this->outputs,
 		);
+	}
+
+
+	final public function cc_add_note($note)
+	{
+		if ($this->notes === null) {
+			$this->notes = array($note);
+		} else {
+			$this->notes[] = $note;
+		}
+	}
+
+
+	final public function cc_get_notes()
+	{
+		return (array) $this->notes;
 	}
 
 

@@ -42,6 +42,8 @@ class CascadeController {
 	private $auth = null;
 	private $block_storages = array();
 
+	private $on_empty_cbl;
+
 
 	public function __construct(IAuth $auth = null, $replacement_table)
 	{
@@ -50,6 +52,8 @@ class CascadeController {
 		if ($replacement_table != null) {
 			$this->replacement = $replacement_table;
 		}
+
+		$this->on_empty_cbl = new CallbackList();
 	}
 
 
@@ -65,14 +69,22 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Evaluate cascade.
+	 */
 	public function start()
 	{
 		$mem_usage_before = memory_get_usage();
 		$t_start = microtime(TRUE);
+
 		reset($this->queue);
-		while((list($id, $b) = each($this->queue))) {
-			$b->cc_execute();
-		}
+		do {
+			while((list($id, $b) = each($this->queue))) {
+				$b->cc_execute();
+			}
+			$this->on_empty_cbl->__invoke();
+		} while (key($this->queue) !== null);
+
 		$this->execution_time = (microtime(TRUE) - $t_start) * 1000;
 		$this->memory_usage = memory_get_usage() - $mem_usage_before;
 	}
@@ -87,6 +99,13 @@ class CascadeController {
 	public function get_replacement_table()
 	{
 		return $this->replacement;
+	}
+
+
+	public function register_callback_on_empty($block, $method)
+	{
+		$block->cc_add_note('on empty cb.');
+		return $this->on_empty_cbl->append($block, $method);
 	}
 
 
@@ -585,6 +604,19 @@ class CascadeController {
 				$in = next($input_names);
 				$in_fn = next($input_functions);
 				$out = next($output_names);
+			}
+
+			/* show attached notes */
+			$notes = $block->cc_get_notes();
+			if (!empty($notes)) {
+				foreach ($notes as $note) {
+					$gv .=   "	<tr>\n"
+						."		<td align=\"center\" colspan=\"2\">\n"
+						."			<font point-size=\"6\" color=\"dimgrey\">"
+										.htmlspecialchars($note)."</font>\n"
+						."		</td>\n"
+						."	</tr>\n";
+				}
 			}
 
 			/*

@@ -43,10 +43,6 @@ cascade_graph_url	= "/data/graphviz/cascade-{hash}.{ext}"
 cascade_graph_doc_link	= "/documentation/block/{block}"
 profiler_stats_file	= "var/profiler.stats"
 
-; default output configuration
-[output]
-default_type		= "html5"
-
 ; constants set by define(strtoupper(key), value)
 [define]
 ; key			= value
@@ -72,6 +68,11 @@ IniBlockStorage		= true
 ;
 ;; ... instead of these two:
 
+[block:template_engine]
+.block		= "core/template/engine"
+default_type	= "html5"
+auto_run	= true
+
 [block:load_routes]
 .block		= core/ini/load
 filename	= routes.examples.ini.php
@@ -86,7 +87,9 @@ enable[]	= load_routes:done
 .block		= "core/value/cascade_loader"
 output_forward	= "done,title,type"
 content[]	= "router:content"
+enable[]	= ":and"
 enable[]	= "router:done"
+enable[]	= "template_engine:done"
 
 [block:error_page]
 .block		= core/page/error
