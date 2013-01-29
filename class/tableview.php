@@ -94,7 +94,11 @@ class TableView {
 	public function set_data($data)
 	{
 		$this->data_array = $data;
-		reset($this->data_array);
+		if ($this->data_array instanceof \Iterator) {
+			$this->data_array->rewind();
+		} else {
+			reset($this->data_array);
+		}
 	}
 
 
@@ -109,6 +113,14 @@ class TableView {
 		$method = $this->data_iterator[1];
 		if ($method !== null) {
 			return $this->data_iterator[0]->$method();
+		} else if ($this->data_array instanceof \Iterator) {
+			if ($this->data_array->valid()) {
+				$r = $this->data_array->current();
+				$this->data_array->next();
+				return $r;
+			} else {
+				return null;
+			}
 		} else {
 			list($k, $v) = each($this->data_array);
 			return $v;
