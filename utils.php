@@ -374,3 +374,53 @@ function write_ini_file($filename, $array, $sections = FALSE,
 	return fclose($f);
 }
 
+
+/**
+ * Encode array to JSON using json_encode, but insert PHP snippet to protect 
+ * sensitive data. You are expected to store result into *.json.php file. 
+ *
+ * Stop snippet: When JSON file is evaluated as PHP, stop snippet will 
+ * interrupt evaluation without breaking JSON syntax, only underscore 
+ * key is appended (and overwritten if exists).
+ *
+ * To make sure that whitelisted keys does not contain PHP tags, all 
+ * occurrences of '<?' are replaced with '<_?' in whitelisted values.
+ *
+ * Default $json_options are:
+ *  - PHP >= 5.4: JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+ *  - PHP <  5.4: JSON_NUMERIC_CHECK
+ *
+ * Options JSON_HEX_TAG and JSON_HEX_APOS are disabled, becouse they break 
+ * PHP snippet.
+ */
+function write_json_file($json_array, $whitelist = null, $json_options = null)
+{
+        $stop_snippet = "<?php printf('_%c%c}%c',34,10,10);__halt_compiler();?>";
+
+        if ($whitelist === null) {
+                // Put stop snippet on begin.
+                $result = array_merge(array('_' => null), $json_array);
+        } else {
+                // Whitelisted keys first (if they exist in $json_array), then stop snippet, then rest.
+                $header = array_intersect_key(array_flip($whitelist), $json_array);
+                $header['_'] = null;
+                $result = array_merge($header, $json_array);
+                // Replace '<?' with '<_?' in all whitelisted values, so injected PHP will not execute.
+                foreach ($whitelist as $k) {
+                        if (array_key_exists($k, $result) && is_string($result[$k])) {
+                                $result[$k] = str_replace('<?', '<_?', $result[$k]);
+                        }
+                }
+        }
+
+        // Put stop snipped at marked position (it is here to prevent 
+        // overwriting from $json_array).
+        $result['_'] = $stop_snippet;
+
+        return json_encode($result, $json_options === null
+                        ? (defined('JSON_PRETTY_PRINT')
+                                ? JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+                                : JSON_NUMERIC_CHECK)
+                        : $json_flags & ~(JSON_HEX_TAG | JSON_HEX_APOS));
+}
+
