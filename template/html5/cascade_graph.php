@@ -107,14 +107,15 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 		case 'image':
 		case 'page_content':
 			if ($style == 'image') {
-				echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_dump\" style=\"clear: both;\">\n",
-					"\t<hr>\n",
+				echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_dump\" style=\"clear: both;\">\n";
+				echo	"\t<hr>\n",
 					"\t<h2>Cascade</h2>\n",
-					"\t<div><small>[ ",
+					"\t<div>\n",
+					"\t<small>[ ",
 						"<a href=\"", htmlspecialchars($png_url), "\">png</a>",
 						" | <a href=\"", htmlspecialchars($dot_url), "\">dot</a>",
 						" | ", $hash,
-					" ]</small></div>\n";
+					" ]</small>\n";
 			} else {
 				echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_dump\">\n";
 			}
@@ -126,8 +127,7 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 				$map_replacement[] = '';
 			}
 			echo str_replace($map_needle, $map_replacement, file_get_contents($map_file)),
-				'<img src="', htmlspecialchars($png_url), '" usemap="cascade_graph_map__'.htmlspecialchars($id).'">',
-				"</div>\n";
+				'<img src="', htmlspecialchars($png_url), '" usemap="cascade_graph_map__', htmlspecialchars($id), "\">\n";
 			//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
 			if ($style == 'page_content' && !empty($errors)) {
 				echo "<b>Errors:</b>\n<ul>\n";
@@ -139,6 +139,10 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 				}
 				echo "</ul>\n";
 			}
+			if ($style == 'image') {
+				echo "</div>\n";
+			}
+			echo "</div>\n";
 			break;
 
 		case 'nette':
