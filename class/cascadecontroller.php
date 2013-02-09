@@ -672,7 +672,7 @@ class CascadeController {
 	 */
 	public function getKnownBlocks($writable_only = false)
 	{
-		$blocks = array();
+		$blocks = array('' => array(), 'core' => array());
 
 		foreach ($this->block_storages as $s) {
 			if (!$writable_only || !$s->isReadOnly()) {
