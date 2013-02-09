@@ -47,7 +47,7 @@ class B_core__value__combine extends Block {
 	{
 		$out = array();
 
-		foreach ($this->input_names() as $in) {
+		foreach ($this->inputNames() as $in) {
 			$out[$in] = $this->in($in);
 		}
 

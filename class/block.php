@@ -38,7 +38,7 @@ abstract class Block {
 	const FAILED   = 0x08;
 
 	// Default value of 'force_exec' flag when adding this block into
-	// cascade (not when calling add_block() from this class).
+	// cascade (not when calling addBlock() from this class).
 	// This is used when force_exec arg. is null (or not set at all).
 	const force_exec = false;
 
@@ -87,8 +87,8 @@ abstract class Block {
 	abstract public function main();
 
 	// Get unprepared output (called after main; once or never for each output).
-	// Remember to call $this->context->update_enviroment() if required.
-	//abstract public function get_output();
+	// Remember to call $this->context->updateEnviroment() if required.
+	//abstract public function getOutput();
 
 
 	final public function id()
@@ -97,13 +97,13 @@ abstract class Block {
 	}
 
 
-	final public function full_id()
+	final public function fullId()
 	{
 		return $this->full_id;
 	}
 
 
-	final public function block_name()
+	final public function blockName()
 	{
 		return $this->block_name;
 	}
@@ -115,13 +115,13 @@ abstract class Block {
 	}
 
 
-	final public function get_cascade_controller()
+	final public function getCascadeController()
 	{
 		return $this->cascade_controller;
 	}
 
 
-	final public function get_timestamps()
+	final public function getTimestamps()
 	{
 		return array($this->timestamp_create, $this->timestamp_start, $this->timestamp_finish);
 	}
@@ -141,7 +141,7 @@ abstract class Block {
 		$this->cascade_controller = $cascade_controller;
 		$this->block_name = $block_name;
 		$this->context = $context;
-		$this->timestamp_create = $this->cascade_controller->current_step();
+		$this->timestamp_create = $this->cascade_controller->currentStep();
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($this->timestamp_create + 100.0); // lim -> inf = 1
 		$this->status = $initial_status;
 
@@ -171,12 +171,12 @@ abstract class Block {
 	}
 
 
-	final public function cc_register_block($block)
+	final public function cc_registerBlock($block)
 	{
 		$id = $block->id();
 
 		if (isset($this->namespace[$id])) {
-			error_msg('Duplicate ID "%s" in the namespace of %s', $id, $this->full_id());
+			error_msg('Duplicate ID "%s" in the namespace of %s', $id, $this->fullId());
 			return false;
 		} else {
 			$this->namespace[$id] = $block;
@@ -185,14 +185,14 @@ abstract class Block {
 	}
 
 
-	final public function cc_resolve_block_name($block_name)
+	final public function cc_resolveBlockName($block_name)
 	{
 		$path = explode('.', $block_name);
 		$start_name = array_shift($path);
 
 		// Go out
 		if ($start_name == '') {
-			$m = $this->cascade_controller->resolve_block_name(array_shift($path));
+			$m = $this->cascade_controller->resolveBlockName(array_shift($path));
 		} else if ($start_name == 'parent') {
 			$m = $this->parent;
 		} else {
@@ -200,7 +200,7 @@ abstract class Block {
 			while ($t && !isset($t->namespace[$start_name])) {
 				$t = $t->parent;
 			}
-			$m = $t !== null ? $t->namespace[$start_name] : $this->cascade_controller->resolve_block_name($start_name);
+			$m = $t !== null ? $t->namespace[$start_name] : $this->cascade_controller->resolveBlockName($start_name);
 		}
 
 		if (!$m) {
@@ -230,7 +230,7 @@ abstract class Block {
 				return true;
 
 			case self::FAILED:
-				debug_msg('%s: Skipping failed block "%s"', $this->block_name(), $this->id());
+				debug_msg('%s: Skipping failed block "%s"', $this->blockName(), $this->id());
 				return false;
 
 			case self::RUNNING:
@@ -238,9 +238,9 @@ abstract class Block {
 				return false;
 		}
 
-		$this->timestamp_start = $this->cascade_controller->current_step();
+		$this->timestamp_start = $this->cascade_controller->currentStep();
 		$this->status = self::RUNNING;
-		debug_msg('%s: Preparing block "%s" (t = %d)', $this->block_name(), $this->full_id(), $this->timestamp_start);
+		debug_msg('%s: Preparing block "%s" (t = %d)', $this->blockName(), $this->fullId(), $this->timestamp_start);
 
 		/* dereference block names and build dependency list */
 		$dependencies = array();
@@ -250,22 +250,22 @@ abstract class Block {
 				$n = count($out);
 				if ($n == 0) {
 					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of block "%s" is not defined!',
-							$this->block_name(), $in, $this->full_id());
+							$this->blockName(), $in, $this->fullId());
 					$this->status = self::FAILED;
 				} else {
 					for ($i = $out[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
 						$block_name = $out[$i];
 						$block_out = $out[$i + 1];
-						$m = $this->cc_resolve_block_name($block_name);
+						$m = $this->cc_resolveBlockName($block_name);
 						if (!$m) {
-							error_msg('%s: Can\'t connect inputs -- block "%s" not found!', $this->block_name(), $block_name);
+							error_msg('%s: Can\'t connect inputs -- block "%s" not found!', $this->blockName(), $block_name);
 							$this->status = self::FAILED;
 						} else if (isset($m->outputs[$block_out]) || isset($m->outputs['*'])) {
-							$dependencies[$m->full_id()] = $m;
+							$dependencies[$m->fullId()] = $m;
 							$out[$i] = $m;
 						} else {
 							error_msg('Can\'t connect input "%s:%s" to "%s:%s" !',
-									$this->full_id(), $in, $block_name, $block_out);
+									$this->fullId(), $in, $block_name, $block_out);
 							$this->status = self::FAILED;
 						}
 					}
@@ -275,8 +275,8 @@ abstract class Block {
 
 		/* abort if failed */
 		if (!$this->status == self::FAILED) {
-			error_msg('%s: Failed to prepare block "%s"', $this->block_name(), $this->full_id());
-			$this->timestamp_finish = $this->cascade_controller->current_step();
+			error_msg('%s: Failed to prepare block "%s"', $this->blockName(), $this->fullId());
+			$this->timestamp_finish = $this->cascade_controller->currentStep();
 			return false;
 		}
 
@@ -292,27 +292,27 @@ abstract class Block {
 
 		/* abort if failed */
 		if ($this->status == self::FAILED) {
-			error_msg('%s: Failed to solve dependencies of block "%s"', $this->block_name(), $this->full_id());
-			$this->timestamp_finish = $this->cascade_controller->current_step();
+			error_msg('%s: Failed to solve dependencies of block "%s"', $this->blockName(), $this->fullId());
+			$this->timestamp_finish = $this->cascade_controller->currentStep();
 			return false;
 		}
 
 		/* do not execute if disabled */
 		if (!$this->in('enable')) {
-			debug_msg('%s: Skipping disabled block "%s"', $this->block_name(), $this->full_id());
+			debug_msg('%s: Skipping disabled block "%s"', $this->blockName(), $this->fullId());
 			$this->status = self::DISABLED;
-			$this->timestamp_finish = $this->cascade_controller->current_step();
+			$this->timestamp_finish = $this->cascade_controller->currentStep();
 			return true;
 		}
 
 		/* execute main */
-		debug_msg('%s: Starting block "%s"', $this->block_name(), $this->full_id());
-		$this->context->update_enviroment();
+		debug_msg('%s: Starting block "%s"', $this->blockName(), $this->fullId());
+		$this->context->updateEnviroment();
 		$t = microtime(TRUE);
 		$this->main();
 		$this->execution_time = (microtime(TRUE) - $t) * 1000;
 		$this->status = self::ZOMBIE;
-		$this->timestamp_finish = $this->cascade_controller->current_step();
+		$this->timestamp_finish = $this->cascade_controller->currentStep();
 
 		/* execute & evaluate forwarded outputs */
 		// TODO - nebylo by lepsi to udelat az na pozadani ?
@@ -322,30 +322,30 @@ abstract class Block {
 		foreach($this->forward_list as $name => & $src) {
 			$n = count($src);
 			if ($n == 0) {
-				error_msg('%s: Can\'t forward output to "%s:%s" -- no source output defined!', $this->block_name(), $this->full_id(), $name);
+				error_msg('%s: Can\'t forward output to "%s:%s" -- no source output defined!', $this->blockName(), $this->fullId(), $name);
 				$this->status = self::FAILED;
 			} else {
 				for ($i = $src[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
 					$block_name = $src[$i];
 					$block_out = $src[$i + 1];
-					$b = $this->cc_resolve_block_name($block_name);
+					$b = $this->cc_resolveBlockName($block_name);
 					if (!$b) {
 						error_msg('%s: Can\'t forward output to "%s:%s" -- block "%s" not found!',
-								$this->block_name(), $this->full_id(), $name, $block_name);
+								$this->blockName(), $this->fullId(), $name, $block_name);
 						$this->status = self::FAILED;
 					} else if (isset($b->outputs[$block_out]) || isset($b->outputs['*'])) {
 						if (is_object($b) && !$b->cc_execute()) {
 							error_msg('Can\'t forward output to "%s:%s" -- block "%s" has failed!',
-								$this->full_id(), $name, $block_name);
+								$this->fullId(), $name, $block_name);
 						}
 						$src[$i] = $b;
 					} else {
 						error_msg('Can\'t forward output to "%s:%s" from "%s:%s" !',
-							$this->full_id(), $name, $block_name, $block_out);
+							$this->fullId(), $name, $block_name, $block_out);
 						$this->status = self::FAILED;
 					}
 				}
-				$this->output_cache[$name] = $this->collect_outputs($src);
+				$this->output_cache[$name] = $this->collectOutputs($src);
 			}
 		}
 
@@ -353,7 +353,7 @@ abstract class Block {
 	}
 
 
-	final public function cc_get_output($name)
+	final public function cc_getOutput($name)
 	{
 		if (array_key_exists($name, $this->output_cache)) {
 			// cached output
@@ -363,7 +363,7 @@ abstract class Block {
 		} else {
 			// create output and cache it
 			if (method_exists($this, 'get_output')) {
-				$value = $this->get_output($name);
+				$value = $this->getOutput($name);
 			} else {
 				return null;
 			}
@@ -384,18 +384,18 @@ abstract class Block {
 		return array_keys($this->output_cache + $this->outputs);
 	}
 
-	final public function cc_output_cache()
+	final public function cc_outputCache()
 	{
 		return $this->output_cache;
 	}
 
-	final public function cc_forwarded_outputs()
+	final public function cc_forwardedOutputs()
 	{
 		return $this->forward_list;
 	}
 
 
-	final public function cc_output_exists($name, $accept_wildcard = true)
+	final public function cc_outputExists($name, $accept_wildcard = true)
 	{
 		return array_key_exists($name, $this->output_cache)
 			|| array_key_exists($name, $this->outputs)
@@ -403,31 +403,31 @@ abstract class Block {
 	}
 
 
-	final public function cc_get_namespace()
+	final public function cc_getNamespace()
 	{
 		return $this->namespace;
 	}
 
 
-	final public function cc_execution_time()
+	final public function cc_executionTime()
 	{
 		return $this->execution_time;
 	}
 
 
-	final public function cc_dump_namespace($level = 1)
+	final public function cc_dumpNamespace($level = 1)
 	{
 		$str = '';
 		$indent = str_repeat('. ', $level);
 		foreach ($this->namespace as $name => $m) {
-			$str .= $indent.$name."\n".($name != 'self' && $name != 'parent' && $m ? $m->cc_dump_namespace($level + 1) : '');
+			$str .= $indent.$name."\n".($name != 'self' && $name != 'parent' && $m ? $m->cc_dumpNamespace($level + 1) : '');
 		}
 		return $str;
 	}
 
 
 	/* Describe block, it's inputs, outputs, ... */
-	final public function cc_describe_block()
+	final public function cc_describeBlock()
 	{
 		return array(
 			'block' => str_replace('__', '/', preg_replace('/^B_/', '', __CLASS__)),
@@ -457,15 +457,15 @@ abstract class Block {
 			$ref = & $this->inputs['*'];
 		} else {
 			// or fail
-			error_msg('%s: Input "%s" is not defined!', $this->block_name(), $name);
+			error_msg('%s: Input "%s" is not defined!', $this->blockName(), $name);
 			return null;
 		}
 
-		return $this->collect_outputs($ref);
+		return $this->collectOutputs($ref);
 	}
 
 
-	private function collect_outputs(& $ref)
+	private function collectOutputs(& $ref)
 	{
 		// read input
 		if (is_array($ref)) {
@@ -473,13 +473,13 @@ abstract class Block {
 			$n = count($ref);
 			if ($n == 2) {
 				// single output
-				return is_object($ref[0]) ? $ref[0]->cc_get_output($ref[1]) : null;
+				return is_object($ref[0]) ? $ref[0]->cc_getOutput($ref[1]) : null;
 			} else {
 				// use specified function to create one value from multiple outputs
 				switch ($ref[0]) {
 					case ':or':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							$x = is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null;
+							$x = is_object($ref[$i]) ? $ref[$i]->cc_getOutput($ref[$i + 1]) : null;
 							if ($x) {
 								return $x;
 							}
@@ -488,7 +488,7 @@ abstract class Block {
 
 					case ':nor':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							if (is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null) {
+							if (is_object($ref[$i]) ? $ref[$i]->cc_getOutput($ref[$i + 1]) : null) {
 								return false;
 							}
 						}
@@ -496,7 +496,7 @@ abstract class Block {
 
 					case ':and':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							if (!(is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null)) {
+							if (!(is_object($ref[$i]) ? $ref[$i]->cc_getOutput($ref[$i + 1]) : null)) {
 								return false;
 							}
 						}
@@ -505,7 +505,7 @@ abstract class Block {
 					case ':not':
 					case ':nand':
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							if (!(is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null)) {
+							if (!(is_object($ref[$i]) ? $ref[$i]->cc_getOutput($ref[$i + 1]) : null)) {
 								return true;
 							}
 						}
@@ -514,7 +514,7 @@ abstract class Block {
 					case ':merge':
 						$a = array();
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							$a[] = (array) (is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null);
+							$a[] = (array) (is_object($ref[$i]) ? $ref[$i]->cc_getOutput($ref[$i + 1]) : null);
 						}
 						return call_user_func('array_merge', $a);
 
@@ -527,7 +527,7 @@ abstract class Block {
 					case ':unique':
 						$a = array();
 						for ($i = 1; $i < $n - 1; $i += 2) {
-							$a[] = is_object($ref[$i]) ? $ref[$i]->cc_get_output($ref[$i + 1]) : null;
+							$a[] = is_object($ref[$i]) ? $ref[$i]->cc_getOutput($ref[$i + 1]) : null;
 						}
 						switch ($ref[0]) {
 							case ':array':    return $a;
@@ -540,7 +540,7 @@ abstract class Block {
 						}
 
 					default:
-						error_msg('%s: Input "%s" requires unknown operator "%s"!', $this->block_name(), $name, $ref[0]);
+						error_msg('%s: Input "%s" requires unknown operator "%s"!', $this->blockName(), $name, $ref[0]);
 						$this->status = self::FAILED;
 						return null;
 				}
@@ -553,7 +553,7 @@ abstract class Block {
 
 
 	// get input names, excluding common inputs and '*'
-	final protected function input_names()
+	final protected function inputNames()
 	{
 		return array_diff(array_keys($this->inputs), array(
 				'*',
@@ -563,9 +563,9 @@ abstract class Block {
 
 
 	// collect values from numeric inputs - works well with vsprintf()
-	final protected function collect_numeric_inputs()
+	final protected function collectNumericInputs()
 	{
-		$real_inputs = $this->input_names();
+		$real_inputs = $this->inputNames();
 		$virtual_cnt = count($real_inputs) - count($this->inputs);
 		$vals = array_pad(array(), $virtual_cnt, null);
 
@@ -585,23 +585,23 @@ abstract class Block {
 		if (array_key_exists($name, $this->outputs) || array_key_exists('*', $this->outputs)) {
 			$this->output_cache[$name] = & $value;
 		} else {
-			error_msg('%s: Output "%s" does not exist!', $this->block_name(), $name);
+			error_msg('%s: Output "%s" does not exist!', $this->blockName(), $name);
 		}
 	}
 
 
 	// set all output values (keys are output names)
-	final protected function out_all($values)
+	final protected function outAll($values)
 	{
 		$this->output_cache = & $values;
 	}
 
 
 	// forward output from another block
-	final protected function out_forward($name, $source_block, $source_name = null)
+	final protected function outForward($name, $source_block, $source_name = null)
 	{
 		if (!array_key_exists($name, $this->outputs) && !array_key_exists('*', $this->outputs)) {
-			error_msg('%s: Output "%s" does not exist!', $this->block_name(), $name);
+			error_msg('%s: Output "%s" does not exist!', $this->blockName(), $name);
 		} else if ($source_name === null && is_array($source_block)) {
 			$this->forward_list[$name] = $source_block;
 		} else {
@@ -611,10 +611,10 @@ abstract class Block {
 
 
 	// list all visible block names already in cascade (for debugging only)
-	final public function visible_block_names()
+	final public function visibleBlockNames()
 	{
 		$m = $this;
-		$names = $this->cascade_controller->root_namespace_block_names();
+		$names = $this->cascade_controller->rootNamespaceBlockNames();
 
 		while ($m && $m->namespace) {
 			$names = array_merge($names, array_keys($m->namespace));
@@ -626,18 +626,18 @@ abstract class Block {
 
 
 	// add output object to template subsystem
-	final protected function template_add($id_suffix, $template, $data = array())
+	final protected function templateAdd($id_suffix, $template, $data = array())
 	{
-		$this->template_add_to_slot($id_suffix, null, null, $template, $data);
+		$this->templateAddToSlot($id_suffix, null, null, $template, $data);
 	}
 
 
 	// add output object to template subsystem (with slot and weight)
-	final protected function template_add_to_slot($id_suffix, $slot, $weight, $template, $data = array())
+	final protected function templateAddToSlot($id_suffix, $slot, $weight, $template, $data = array())
 	{
-		$id = $id_suffix === null ? $this->full_id() : $this->full_id().'_'.$id_suffix;
-		$t = $this->context->get_template_engine();
-		$t->add_object($id, $slot === null ? $this->in('slot') : $slot,
+		$id = $id_suffix === null ? $this->fullId() : $this->fullId().'_'.$id_suffix;
+		$t = $this->context->getTemplateEngine();
+		$t->addObject($id, $slot === null ? $this->in('slot') : $slot,
 				($weight === null ? $this->in('slot_weight') : $weight) + $this->slot_weight_penalty,
 				$template, $data, $this->context);
 
@@ -645,64 +645,64 @@ abstract class Block {
 
 
 	// set page title
-	final protected function template_set_page_title($title, $format = null)
+	final protected function templateSetPageTitle($title, $format = null)
 	{
-		$t = $this->context->get_template_engine();
+		$t = $this->context->getTemplateEngine();
 		if ($title !== null) {
-			$t->slot_option_set('root', 'page_title', $title);
+			$t->slotOptionSet('root', 'page_title', $title);
 		}
 		if ($format !== null) {
-			$t->slot_option_set('root', 'page_title_format', $format);
+			$t->slotOptionSet('root', 'page_title_format', $format);
 		}
 	}
 
 
 	// set output type
-	final protected function template_set_type($type)
+	final protected function templateSetType($type)
 	{
-		$t = $this->context->get_template_engine();
-		$t->slot_option_set('root', 'type', $type);
+		$t = $this->context->getTemplateEngine();
+		$t->slotOptionSet('root', 'type', $type);
 	}
 
 
 	// set slot option
-	final protected function template_option_set($slot, $option, $value)
+	final protected function templateOptionSet($slot, $option, $value)
 	{
-		$t = $this->context->get_template_engine();
-		return $t->slot_option_set($slot, $option, $value);
+		$t = $this->context->getTemplateEngine();
+		return $t->slotOptionSet($slot, $option, $value);
 	}
 
 
 	// append value to slot option (which is list)
-	final protected function template_option_append($slot, $option, $value)
+	final protected function templateOptionAppend($slot, $option, $value)
 	{
-		$t = $this->context->get_template_engine();
-		return $t->add_slot_option($slot, $option, $value);
+		$t = $this->context->getTemplateEngine();
+		return $t->addSlotOption($slot, $option, $value);
 	}
 
 
 	// add block to cascade
-	final protected function cascade_add($id, $block, $force_exec = null, $connections = array(), $context = null)
+	final protected function cascadeAdd($id, $block, $force_exec = null, $connections = array(), $context = null)
 	{
 		$this->cascade_errors = array();
-		return $this->cascade_controller->add_block($this, $id, $block, $force_exec, $connections,
+		return $this->cascade_controller->addBlock($this, $id, $block, $force_exec, $connections,
 				$context === null ? $this->context : $context,
 				$this->cascade_errors);
 	}
 
 
 	// add blocks to cascade from parsed inifile
-	final protected function cascade_add_from_ini($parsed_ini_with_sections, $context = null)
+	final protected function cascadeAddFromIni($parsed_ini_with_sections, $context = null)
 	{
 		$this->cascade_errors = array();
-		return $this->cascade_controller->add_blocks_from_ini($this, $parsed_ini_with_sections,
+		return $this->cascade_controller->addBlocksFromIni($this, $parsed_ini_with_sections,
 				$context === null ? $this->context : $context,
 				$this->cascade_errors);
 	}
 
 
 	// get errors from cascade controller (errors can occur when cascade_add or cascade_add_from_ini is called)
-	final public function cascade_get_errors()
+	final public function cascadeGetErrors()
 	{
 		return $this->cascade_errors;
 	}
@@ -715,18 +715,18 @@ abstract class Block {
 	/* Get auth object from cascade controller */
 	final public function auth()
 	{
-		return $this->cascade_controller->get_auth();
+		return $this->cascade_controller->getAuth();
 	}
 
 
 	/* Security - Level 1: check if block is allowed before cascade controller loads it */
-	final public function auth_is_block_allowed($block_name, & $details = null)
+	final public function authIsBlockAllowed($block_name, & $details = null)
 	{
-		$auth = $this->cascade_controller->get_auth();
+		$auth = $this->cascade_controller->getAuth();
 
 		// Return false if access should be denied and set $details to string with explanation.
 		if ($auth !== null) {
-			return $auth->is_block_allowed($block_name, $details);
+			return $auth->isBlockAllowed($block_name, $details);
 		} else {
 			// If there is no Auth object, everything is allowed
 			return true;
@@ -735,12 +735,12 @@ abstract class Block {
 
 
 	/* Security - Level 2: check permissions to specified entity */
-	final public function auth_check_item(& $item, & $details = null)
+	final public function authCheckItem(& $item, & $details = null)
 	{
-		$auth = $this->cascade_controller->get_auth();
+		$auth = $this->cascade_controller->getAuth();
 
 		if ($auth !== null) {
-			return $auth->check_item($this->block_name, $item, $details);
+			return $auth->checkItem($this->block_name, $item, $details);
 		} else {
 			// If there is no Auth object, everything is allowed
 			return true;
@@ -749,12 +749,12 @@ abstract class Block {
 
 
 	/* Security - Level 2: check permissions to specified entity */
-	final public function auth_add_condition($block_name, & $query, $options = array())
+	final public function authAddCondition($block_name, & $query, $options = array())
 	{
-		$auth = $this->cascade_controller->get_auth();
+		$auth = $this->cascade_controller->getAuth();
 
 		if ($auth !== null) {
-			return $auth->add_condition($this->block_name, $query, $options = array());
+			return $auth->addCondition($this->block_name, $query, $options = array());
 		} else {
 			// If there is no Auth object, do nothing
 			return true;

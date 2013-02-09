@@ -36,7 +36,7 @@ function TPL_html5__core__slot($t, $id, $d, $so)
 			"class=\"slot slot_".htmlspecialchars($name),
 			(empty($extra_class) ? '' : " ".htmlspecialchars(is_array($extra_class) ? join(' ', $extra_class) : $extra_class)),
 			"\">\n";
-	$t->process_slot($name);
+	$t->processSlot($name);
 	echo "</div>\n";
 }
 

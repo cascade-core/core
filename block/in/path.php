@@ -73,7 +73,7 @@ class B_core__in__path extends Block {
 		$path['depth'] = & $depth;
 		$path['path'] = & $uri;
 		$path['server'] = & $_SERVER['SERVER_NAME'];
-		$this->out_all($path);
+		$this->outAll($path);
 	}
 }
 

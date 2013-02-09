@@ -94,7 +94,7 @@ class B_core__ini__load extends Block {
 			$this->out('error', true);
 		} else {
 			if ($this->in('multi_output')) {
-				$this->out_all($data);
+				$this->outAll($data);
 			} else {
 				$this->out('data', $data);
 			}

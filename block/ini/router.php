@@ -79,17 +79,17 @@ class B_core__ini__router extends Block {
 				&& $_SERVER['REQUEST_METHOD'] == 'GET')
 		{
 			//dump('redirect to:', $have_last_slash ? $uri_path.'/' : $uri_path, 'from:', $orig_uri_path);
-			$this->template_option_set('root', 'redirect_url', $have_last_slash ? $uri_path.'/' : $uri_path);
+			$this->templateOptionSet('root', 'redirect_url', $have_last_slash ? $uri_path.'/' : $uri_path);
 			$this->out('done', false);
 			return;
 		}
 
-		$config = $this->load_config();
+		$config = $this->loadConfig();
 		$args = $this->route($config, $uri_path);
 
 		if ($args !== false) {
 			// match found
-			$this->out_all($args);
+			$this->outAll($args);
 			$this->out('done', true);
 			$this->out('path', $uri_path);
 			$this->out('no_match', false);
@@ -103,7 +103,7 @@ class B_core__ini__router extends Block {
 	}
 
 
-	protected function load_config()
+	protected function loadConfig()
 	{
 		// load config
 		$config = $this->in('config');
@@ -122,14 +122,14 @@ class B_core__ini__router extends Block {
 
 		// scan blocks, add results to $conf
 		if (array_key_exists('scan-blocks', $conf)) {
-			$this->scan_blocks($conf, $conf_mtime, $conf['scan-blocks']);
+			$this->scanBlocks($conf, $conf_mtime, $conf['scan-blocks']);
 		}
 
 		return $conf;
 	}
 
 
-	public function scan_blocks(& $conf, $conf_mtime, $scan_opts)
+	public function scanBlocks(& $conf, $conf_mtime, $scan_opts)
 	{
 		if (!empty($scan_opts['cache_file'])) {
 			$cache_file = filename_format(@$scan_opts['cache_file']);
@@ -155,12 +155,12 @@ class B_core__ini__router extends Block {
 
 		// Do scan
 		debug_msg('Scanning blocks for routes... Cache file: %s', $cache_file ? $cache_file : 'none');
-		$blocks = $this->get_cascade_controller()->get_known_blocks();
-		$storages = $this->get_cascade_controller()->get_block_storages();
+		$blocks = $this->getCascadeController()->getKnownBlocks();
+		$storages = $this->getCascadeController()->getBlockStorages();
 		foreach ($blocks as $plugin => $plugin_blocks) {				// From each block ...
 			foreach ($plugin_blocks as $block) {
 				foreach ($storages as $storage_id => $src_storage) {		// ... in each storage ...
-					$b = $src_storage->load_block($block);
+					$b = $src_storage->loadBlock($block);
 					if (is_array($b)) {
 						foreach ($b as $k => $v) {			// ... and each part of block configuration ...
 							if (strncmp('route:', $k, 6) == 0) {

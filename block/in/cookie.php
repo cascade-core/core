@@ -47,7 +47,7 @@ class B_core__in__cookie extends Block {
 		$this->out('all', $_COOKIE);
 	}
 
-	public function get_output($name)
+	public function getOutput($name)
 	{
 		return @$_COOKIE[$name];
 	}

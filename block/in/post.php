@@ -47,7 +47,7 @@ class B_core__in__post extends Block {
 		$this->out('all', $_POST);
 	}
 
-	public function get_output($name)
+	public function getOutput($name)
 	{
 		return @$_POST[$name];
 	}

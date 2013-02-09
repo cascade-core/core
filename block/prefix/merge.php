@@ -47,7 +47,7 @@ class B_core__prefix__merge extends Block {
 	public function main()
 	{
 		$out = array();
-		foreach($this->input_names() as $in) {
+		foreach($this->inputNames() as $in) {
 			if (strchr($in, '_') !== FALSE) {
 				error_msg('Input names must not contain underscore (\'_\')!');
 				return;

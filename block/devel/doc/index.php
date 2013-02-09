@@ -55,20 +55,20 @@ class B_core__devel__doc__index extends Block
 	public function main()
 	{
 		$writable_only = $this->in('writable_only');
-		$blocks = $this->get_cascade_controller()->get_known_blocks($writable_only);
+		$blocks = $this->getCascadeController()->getKnownBlocks($writable_only);
 
-		$this->template_add(null, 'core/doc/index', array(
+		$this->templateAdd(null, 'core/doc/index', array(
 				'link' => $this->in('link'),
 				'blocks' => $blocks,
 				'heading_level' => $this->in('heading_level'),
-				'titles' => $this->get_titles(),
+				'titles' => $this->getTitles(),
 			));
 
 		$this->out('done', !empty($blocks));
 	}
 
 
-	protected function get_titles() {
+	protected function getTitles() {
 		return array(
 			'' => _('Application'),
 			'core' => _('Core'),

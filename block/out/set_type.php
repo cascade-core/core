@@ -52,13 +52,13 @@ class B_core__out__set_type extends Block
 		$type = $this->in('type');
 
 		if ($type != '') {
-			$this->template_set_type($type);
+			$this->templateSetType($type);
 			$this->out('type', $type);
 			$this->out('done', true);
 		} else {
 			$type = $this->in('type_fallback');
 			if ($type != '') {
-				$this->template_set_type($type);
+				$this->templateSetType($type);
 				$this->out('type', $type);
 				$this->out('done', true);
 			}

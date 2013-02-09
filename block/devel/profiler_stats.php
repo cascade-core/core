@@ -62,48 +62,48 @@ class B_core__devel__profiler_stats extends Block
 		arsort($this->blocks_stats);
 
 		$table = new TableView();
-		$table->add_column('text', array(
+		$table->addColumn('text', array(
 				'title'  => 'Block',
 				'key'    => 'block',
 			));
-		$table->add_column('percentage', array(
+		$table->addColumn('percentage', array(
 				'title'  => 'Total time [%]',
 				'key'    => 'sum_pct',
 				'format' => '%1.1f',
 			));
-		$table->add_column('number', array(
+		$table->addColumn('number', array(
 				'title'  => 'Count',
 				'key'    => 'cnt',
 			));
-		$table->add_column('number', array(
+		$table->addColumn('number', array(
 				'title'  => 'Total time',
 				'key'    => 'sum',
 				'format' => '%1.2f',
 			));
-		$table->add_column('number', array(
+		$table->addColumn('number', array(
 				'title'  => 'Average time',
 				'key'    => 'avg',
 				'format' => '%1.2f',
 			));
-		$table->add_column('number', array(
+		$table->addColumn('number', array(
 				'title'  => 'Min. time',
 				'key'    => 'min',
 				'format' => '%1.2f',
 			));
-		$table->add_column('number', array(
+		$table->addColumn('number', array(
 				'title'  => 'Max. time',
 				'key'    => 'max',
 				'format' => '%1.2f',
 			));
-		$table->set_data_iterator_function($this, 'next_stat');
+		$table->setDataIteratorFunction($this, 'nextStat');
 	
-		$this->template_add(null, 'core/table', $table);
+		$this->templateAdd(null, 'core/table', $table);
 
 		$this->out('done', true);
 	}
 
 
-	public function next_stat()
+	public function nextStat()
 	{
 		switch ($this->stats_row++) {
 			case 0:

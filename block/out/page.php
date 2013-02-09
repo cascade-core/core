@@ -45,7 +45,7 @@ class B_core__out__page extends Block
 
 	function main()
 	{
-		$this->template_add_to_slot(null, 'root', 50, 'core/main', array(
+		$this->templateAddToSlot(null, 'root', 50, 'core/main', array(
 				'css_link' => $this->in('css_link'),
 			));
 		$this->out('done', true);

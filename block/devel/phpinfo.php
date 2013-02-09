@@ -74,19 +74,19 @@ class B_core__devel__phpinfo extends Block {
 
 		$table = new TableView();
 		$table->show_header = false;
-		$table->add_column('heading', array(
+		$table->addColumn('heading', array(
 				'title' => null,
 				'key' => 0,
 				'nowrap' => true,
 			));
-		$table->add_column('text', array(
+		$table->addColumn('text', array(
 				'title' => null,
 				'key' => 1,
 			));
 
-		$table->set_data($info);
+		$table->setData($info);
 
-		$this->template_add(null, 'core/table', $table);
+		$this->templateAdd(null, 'core/table', $table);
 
 		$this->out('done', true);
 	}

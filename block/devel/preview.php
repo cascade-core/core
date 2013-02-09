@@ -51,20 +51,20 @@ class B_core__devel__preview extends Block
 	public function main()
 	{
 		/* Initialize cascade controller */
-		$cascade = $this->get_cascade_controller()->clone_empty();
+		$cascade = $this->getCascadeController()->cloneEmpty();
 
 		/* Prepare starting blocks */
 		$errors = array();
-		$done = $cascade->add_blocks_from_ini(null, $this->in('blocks'), $this->context, $errors);
+		$done = $cascade->addBlocksFromIni(null, $this->in('blocks'), $this->context, $errors);
 
 		/* Template object will render & cache image */
-		$this->template_add('_cascade_graph', 'core/cascade_graph', array(
+		$this->templateAdd('_cascade_graph', 'core/cascade_graph', array(
 				'cascade' => $cascade,
 				'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
 				'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
 				'link' => $this->in('link'),
 				'preview' => true,
-				'whitelist' => $this->visible_block_names(),
+				'whitelist' => $this->visibleBlockNames(),
 				'errors' => $errors,
 				'style' => 'page_content',
 			));

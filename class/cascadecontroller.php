@@ -57,7 +57,7 @@ class CascadeController {
 	 * Create new instance of cascade controller and copy current 
 	 * configuration. Useful for making preview of cascade.
 	 */
-	public function clone_empty()
+	public function cloneEmpty()
 	{
 		$other = new CascadeController($this->auth, $this->replacement);
 		$other->block_storages = $this->block_storages;
@@ -78,31 +78,31 @@ class CascadeController {
 	}
 
 
-	public function get_auth()
+	public function getAuth()
 	{
 		return $this->auth;
 	}
 
 
-	public function get_replacement_table()
+	public function getReplacementTable()
 	{
 		return $this->replacement;
 	}
 
 
-	public function add_block_storage(IBlockStorage $storage, $storage_id)
+	public function addBlockStorage(IBlockStorage $storage, $storage_id)
 	{
 		$this->block_storages[$storage_id] = $storage;
 	}
 
 
-	public function get_block_storages()
+	public function getBlockStorages()
 	{
 		return $this->block_storages;
 	}
 
 
-	public function resolve_block_name($block_name)
+	public function resolveBlockName($block_name)
 	{
 		if (($b = @$this->root_namespace[$block_name])) {
 			return $b;
@@ -112,13 +112,13 @@ class CascadeController {
 	}
 
 
-	public function root_namespace_block_names()
+	public function rootNamespaceBlockNames()
 	{
 		return array_keys($this->root_namespace);
 	}
 
 
-	public function current_step($increment = true)
+	public function currentStep($increment = true)
 	{
 		if ($increment) {
 			return $this->evaluation_step++;
@@ -128,7 +128,7 @@ class CascadeController {
 	}
 
 
-	private function create_block_instance($block, & $errors = null, & $storage_name = null)
+	private function createBlockInstance($block, & $errors = null, & $storage_name = null)
 	{
 		/* check replacement table */
 		for ($step = 32; isset($this->replacement[$block]) && $step > 0; $step--) {
@@ -147,7 +147,7 @@ class CascadeController {
 		}
 
 		/* check permissions */
-		if ($this->auth !== null && !$this->auth->is_block_allowed($block, $details)) {
+		if ($this->auth !== null && !$this->auth->isBlockAllowed($block, $details)) {
 			if ($details != '') {
 				error_msg('Permission denied to block %s (%s).', $block, $details);
 			} else {
@@ -160,14 +160,14 @@ class CascadeController {
 				'block'   => $block,
 				'details' => $details,
 			);
-			$this->add_failed_block($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
+			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
 			return false;
 		}
 
 		/* ask storages in specified order until block is created */
 		foreach ($this->block_storages as $s_name => $s) {
 			/* create instance or try next storage */
-			$b = $s->create_block_instance($block);
+			$b = $s->createBlockInstance($block);
 			if ($b) {
 				$storage_name = $s_name;
 				return $b;
@@ -178,7 +178,7 @@ class CascadeController {
 	}
 
 
-	public function add_block($parent, $id, $block, $force_exec, array $connections, Context $context, & $errors = null, $real_block = null)
+	public function addBlock($parent, $id, $block, $force_exec, array $connections, Context $context, & $errors = null, $real_block = null)
 	{
 		/* check malformed IDs */
 		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
@@ -192,7 +192,7 @@ class CascadeController {
 		}
 
 		/* build full ID */
-		$full_id = ($parent ? $parent->full_id() : '').'.'.$id;
+		$full_id = ($parent ? $parent->fullId() : '').'.'.$id;
 
 		/* check for duplicate IDs */
 		if (array_key_exists($full_id, $this->blocks)) {
@@ -207,7 +207,7 @@ class CascadeController {
 		}
 
 		/* create block instance */
-		$b = $this->create_block_instance($block, $errors, $storage_name);
+		$b = $this->createBlockInstance($block, $errors, $storage_name);
 		if (!$b) {
 			/* block not found */
 			error_msg('Block "%s" not found.', $block);
@@ -217,7 +217,7 @@ class CascadeController {
 				'full_id' => $full_id,
 				'block'   => $block,
 			);
-			$this->add_failed_block($parent, $id, $full_id, $block, $connections);
+			$this->addFailedBlock($parent, $id, $full_id, $block, $connections);
 			return false;
 		}
 
@@ -234,13 +234,13 @@ class CascadeController {
 				'block'   => $block,
 				'inputs'  => $connections,
 			);
-			$this->add_failed_block($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
+			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
 			return false;
 		}
 
 		/* put block to parent's namespace */
 		if ($parent) {
-			$parent->cc_register_block($b);
+			$parent->cc_registerBlock($b);
 		} else {
 			$this->root_namespace[$id] = $b;
 		}
@@ -255,7 +255,7 @@ class CascadeController {
 	}
 
 
-	private function add_failed_block($parent, $id, $full_id, $real_block, array $connections)
+	private function addFailedBlock($parent, $id, $full_id, $real_block, array $connections)
 	{
 		/* create dummy block */
 		$b = new B_core__dummy();
@@ -264,7 +264,7 @@ class CascadeController {
 
 		/* put block to parent's namespace */
 		if ($parent) {
-			$parent->cc_register_block($b);
+			$parent->cc_registerBlock($b);
 		} else {
 			$this->root_namespace[$id] = $b;
 		}
@@ -273,7 +273,7 @@ class CascadeController {
 	}
 
 
-	public function add_blocks_from_ini($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
+	public function addBlocksFromIni($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
 	{
 		$all_good = true;
 
@@ -309,7 +309,7 @@ class CascadeController {
 					}
 				}
 
-				$all_good &= $this->add_block($parent, $id, $block, $force_exec, $opts, $context, $errors);
+				$all_good &= $this->addBlock($parent, $id, $block, $force_exec, $opts, $context, $errors);
 			}
 		}
 
@@ -317,17 +317,17 @@ class CascadeController {
 	}
 
 
-	public function dump_namespaces()
+	public function dumpNamespaces()
 	{
 		$str = '';
 		foreach ($this->root_namespace as $name => $b) {
-			$str .= $name."\n".$b->cc_dump_namespace(1);
+			$str .= $name."\n".$b->cc_dumpNamespace(1);
 		}
 		return $str;
 	}
 
 
-	public function get_execution_times($old_stats = null)
+	public function getExecutionTimes($old_stats = null)
 	{
 		$cnt = 0;
 		$sum = 0.0;
@@ -339,11 +339,11 @@ class CascadeController {
 		}
 
 		foreach($this->blocks as $b) {
-			$t = $b->cc_execution_time();
+			$t = $b->cc_executionTime();
 			if ($t > 0) {
 				$cnt++;
 				$sum += $t;
-				$bm = & $by_block[$b->block_name()];
+				$bm = & $by_block[$b->blockName()];
 				@$bm['sum'] += $t;		// arsort() uses first field in array
 				@$bm['cnt']++;
 				@$bm['min'] = $bm['min'] === null ? $t : min($t, $bm['min']);
@@ -373,13 +373,13 @@ class CascadeController {
 	}
 
 
-	public function get_memory_usage()
+	public function getMemoryUsage()
 	{
 		return $this->memory_usage;
 	}
 
 
-	public function export_graphviz_dot($doc_link, $whitelist = array(), $step = null)
+	public function exportGraphvizDot($doc_link, $whitelist = array(), $step = null)
 	{
 		$colors = array(
 			Block::QUEUED   => '#eeeeee',	// grey
@@ -390,7 +390,7 @@ class CascadeController {
 		);
 
 		if ($step === null) {
-			$step = $this->current_step(false) + 1;
+			$step = $this->currentStep(false) + 1;
 		}
 
 		$gv =	 "#\n"
@@ -409,7 +409,7 @@ class CascadeController {
 			."	graph [ shape=none, color=blueviolet, fontcolor=blueviolet, fontsize=9, fontname=\"sans\" ];\n"
 			."\n";
 
-		list($clusters, $specs) = $this->export_graphviz_dot_namespace($this->root_namespace, $colors, $doc_link, array_flip($whitelist), $step);
+		list($clusters, $specs) = $this->exportGraphvizDotNamespace($this->root_namespace, $colors, $doc_link, array_flip($whitelist), $step);
 		$gv .= $clusters;
 		$gv .= $specs;
 		$gv .= "}\n";
@@ -417,7 +417,7 @@ class CascadeController {
 		return $gv;
 	}
 
-	private function export_graphviz_dot_namespace($namespace, $colors, $doc_link, $whitelist = array(), $step = null, $indent = "\t")
+	private function exportGraphvizDotNamespace($namespace, $colors, $doc_link, $whitelist = array(), $step = null, $indent = "\t")
 	{
 		$missing_blocks = array();
 		$gv = '';
@@ -430,8 +430,8 @@ class CascadeController {
 				continue;
 			}
 
-			$id = $block->full_id();
-			list($t_create, $t_start, $t_finish) = $block->get_timestamps();
+			$id = $block->fullId();
+			list($t_create, $t_start, $t_finish) = $block->getTimestamps();
 
 			$is_created  = $t_create < $step;
 			$is_started  = $t_start < $step;
@@ -440,7 +440,7 @@ class CascadeController {
 
 			/* add block header */
 			$subgraph .= $indent."m_".get_ident($id).";\n";
-			$gv .=	 "\tm_".get_ident($id)." [URL=\"".template_format($doc_link, array('block' => str_replace('_', '-', $block->block_name())))."\","
+			$gv .=	 "\tm_".get_ident($id)." [URL=\"".template_format($doc_link, array('block' => str_replace('_', '-', $block->blockName())))."\","
 						."target=\"_blank\","
 						.($is_created ? '':'fontcolor="#eeeeee",')
 						."label=<<table border=\"1\"".($is_created ? '':' color="#eeeeee"')
@@ -453,7 +453,7 @@ class CascadeController {
 									:'#ffffff'
 								)."\" colspan=\"2\">\n"
 				."			<font face=\"sans bold\">".htmlspecialchars($block->id())."</font><br/>\n"
-				."			<font face=\"sans italic\">".htmlspecialchars($block->block_name())."</font>\n"
+				."			<font face=\"sans italic\">".htmlspecialchars($block->blockName())."</font>\n"
 				."		</td>\n"
 				."	</tr>\n";
 
@@ -480,11 +480,11 @@ class CascadeController {
 						$out_mod = $out[$i];
 						$out_name = $out[$i + 1];
 
-						if (!is_object($out_mod) && ($resolved = $block->cc_resolve_block_name($out_mod))) {
+						if (!is_object($out_mod) && ($resolved = $block->cc_resolveBlockName($out_mod))) {
 							$out_mod = $resolved;
 						}
 
-						$out_block_id = is_object($out_mod) ? $out_mod->full_id() : $out_mod;
+						$out_block_id = is_object($out_mod) ? $out_mod->fullId() : $out_mod;
 
 						$missing = true;
 						$zero = true;
@@ -493,10 +493,10 @@ class CascadeController {
 						if (!is_object($out_mod)) {
 							$missing_blocks[$out_mod] = true;
 							$missing = !array_key_exists($out_mod, $whitelist);
-						} else if ($out_mod->cc_output_exists($out_name)) {
+						} else if ($out_mod->cc_outputExists($out_name)) {
 							$missing = false;
-							if ($out_mod->cc_output_exists($out_name, false)) {
-								$v = $out_mod->cc_get_output($out_name);
+							if ($out_mod->cc_outputExists($out_name, false)) {
+								$v = $out_mod->cc_getOutput($out_name);
 								$exists = true;
 								$zero = empty($v);
 								$big = is_array($v) || is_object($v);
@@ -523,7 +523,7 @@ class CascadeController {
 			}
 
 			/* connect forwarded outputs */
-			foreach ($block->cc_forwarded_outputs() as $name => $src) {
+			foreach ($block->cc_forwardedOutputs() as $name => $src) {
 				$n = count($src);
 				if (!is_object($src[0]) && $src[0][0] == ':') {
 					$function = $src[0];
@@ -536,9 +536,9 @@ class CascadeController {
 					$src_out = $src[$i + 1];
 					$src_block_id = $src_mod;
 					$has_output = false;
-					if (is_object($src_mod) || ($src_mod = $block->cc_resolve_block_name($src_mod))) {
-						$src_block_id = $src_mod->full_id();
-						$has_output = $src_mod->cc_output_exists($src_out, false);
+					if (is_object($src_mod) || ($src_mod = $block->cc_resolveBlockName($src_mod))) {
+						$src_block_id = $src_mod->fullId();
+						$has_output = $src_mod->cc_outputExists($src_out, false);
 					}
 					$gv_inputs .= "\tm_".get_ident($id).":o_".get_ident($name).":e -> m_".get_ident($src_block_id)
 							.($has_output ? ":o_".get_ident($src_out).":e":'')
@@ -588,7 +588,7 @@ class CascadeController {
 			}
 
 			/*
-			$et = $block->cc_execution_time();
+			$et = $block->cc_executionTime();
 			if ($et > 10) {
 				$gv .=   "	<tr>\n"
 					."		<td align=\"center\" colspan=\"2\">\n"
@@ -603,9 +603,9 @@ class CascadeController {
 			$gv .=	$gv_inputs;
 
 			/* recursively draw sub-namespaces */
-			$child_namespace = $block->cc_get_namespace();
+			$child_namespace = $block->cc_getNamespace();
 			if (!empty($child_namespace)) {
-				list($child_sub, $child_specs) = $this->export_graphviz_dot_namespace($child_namespace, $colors, $doc_link,
+				list($child_sub, $child_specs) = $this->exportGraphvizDotNamespace($child_namespace, $colors, $doc_link,
 										$whitelist, $step, $indent."\t");
 				$subgraph .= "\n"
 					.$indent."subgraph cluster_".get_ident($id)." {\n"
@@ -634,7 +634,7 @@ class CascadeController {
 		return array($subgraph, $gv);
 	}
 
-	public function exec_dot($dot_source, $out_type, $out_file = null)
+	public function execDot($dot_source, $out_type, $out_file = null)
 	{
 		$descriptorspec = array(
 			0 => array('pipe', 'r'),
@@ -670,13 +670,13 @@ class CascadeController {
 	/**
 	 * Get names of all existing blocks grouped by their prefix (plugin).
 	 */
-	public function get_known_blocks($writable_only = false)
+	public function getKnownBlocks($writable_only = false)
 	{
 		$blocks = array();
 
 		foreach ($this->block_storages as $s) {
-			if (!$writable_only || !$s->is_read_only()) {
-				$s->get_known_blocks($blocks);
+			if (!$writable_only || !$s->isReadOnly()) {
+				$s->getKnownBlocks($blocks);
 			}
 		}
 
@@ -694,16 +694,16 @@ class CascadeController {
 	 * Description contains inputs and outputs with their default values,
 	 * force_exec flag and real block type.
 	 */
-	public function describe_block($block)
+	public function describeBlock($block)
 	{
 		/* create instance of the block */
-		$b = $this->create_block_instance($block);
+		$b = $this->createBlockInstance($block);
 		if (!$b) {
 			return false;
 		}
 
 		/* get description */
-		$desc = $b->cc_describe_block();
+		$desc = $b->cc_describeBlock();
 		unset($b);
 
 		return $desc;

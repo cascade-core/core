@@ -47,7 +47,7 @@ class B_core__in__request extends Block {
 		$this->out('all', $_REQUEST);
 	}
 
-	public function get_output($name)
+	public function getOutput($name)
 	{
 		return @ $_REQUEST[$name];
 	}

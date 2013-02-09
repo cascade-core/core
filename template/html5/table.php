@@ -32,7 +32,7 @@ function TPL_html5__core__table($t, $id, $table, $so)
 {
 	$col_renderer = array();
 
-	echo "<table id=\"".htmlspecialchars($id)."\" class=\"table", (($c = $table->get_table_class()) ? ' '.str_replace('/', '__', $c) : ''), "\">\n";
+	echo "<table id=\"".htmlspecialchars($id)."\" class=\"table", (($c = $table->getTableClass()) ? ' '.str_replace('/', '__', $c) : ''), "\">\n";
 
 	/* prepare renderers */
 	foreach ($table->columns() as $c => $col) {
@@ -48,7 +48,7 @@ function TPL_html5__core__table($t, $id, $table, $so)
 	$column_count = 0;
 	foreach ($col_renderer as $col) {
 		$col->col();
-		$column_count += $col->column_span();
+		$column_count += $col->columnSpan();
 	}
 
 	/* header */
@@ -68,7 +68,7 @@ function TPL_html5__core__table($t, $id, $table, $so)
 		}
 		echo "</tr>\n";
 
-		$actions = $table->get_actions();
+		$actions = $table->getActions();
 		if (!empty($actions)) {
 			echo "<tr>\n<td class=\"action_bar\" colspan=\"", $column_count, "\">";
 			$first = true;
@@ -89,7 +89,7 @@ function TPL_html5__core__table($t, $id, $table, $so)
 
 	/* data */
 	echo "<tbody>\n";
-	while (($row_data = $table->get_next_row_data())) {
+	while (($row_data = $table->getNextRowData())) {
 		$row_attr = '';
 		$fn = $table->row_data;
 		if (is_callable($fn)) {
@@ -98,7 +98,7 @@ function TPL_html5__core__table($t, $id, $table, $so)
 			}
 		}
 
-		$row_class = $table->get_row_class();
+		$row_class = $table->getRowClass();
 		if (is_callable($row_class)) {
 			$row_attr .= ' class="'.htmlspecialchars($row_class($row_data)).'"';
 		} else if ($row_class != '') {
@@ -136,7 +136,7 @@ class tpl_html5__core__table__text {
 	}
 
 
-	function column_span()
+	function columnSpan()
 	{
 		return 1;
 	}
@@ -209,10 +209,10 @@ class tpl_html5__core__table__text {
 		}
 
 		echo "<", $this->td_tag, $this->td_attr, $title != '' ? ' title="'.htmlspecialchars($title).'"' : '', $data, ">",
-			$this->fmt_value($this->raw_value($row_data), $row_data), "</", $this->td_tag, ">\n";
+			$this->fmtValue($this->rawValue($row_data), $row_data), "</", $this->td_tag, ">\n";
 	}
 
-	function raw_value($row_data)
+	function rawValue($row_data)
 	{
 		if (isset($this->opts['value'])) {
 			if (is_callable($this->opts['value'])) {
@@ -238,7 +238,7 @@ class tpl_html5__core__table__text {
 		}
 	}
 
-	function fmt_value($value, $row_data)
+	function fmtValue($value, $row_data)
 	{
 		$fmt = @$this->opts['format'];
 
@@ -328,12 +328,12 @@ class tpl_html5__core__table__percentage extends tpl_html5__core__table__number 
 		parent::__construct($opts);
 	}
 
-	function fmt_value($value, $row_data)
+	function fmtValue($value, $row_data)
 	{
 		if ($value == null) {
-			return parent::fmt_value($value, $row_data);
+			return parent::fmtValue($value, $row_data);
 		} else {
-			return '<span class="value">' . parent::fmt_value($value, $row_data) . '</span>'
+			return '<span class="value">' . parent::fmtValue($value, $row_data) . '</span>'
 				.'<span class="percent_bar" style="width:'.ceil($value).'%"></span>';
 		}
 	}
@@ -353,7 +353,7 @@ class tpl_html5__core__table__checkbox extends tpl_html5__core__table__text {
 
 	function td($row_data)
 	{
-		echo "<td", $this->td_attr, "><input type=\"checkbox\" value=\"", $this->fmt_value($this->raw_value($row_data), $row_data), "\" tabindex=\"1\"></td>\n";
+		echo "<td", $this->td_attr, "><input type=\"checkbox\" value=\"", $this->fmtValue($this->rawValue($row_data), $row_data), "\" tabindex=\"1\"></td>\n";
 	}
 
 }

@@ -44,7 +44,7 @@ class B_core__out__raw extends Block
 
 	function main()
 	{
-		$this->template_add(null, 'core/raw', array('data' => $this->in('data')));
+		$this->templateAdd(null, 'core/raw', array('data' => $this->in('data')));
 	}
 
 }

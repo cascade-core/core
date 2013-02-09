@@ -57,7 +57,7 @@ class B_core__out__set_page_title extends Block
 			$t = $this->in('title_fallback');
 		}
 
-		$this->template_set_page_title($t, $fmt);
+		$this->templateSetPageTitle($t, $fmt);
 
 		$this->out('title', $t);
 		$this->out('done', true);

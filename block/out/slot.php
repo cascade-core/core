@@ -56,13 +56,13 @@ class B_core__out__slot extends Block
 			$this->out('done', true);
 
 			$inputs = array();
-			foreach ($this->input_names() as $in) {
+			foreach ($this->inputNames() as $in) {
 				if ($in != 'slot' && $in != 'slot_weight') {
 					$inputs[$in] = $this->in($in);
 				}
 			}
 
-			$this->template_add(null, 'core/slot', $inputs);
+			$this->templateAdd(null, 'core/slot', $inputs);
 		}
 	}
 }

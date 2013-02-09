@@ -63,7 +63,7 @@ class B_core__devel__version extends Block {
 			/* Windows detected -- Do nothing.
 			 * IIS will not survive that little bash script and there is no Bash anyway. Use git plugin instead.
 			 */
-		} else if ($this->is_update_needed($version_file, $format)) {
+		} else if ($this->isUpdateNeeded($version_file, $format)) {
 			if (system(escapeshellarg(DIR_CORE.'update-version.sh')) === FALSE) {
 				error_msg('Cannot update version info, executing update-version.sh failed.');
 			}
@@ -75,7 +75,7 @@ class B_core__devel__version extends Block {
 
 		// Show version (if present)
 		if (!empty($version)) {
-			$this->template_add(null, 'core/version', array(
+			$this->templateAdd(null, 'core/version', array(
 					'version' => $version,
 					'format'  => $format,
 					'link'    => $this->in('link'),
@@ -88,18 +88,18 @@ class B_core__devel__version extends Block {
 
 
 	/// Check if version.ini needs update
-	private function is_update_needed($version_file, $format)
+	private function isUpdateNeeded($version_file, $format)
 	{
 		$version_mtime = @filemtime($version_file);
 		$version_size = @filesize($version_size);
 
 		$need_update = false;
-		if (!$version_mtime || ($version_size < 10 && $version_mtime + 28800 < time()) || $this->is_git_repo_newer($version_mtime, DIR_ROOT)) {
+		if (!$version_mtime || ($version_size < 10 && $version_mtime + 28800 < time()) || $this->isGitRepoNewer($version_mtime, DIR_ROOT)) {
 			// Short format needs only app version, so do not check everything
 			$need_update = true;
 		} else if ($format != 'short') {
 			// If format is not 'short', check core and all plugins
-			if ($this->is_git_repo_newer($version_mtime, DIR_CORE)) {
+			if ($this->isGitRepoNewer($version_mtime, DIR_CORE)) {
 				$need_update = true;
 			} else {
 				if ($version_mtime < filemtime(DIR_PLUGIN)) {
@@ -107,7 +107,7 @@ class B_core__devel__version extends Block {
 					$need_update = true;
 				} else {
 					foreach (get_plugin_list() as $plugin) {
-						if ($this->is_git_repo_newer($version_mtime, DIR_PLUGIN.$plugin.'/')) {
+						if ($this->isGitRepoNewer($version_mtime, DIR_PLUGIN.$plugin.'/')) {
 							$need_update = true;
 							break;
 						}
@@ -120,7 +120,7 @@ class B_core__devel__version extends Block {
 	}
 
 
-	private function is_git_repo_newer($ref_mtime, $basedir)
+	private function isGitRepoNewer($ref_mtime, $basedir)
 	{
 		$gitdir = $basedir.'.git';
 		if (is_file($gitdir)) {

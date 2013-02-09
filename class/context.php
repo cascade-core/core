@@ -49,13 +49,13 @@ class Context {
 	 *	For blocks
 	 */
 
-	public function set_locale($locale)
+	public function setLocale($locale)
 	{
 		$this->locale = $locale !== null ? preg_replace('/[^.]*$/', '', $locale).'UTF8' : null;
 	}
 
 
-	public function set_template_engine($template_engine)
+	public function setTemplateEngine($template_engine)
 	{
 		$this->template_engine = $template_engine;
 	}
@@ -66,7 +66,7 @@ class Context {
 	 */
 
 	/* update enviroment from context, returns true if changes required (for child classes) */
-	public function update_enviroment()
+	public function updateEnviroment()
 	{
 		/* do not update if not changed */
 		if (self::$last_context_enviroment === $this) {
@@ -85,7 +85,7 @@ class Context {
 	}
 
 
-	public function get_template_engine() {
+	public function getTemplateEngine() {
 		return $this->template_engine;
 	}
 

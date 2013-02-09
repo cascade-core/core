@@ -47,7 +47,7 @@ class B_core__value__template extends Block {
 
 	public function main()
 	{
-		$inputs = $this->input_names();
+		$inputs = $this->inputNames();
 		$values = array();
 		$fmt_strings = array();
 

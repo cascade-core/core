@@ -55,29 +55,29 @@ class B_core__out__table extends Block
 		$table = new TableView();
 
 		foreach($this->in('config') as $row => $opts) {
-			$table->add_column($opts['type'], $opts);
+			$table->addColumn($opts['type'], $opts);
 		}
 
 		if (is_array($this->items) && count($this->items) == 2 && is_object($this->items[0]) && is_string($this->items[1])) {
 			debug_msg('Iterator mode');
-			$table->set_data_iterator_function($this, 'next_row_iter');
+			$table->setDataIteratorFunction($this, 'nextRowIter');
 		} else {
 			debug_msg('Array mode');
-			$table->set_data_iterator_function($this, 'next_row_array');
+			$table->setDataIteratorFunction($this, 'nextRowArray');
 		}
 	
-		$this->template_add(null, 'core/table', $table);
+		$this->templateAdd(null, 'core/table', $table);
 	}
 
 
-	public function next_row_iter()
+	public function nextRowIter()
 	{
 		$get_next = $this->items[1];
 		return $this->items[0]->$get_next();
 	}
 
 
-	public function next_row_array()
+	public function nextRowArray()
 	{
 		list($k, $v) = each($this->items);
 		return $v;

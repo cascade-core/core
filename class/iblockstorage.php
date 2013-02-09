@@ -46,7 +46,7 @@ interface IBlockStorage {
 	 * create blocks. When creating or modifying block, first storage that 
 	 * returns true will be used.
 	 */
-	public function is_read_only();
+	public function isReadOnly();
 
 
 	/**
@@ -54,36 +54,36 @@ interface IBlockStorage {
 	 * No further initialisation here, that is job for cascade controller. 
 	 * Returns created instance or false.
 	 */
-	public function create_block_instance ($block);
+	public function createBlockInstance ($block);
 
 	/**
 	 * Load block configuration. Returns false if block is not found.
 	 */
-	public function load_block ($block);
+	public function loadBlock ($block);
 
 
 	/**
 	 * Store block configuration.
 	 */
-	public function store_block ($block, $config);
+	public function storeBlock ($block, $config);
 
 
 	/**
 	 * Delete block configuration.
 	 */
-	public function delete_block ($block);
+	public function deleteBlock ($block);
 
 
 	/**
 	 * Get time (unix timestamp) of last modification of the block.
 	 */
-	public function block_mtime ($block);
+	public function blockMTime ($block);
 
 
 	/**
 	 * List all available blocks in this storage.
 	 */
-	public function get_known_blocks (& $blocks = array());
+	public function getKnownBlocks (& $blocks = array());
 
 }
 

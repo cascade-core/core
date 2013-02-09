@@ -48,50 +48,50 @@ class TableView {
 	}
 
 
-	public function add_column($type, $opts)
+	public function addColumn($type, $opts)
 	{
 		$this->columns[] = array($type, $opts);
 	}
 
 
-	public function add_action($name, $opts)
+	public function addAction($name, $opts)
 	{
 		$this->actions[$name] = $opts;
 	}
 
-	public function set_table_class($class)
+	public function setTableClass($class)
 	{
 		$this->class = $class;
 	}
 
-	public function get_table_class()
+	public function getTableClass()
 	{
 		return $this->class;
 	}
 
-	public function set_row_class($class)
+	public function setRowClass($class)
 	{
 		$this->row_class = $class;
 	}
 
-	public function get_row_class()
+	public function getRowClass()
 	{
 		return $this->row_class;
 	}
 
 
-	public function get_actions()
+	public function getActions()
 	{
 		return $this->actions;
 	}
 
 
-	public function set_data_iterator_function($iterator_object, $iterator_func)
+	public function setDataIteratorFunction($iterator_object, $iterator_func)
 	{
 		$this->data_iterator = array($iterator_object, $iterator_func);
 	}
 
-	public function set_data($data)
+	public function setData($data)
 	{
 		$this->data_array = $data;
 		if ($this->data_array instanceof \Iterator) {
@@ -108,7 +108,7 @@ class TableView {
 	}
 
 
-	public function get_next_row_data()
+	public function getNextRowData()
 	{
 		$method = $this->data_iterator[1];
 		if ($method !== null) {

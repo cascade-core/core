@@ -60,7 +60,7 @@ class B_core__out__multi_slot extends Block
 				} else {
 					debug_msg('Adding slot "%s" into default slot.', $name);
 				}
-				$this->template_add_to_slot($name, @$opts['slot'], @$opts['weight'], 'core/slot', array(
+				$this->templateAddToSlot($name, @$opts['slot'], @$opts['weight'], 'core/slot', array(
 						'name' => $name,
 					) + $opts);
 

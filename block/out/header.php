@@ -50,7 +50,7 @@ class B_core__out__header extends Block
 
 	public function main()
 	{
-		$this->template_add(null, 'core/header', array(
+		$this->templateAdd(null, 'core/header', array(
 				'option' => $this->in('option'),
 				'text' => $this->in('text'),
 				'link' => $this->in('link'),

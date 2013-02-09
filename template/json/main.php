@@ -32,6 +32,6 @@ function TPL_json__core__main($t, $id, $d, $so)
 {
 	header('Content-type: application/json');
 
-	$t->process_slot('default');
+	$t->processSlot('default');
 }
 

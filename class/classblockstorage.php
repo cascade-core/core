@@ -54,7 +54,7 @@ class ClassBlockStorage implements IBlockStorage {
 	 * create blocks. When creating or modifying block, first storage that 
 	 * returns true will be used.
 	 */
-	public function is_read_only()
+	public function isReadOnly()
 	{
 		return true;
 	}
@@ -65,9 +65,9 @@ class ClassBlockStorage implements IBlockStorage {
 	 * No further initialisation here, that is job for cascade controller. 
 	 * Returns created instance or false.
 	 */
-	public function create_block_instance ($block)
+	public function createBlockInstance ($block)
 	{
-		$c = $this->load_block($block);
+		$c = $this->loadBlock($block);
 
 		if ($c) {
 			return new $c();
@@ -80,7 +80,7 @@ class ClassBlockStorage implements IBlockStorage {
 	/**
 	 * Load block configuration. Returns false if block is not found.
 	 */
-	public function load_block ($block)
+	public function loadBlock ($block)
 	{
 		/* build class name */
 		$class = 'B_'.str_replace('/', '__', $block);
@@ -93,7 +93,7 @@ class ClassBlockStorage implements IBlockStorage {
 	/**
 	 * Store block configuration.
 	 */
-	public function store_block ($block, $config)
+	public function storeBlock ($block, $config)
 	{
 		// source code is read only
 		return false;
@@ -103,7 +103,7 @@ class ClassBlockStorage implements IBlockStorage {
 	/**
 	 * Delete block configuration.
 	 */
-	public function delete_block ($block)
+	public function deleteBlock ($block)
 	{
 		return false;
 	}
@@ -112,7 +112,7 @@ class ClassBlockStorage implements IBlockStorage {
 	/**
 	 * Get time (unix timestamp) of last modification of the block.
 	 */
-	public function block_mtime ($block)
+	public function blockMTime ($block)
 	{
 		$filename = get_block_filename($block, '.php');
 		return @filemtime($filename);
@@ -122,7 +122,7 @@ class ClassBlockStorage implements IBlockStorage {
 	/**
 	 * List all available blocks in this storage.
 	 */
-	public function get_known_blocks (& $blocks = array())
+	public function getKnownBlocks (& $blocks = array())
 	{
 		$prefixes = array(
 			'' => DIR_APP.DIR_BLOCK,
@@ -135,7 +135,7 @@ class ClassBlockStorage implements IBlockStorage {
 
 		foreach ($prefixes as $prefix => $dir) {
 			if (file_exists($dir)) {
-				$this->get_known_blocks__scan_directory($blocks[$prefix], $dir, $prefix);
+				$this->getKnownBlocks_scanDirectory($blocks[$prefix], $dir, $prefix);
 			}
 		}
 
@@ -146,7 +146,7 @@ class ClassBlockStorage implements IBlockStorage {
 	/**
 	 * Recursively scan directory.
 	 */
-	private function get_known_blocks__scan_directory(& $list, $directory, $prefix, $subdir = '')
+	private function getKnownBlocks_scanDirectory(& $list, $directory, $prefix, $subdir = '')
 	{
 		$dir_name = $directory.$subdir;
 		$d = opendir($dir_name);
@@ -163,7 +163,7 @@ class ClassBlockStorage implements IBlockStorage {
 			$block = $subdir.'/'.$f;
 
 			if (is_dir($file)) {
-				$this->get_known_blocks__scan_directory($list, $directory, $prefix, $block);
+				$this->getKnownBlocks_scanDirectory($list, $directory, $prefix, $block);
 			} else if (preg_match($this->filename_match_regexp, $block)) {
 				$list[] = ($prefix != '' ? $prefix.'/' : '').preg_replace($this->filename_to_block_regexp, '$1', $block);
 			}

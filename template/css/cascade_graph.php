@@ -38,7 +38,7 @@ function TPL_css__core__cascade_graph($t, $id, $d, $so)
 		@mkdir(dirname($dot_name));
 	}
 
-	$dot = $cascade->export_graphviz_dot();
+	$dot = $cascade->exportGraphvizDot();
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
@@ -49,7 +49,7 @@ function TPL_css__core__cascade_graph($t, $id, $d, $so)
 
 	if (!$dot_mtime || !$png_mtime || $dot_mtime > $png_mtime || $png_mtime <= filemtime(__FILE__)) {
 		file_put_contents($dot_file, $dot);
-		$cascade->exec_dot($dot, 'png', $png_file);
+		$cascade->execDot($dot, 'png', $png_file);
 	}
 
 	echo "/*\n",

@@ -104,7 +104,7 @@ class B_core__out__message extends Block
 		}
 
 		/* get numeric inputs */
-		$in_vals = $this->collect_numeric_inputs();
+		$in_vals = $this->collectNumericInputs();
 
 		/* get title */
 		if (($title = (string) $this->in($type.'_title')) == '') {
@@ -135,10 +135,10 @@ class B_core__out__message extends Block
 		/* http status */
 		$http_status_code = (int) $this->in('http_status_code');
 		if ($http_status_code) {
-			$this->template_option_set('root', 'http_status_code', $http_status_code);
+			$this->templateOptionSet('root', 'http_status_code', $http_status_code);
 			$http_status_message = $this->in('http_status_message');
 			if ($http_status_message) {
-				$this->template_option_set('root', 'http_status_message', $http_status_message);
+				$this->templateOptionSet('root', 'http_status_message', $http_status_message);
 			}
 		}
 
@@ -148,14 +148,14 @@ class B_core__out__message extends Block
 			'title' => $title,
 			'text' => $text,
 		);
-		$this->template_add(null, 'core/message', $msg_data);
+		$this->templateAdd(null, 'core/message', $msg_data);
 
 		/* redirect if success */
 		if ($type == 'success' && $this->in('allow_redirect')) {
 			$redirect_url = vsprintf($this->in('redirect_url'), $in_vals);
 			if ($redirect_url != '') {
 				$redirect_anchor = vsprintf($this->in('redirect_anchor'), $in_vals);
-				$this->template_option_set('root', 'redirect_url',
+				$this->templateOptionSet('root', 'redirect_url',
 					$redirect_anchor ? $redirect_url.'#'.$redirect_anchor : $redirect_url);
 
 				if (!$this->in('quiet_redirect')) {

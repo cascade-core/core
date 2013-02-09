@@ -43,17 +43,17 @@ function TPL_html5__core__main($t, $id, $d, $so)
 	if ($d['css_link'] !== null) {
 		echo "\t<link rel=\"stylesheet\" href=\"", htmlspecialchars($d['css_link']), "\" type=\"text/css\">\n";
 	}
-	$t->process_slot('html_head');
+	$t->processSlot('html_head');
 	echo "</head>\n";
 	
 	echo "<body id=\"", htmlspecialchars($id), "\" class=\"slot_html_body\">\n";
 
 	echo "<!-- HTML Body -->\n";
-	$t->process_slot('html_body');
+	$t->processSlot('html_body');
 
-	if (!$t->is_slot_empty('default')) {
+	if (!$t->isSlotEmpty('default')) {
 		echo "<!-- Default slot fallback -->\n";
-		$t->process_slot('default');	// fallback
+		$t->processSlot('default');	// fallback
 	}
 
 	echo "<!-- End of HTML Body -->\n";

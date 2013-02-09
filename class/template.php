@@ -37,7 +37,7 @@ class Template {
 	private $reverse_router = array();
 
 
-	function add_object($id, $slot, $weight, $template, $data = array(), $context = null)
+	function addObject($id, $slot, $weight, $template, $data = array(), $context = null)
 	{
 		debug_msg('New object: id = "%s", slot = "%s", weight = %d, template = "%s"', $id, $slot, $weight, $template);
 
@@ -53,7 +53,7 @@ class Template {
 
 
 	// set slot option (no arrays allowed)
-	function slot_option_set($slot, $option, $value)
+	function slotOptionSet($slot, $option, $value)
 	{
 		if (is_array($value)) {
 			error_msg('Slot option must not be array!');
@@ -65,7 +65,7 @@ class Template {
 
 
 	// append slot option value to list
-	function slot_option_append($slot, $option, $value)
+	function slotOptionAppend($slot, $option, $value)
 	{
 		if (!is_array(@$this->slot_options[$slot][$option])) {
 			$this->slot_options[$slot][$option] = array();
@@ -79,13 +79,13 @@ class Template {
 
 
 	// Register reverse router for URL generator
-	function add_reverse_router($router)
+	function addReverseRouter($router)
 	{
 		if (is_callable($router)) {
 			$this->reverse_router[] = $router;
 			return true;
 		} else {
-			error_msg('Template::add_reverse_router(): Router must be callable (a function)!');
+			error_msg('Template::addReverseRouter(): Router must be callable (a function)!');
 			return false;
 		}
 	}
@@ -109,7 +109,7 @@ class Template {
 	}
 
 
-	function load_template($output_type, $template_name, $function_name, $indent = '')
+	function loadTemplate($output_type, $template_name, $function_name, $indent = '')
 	{
 		$f = get_template_filename($output_type, $template_name);
 
@@ -123,13 +123,13 @@ class Template {
 	}
 
 
-	function is_slot_empty($slot_name)
+	function isSlotEmpty($slot_name)
 	{
 		return empty($this->slot_content[$slot_name]);
 	}
 
 
-	function process_slot($slot_name)
+	function processSlot($slot_name)
 	{
 		static $options = array();
 		static $output_type = null;
@@ -168,13 +168,13 @@ class Template {
 				
 				$tpl_fn = 'TPL_'.$output_type.'__'.str_replace('/', '__', $template);
 
-				if (function_exists($tpl_fn) || $this->load_template($output_type, $template, $tpl_fn, $indent)) {
+				if (function_exists($tpl_fn) || $this->loadTemplate($output_type, $template, $tpl_fn, $indent)) {
 					debug_msg(' %s Executing "%s" ...', $indent, $template);
 					if ($context !== null) {
-						$context->update_enviroment();
+						$context->updateEnviroment();
 					}
 
-					/* call template (can recursively call process_slot()) */
+					/* call template (can recursively call processSlot()) */
 					$tpl_fn($this, $id, $data, $options);
 				} else {
 					error_msg('Failed to load template "%s"! Object ID is "%s".', $template, $id);
@@ -212,7 +212,7 @@ class Template {
 			$message = @$this->slot_options['root']['http_status_message'];
 			$code    = $code >= 100 && $code < 600 ? $code : 200;
 		}
-		$message = $message ? $message : $this->get_http_status_message($code);
+		$message = $message ? $message : $this->getHttpStatusMessage($code);
 		header(sprintf('HTTP/1.1 '.$code.' '.$message));
 
 		/* process redirect (no output, headers only) */
@@ -242,7 +242,7 @@ class Template {
 
 		/* process root slot */
 		ob_start();
-		$this->process_slot('root');
+		$this->processSlot('root');
 
 		/* log what has been missed */
 		$missed_slots = array_keys(array_filter($this->slot_content));
@@ -262,7 +262,7 @@ class Template {
 	}
 
 
-	function get_http_status_message($code)
+	function getHttpStatusMessage($code)
 	{
 		switch ($code) {
 			case 100: return 'Continue';

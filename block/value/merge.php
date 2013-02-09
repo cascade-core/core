@@ -48,7 +48,7 @@ class B_core__value__merge extends Block {
 	{
 		$out = array();
 
-		foreach ($this->input_names() as $in) {
+		foreach ($this->inputNames() as $in) {
 			$out = array_merge($out, (array) $this->in($in));
 		}
 

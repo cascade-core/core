@@ -47,6 +47,6 @@ function TPL_css__core__main($t, $id, $d, $so)
 		" *\n",
 		" */\n\n";
 
-	$t->process_slot('default');
+	$t->processSlot('default');
 }
 

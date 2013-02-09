@@ -46,7 +46,7 @@ class B_core__value__copy extends Block {
 
 	public function main()
 	{
-		foreach ($this->input_names() as $in) {
+		foreach ($this->inputNames() as $in) {
 			$this->out($in, $this->in($in));
 		}
 		$this->out('done', true);

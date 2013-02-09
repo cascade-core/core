@@ -46,7 +46,7 @@ class B_core__logic__and extends Block {
 	{
 		$y = true;
 
-		foreach ($this->input_names() as $i) {
+		foreach ($this->inputNames() as $i) {
 			$v = $this->in($i);
 			if (!$v) {
 				$y = false;

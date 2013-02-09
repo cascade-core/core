@@ -55,7 +55,7 @@ class B_core__ini__router_links extends B_core__ini__router {
 	public function main()
 	{
 		// load config
-		$conf = $this->load_config();
+		$conf = $this->loadConfig();
 
 		$flat_list = $this->in('flat_list');
 		$title_key = $this->in('title_key');

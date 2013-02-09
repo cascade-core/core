@@ -69,7 +69,7 @@ class B_core__devel__doc__show extends Block
 
 		// PHP file
 		$filename = get_block_filename($block);
-		debug_msg("%s: Loading block %s from file %s", $this->full_id(), $block, $filename);
+		debug_msg("%s: Loading block %s from file %s", $this->fullId(), $block, $filename);
 
 		if (is_readable($filename)) {
 
@@ -85,7 +85,7 @@ class B_core__devel__doc__show extends Block
 				return;
 			}
 
-			$this->template_add(null, 'core/doc/show', array(
+			$this->templateAdd(null, 'core/doc/show', array(
 					'block' => $block,
 					'filename' => $filename,
 					'heading_level' => $this->in('heading_level'),
@@ -108,10 +108,10 @@ class B_core__devel__doc__show extends Block
 
 		// INI file
 		$filename = get_block_filename($block, '.ini.php');
-		debug_msg("%s: Loading block %s from file %s", $this->full_id(), $block, $filename);
+		debug_msg("%s: Loading block %s from file %s", $this->fullId(), $block, $filename);
 
 		if (is_readable($filename)) {
-			$this->template_add(null, 'core/doc/show', array(
+			$this->templateAdd(null, 'core/doc/show', array(
 					'block' => $block,
 					'filename' => $filename,
 					'heading_level' => $this->in('heading_level'),
@@ -120,21 +120,21 @@ class B_core__devel__doc__show extends Block
 					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
 				));
 
-			$this->cascade_add('load', 'core/ini/load', null, array(
+			$this->cascadeAdd('load', 'core/ini/load', null, array(
 					'filename' => $filename,
 				));
-			$this->cascade_add('show_image', 'core/devel/preview', null, array(
+			$this->cascadeAdd('show_image', 'core/devel/preview', null, array(
 					'blocks' => array('load', 'data'),
 					'link' => $this->in('link'),
 					'slot' => $this->in('slot'),
 					'slot_weight' => $this->in('slot_weight'),
 				));
-			$this->out_forward('done', 'load', 'done');
+			$this->outForward('done', 'load', 'done');
 			return;
 		}
 
 		// Nothing found
-		error_msg("%s: Can't read file %s", $this->full_id(), $filename);
+		error_msg("%s: Can't read file %s", $this->fullId(), $filename);
 		$this->out('done', false);
 	}
 
@@ -147,13 +147,13 @@ class B_core__devel__doc__show extends Block
 			next($this->tokens);
 
 			if ($t[0] == T_OPEN_TAG) {
-				$this->outter_code();
+				$this->outterCode();
 			}
 		}
 	}
 
 
-	private function outter_code()
+	private function outterCode()
 	{
 		while (($t = current($this->tokens))) {
 			next($this->tokens);
@@ -162,7 +162,7 @@ class B_core__devel__doc__show extends Block
 					return;
 
 				case T_DOC_COMMENT:
-					$this->data['description'][] = $this->strip_doc_comment($t[1]);
+					$this->data['description'][] = $this->stripDocComment($t[1]);
 					break;
 
 				case T_CLASS:
@@ -176,9 +176,9 @@ class B_core__devel__doc__show extends Block
 					}
 
 					if ($class_name != $this->expected_class) {
-						$this->skip_class();
+						$this->skipClass();
 					} else {
-						$this->read_class_header();
+						$this->readClassHeader();
 					}
 					break;
 			}
@@ -186,7 +186,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function skip_class()
+	private function skipClass()
 	{
 		$depth = 0;
 
@@ -205,7 +205,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function read_class_header()
+	private function readClassHeader()
 	{
 		$str = 'class '.$this->expected_class;
 
@@ -213,7 +213,7 @@ class B_core__devel__doc__show extends Block
 			next($this->tokens);
 
 			if ($t == '{') {
-				$this->read_class();
+				$this->readClass();
 				break;
 			} else {
 				$str .= is_array($t) ? $t[1] : $t;
@@ -224,7 +224,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function read_class()
+	private function readClass()
 	{
 		$depth = 1;
 
@@ -244,13 +244,13 @@ class B_core__devel__doc__show extends Block
 					if ($t[0] == T_VARIABLE) {
 						$var = $t[1];
 						if ($var == '$inputs') {
-							$this->read_array('inputs');
+							$this->readArray('inputs');
 						} else if ($var == '$outputs') {
-							$this->read_array('outputs');
+							$this->readArray('outputs');
 						}
 					} else if ($t[0] == T_STRING) {
 						if ($t[1] == 'force_exec') {
-							$this->read_force_exec();
+							$this->readForceExec();
 						}
 					}
 				}
@@ -259,7 +259,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function read_force_exec()
+	private function readForceExec()
 	{
 		$str = "\tconst force_exec";
 
@@ -276,22 +276,22 @@ class B_core__devel__doc__show extends Block
 		$this->data['force_exec'] = $str;
 	}
 
-	private function read_array($array_name)
+	private function readArray($array_name)
 	{
 		$inputs = array();
 
 		// wait for '='
-		if (!$this->read_array_wait_for('=')) {
+		if (!$this->readArrayWaitFor('=')) {
 			return;
 		}
 
 		// wait for 'array'
-		if (!$this->read_array_wait_for(array(T_ARRAY))) {
+		if (!$this->readArrayWaitFor(array(T_ARRAY))) {
 			return;
 		}
 
 		// wait for '('
-		if (!$this->read_array_wait_for('(')) {
+		if (!$this->readArrayWaitFor('(')) {
 			return;
 		}
 
@@ -300,20 +300,20 @@ class B_core__devel__doc__show extends Block
 			$input_comments = array();
 
 			// read key
-			$input_name = $this->read_value();
+			$input_name = $this->readValue();
 
 			// get '=>'
-			$this->read_array_wait_for(array(T_DOUBLE_ARROW));
+			$this->readArrayWaitFor(array(T_DOUBLE_ARROW));
 
 			// read value
-			$input_value = $this->read_value($input_comments);
+			$input_value = $this->readValue($input_comments);
 
 			if (current($this->tokens) == ',') {
 				next($this->tokens);
 			}
 
 			// read remaining comments
-			$this->read_comments($input_comments);
+			$this->readComments($input_comments);
 
 			// store gathered data
 			if ($input_name !== '') {
@@ -331,18 +331,18 @@ class B_core__devel__doc__show extends Block
 		}
 
 		// finaly wait for ';'
-		$this->read_array_wait_for(';');
+		$this->readArrayWaitFor(';');
 	}
 
 
-	private function read_comments(& $comments)
+	private function readComments(& $comments)
 	{
 		while (($t = current($this->tokens))) {
 			if (is_array($t)) {
 				if ($t[0] == T_DOC_COMMENT) {
-					$comments[] = $this->strip_doc_comment($t[1]);
+					$comments[] = $this->stripDocComment($t[1]);
 				} else if ($t[0] == T_COMMENT) {
-					$comments[] = $this->strip_comment($t[1]);
+					$comments[] = $this->stripComment($t[1]);
 				} else if ($t[0] != T_WHITESPACE) {
 					return;
 				}
@@ -354,7 +354,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function read_value(& $comments = null)
+	private function readValue(& $comments = null)
 	{
 		$str = '';
 		$depth = 0;
@@ -378,9 +378,9 @@ class B_core__devel__doc__show extends Block
 
 			if (is_array($t)) {
 				if ($t[0] == T_DOC_COMMENT) {
-					$comments[] = $this->strip_doc_comment($t[1]);
+					$comments[] = $this->stripDocComment($t[1]);
 				} else if ($t[0] == T_COMMENT) {
-					$comments[] = $this->strip_comment($t[1]);
+					$comments[] = $this->stripComment($t[1]);
 				} else if ($t[0] == T_WHITESPACE) {
 					$str .= ' ';
 				} else {
@@ -395,7 +395,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function read_array_wait_for($that)
+	private function readArrayWaitFor($that)
 	{
 		if (is_array($that)) {
 			while (($t = current($this->tokens))) {
@@ -422,7 +422,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function read_outputs()
+	private function readOutputs()
 	{
 		$str = "\t\$outputs";
 
@@ -440,7 +440,7 @@ class B_core__devel__doc__show extends Block
 	}
 
 
-	private function strip_comment($comment)
+	private function stripComment($comment)
 	{
 		$begin = substr($comment, 0, 2);
 
@@ -451,7 +451,7 @@ class B_core__devel__doc__show extends Block
 		}
 	}
 
-	private function strip_doc_comment($comment)
+	private function stripDocComment($comment)
 	{
 		return trim(preg_replace('/^[\t ]*\* ?/m', '', substr($comment, 3, -2)));
 	}

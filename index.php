@@ -241,7 +241,7 @@ if (!empty($core_cfg['core']['fix_lighttpd_get']) && strstr($_SERVER['REQUEST_UR
 
 /* set default output type */
 if (isset($core_cfg['output']['default_type'])) {
-	$template->slot_option_set('root', 'type', $core_cfg['output']['default_type']);
+	$template->slotOptionSet('root', 'type', $core_cfg['output']['default_type']);
 }
 
 /* Call app's init file(s) */
@@ -259,8 +259,8 @@ if (!isset($_SESSION)) {
 /* Initialize default context */
 $context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
 $default_context = new $context_class();
-$default_context->set_locale(DEFAULT_LOCALE);
-$default_context->set_template_engine($template);
+$default_context->setLocale(DEFAULT_LOCALE);
+$default_context->setTemplateEngine($template);
 
 /* Initialize auth object (if set) */
 if (!empty($core_cfg['core']['auth_class'])) {
@@ -281,22 +281,22 @@ foreach (empty($core_cfg['block-storage'])
 {
 	debug_msg('Initializing block storage "%s" ...', $storage_class);
 	$s = new $storage_class($storage_opts);
-	$cascade->add_block_storage($s, $storage_class);
+	$cascade->addBlockStorage($s, $storage_class);
 }
 
 /* Prepare starting blocks */
-$cascade->add_blocks_from_ini(null, $core_cfg, $default_context);
+$cascade->addBlocksFromIni(null, $core_cfg, $default_context);
 
 /* Execute cascade */
 $cascade->start();
 
 /* dump namespaces */
-//echo '<pre style="text-align: left;">', $cascade->dump_namespaces(), '</pre>';
+//echo '<pre style="text-align: left;">', $cascade->dumpNamespaces(), '</pre>';
 
 /* Visualize executed cascade */
 if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	/* Template object will render & cache image */
-	$template->add_object('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
+	$template->addObject('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
 			'cascade' => $cascade,
 			'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
 			'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
@@ -308,14 +308,14 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 
 /* Log memory usage */
 if (!empty($core_cfg['debug']['log_memory_usage'])) {
-	extra_msg('Cascade memory usage: %1.3f B', $cascade->get_memory_usage() / 1024);
+	extra_msg('Cascade memory usage: %1.3f B', $cascade->getMemoryUsage() / 1024);
 }
 
 /* Store profiler statistics */
 if (DEBUG_PROFILER_STATS_FILE) {
 	$fn = filename_format(DEBUG_PROFILER_STATS_FILE);
 	$old_stats = file_exists($fn) ? unserialize(gzuncompress(file_get_contents($fn))) : array();
-	file_put_contents($fn, gzcompress(serialize($cascade->get_execution_times($old_stats)), 2));
+	file_put_contents($fn, gzcompress(serialize($cascade->getExecutionTimes($old_stats)), 2));
 	unset($fn, $old_stats);
 }
 

@@ -46,7 +46,7 @@ class B_core__out__print_r extends Block
 
 	function main()
 	{
-		$this->template_add(null, 'core/print_r', array(
+		$this->templateAdd(null, 'core/print_r', array(
 				'title' => $this->in('title'),
 				'header_level' => $this->in('header_level'),
 				'data' => $this->in('data'),

@@ -62,7 +62,7 @@ class B_core__stream__split extends Block {
 			return;
 		}
 
-		$this->row_count = $this->collect_numeric_inputs();
+		$this->row_count = $this->collectNumericInputs();
 
 		$begin = 0;
 		foreach($this->row_count as $k => $count) {

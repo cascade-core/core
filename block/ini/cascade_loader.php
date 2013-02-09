@@ -48,7 +48,7 @@ class B_core__ini__cascade_loader extends Block
 
 	public function main()
 	{
-		$this->cascade_add_from_ini($this->in('items'));
+		$this->cascadeAddFromIni($this->in('items'));
 	}
 
 }

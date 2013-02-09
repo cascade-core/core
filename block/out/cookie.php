@@ -47,7 +47,7 @@ class B_core__out__cookie extends Block
 	{
 		$t = strtotime("+1 year");
 
-		foreach ($this->input_names() as $i) {
+		foreach ($this->inputNames() as $i) {
 			$value = $this->in($i);
 
 			setcookie($i, $value, $t, '/');

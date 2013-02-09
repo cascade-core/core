@@ -38,7 +38,7 @@ function TPL_json__core__pipeline_graph($t, $id, $d, $so)
 		@mkdir(dirname($dot_name));
 	}
 
-	$dot = $pipeline->export_graphviz_dot($link, isset($whitelist) ? $whitelist : array());
+	$dot = $pipeline->exportGraphvizDot($link, isset($whitelist) ? $whitelist : array());
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
@@ -54,7 +54,7 @@ function TPL_json__core__pipeline_graph($t, $id, $d, $so)
 			|| $png_mtime <= filemtime(__FILE__))
 	{
 		file_put_contents($dot_file, $dot);
-		$pipeline->exec_dot($dot, 'png', $png_file);
+		$pipeline->execDot($dot, 'png', $png_file);
 	}
 }
 

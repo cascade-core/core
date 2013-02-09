@@ -71,7 +71,7 @@ class B_core__value__cascade_loader extends Block
 			$output_forward = preg_split('/[^a-zA-Z0-9_-]+/', $output_forward, -1, PREG_SPLIT_NO_EMPTY);
 		}
 
-		foreach ((array) $this->input_names() as $i) {
+		foreach ((array) $this->inputNames() as $i) {
 			if ($i == 'output_forward' || $i == 'block_fmt') {
 				continue;
 			}
@@ -89,14 +89,14 @@ class B_core__value__cascade_loader extends Block
 					continue;
 				}
 
-				$block = $this->cascade_add($id, $type, true, array(
+				$block = $this->cascadeAdd($id, $type, true, array(
 						//'enable' => array('parent', 'done'),
 					));
 
 				if ($block !== false) {
 					$any_ok = true;
 					foreach ($output_forward as $out) {
-						$this->out_forward($id.'_'.$out, $id, $out);
+						$this->outForward($id.'_'.$out, $id, $out);
 					}
 				} else {
 					$all_ok = false;

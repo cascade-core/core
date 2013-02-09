@@ -52,7 +52,7 @@ class B_core__prefix__split extends Block {
 			$out[$prefix][$orig_in] = $value;
 		}
 
-		$this->out_all($out);
+		$this->outAll($out);
 		$this->out('done', true);
 	}
 

@@ -51,9 +51,9 @@ class B_core__value__split extends Block {
 			if (!is_array($keys)) {
 				$keys = explode(':', $keys);
 			}
-			$this->out_all((array) array_extract_keys($this->in('in'), $keys));
+			$this->outAll((array) array_extract_keys($this->in('in'), $keys));
 		} else {
-			$this->out_all((array) $this->in('in'));
+			$this->outAll((array) $this->in('in'));
 		}
 
 		$this->out('done', true);

@@ -56,7 +56,7 @@ class B_core__out__menu extends Block
 		$items = $this->in('items');
 
 		if (is_array($items)) {
-			$this->template_add(null, 'core/menu', array(
+			$this->templateAdd(null, 'core/menu', array(
 					'items' => $items,
 					'layout' => $this->in('layout'),
 					'title_fmt' => $this->in('title_fmt'),

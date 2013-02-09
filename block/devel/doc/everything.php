@@ -57,12 +57,12 @@ class B_core__devel__doc__everything extends B_core__devel__doc__index
 		$heading_level = $this->in('heading_level');
 		$require_description = $this->in('require_description');
 
-		$titles = $this->get_titles();
-		$blocks = $this->get_cascade_controller()->get_known_blocks();
+		$titles = $this->getTitles();
+		$blocks = $this->getCascadeController()->getKnownBlocks();
 
 		foreach ($blocks as $prefix => $prefix_blocks) {
 
-			$this->cascade_add('doc_'.$prefix, 'core/out/header', null, array(
+			$this->cascadeAdd('doc_'.$prefix, 'core/out/header', null, array(
 					'level' => $heading_level,
 					'text' => isset($titles[$prefix])
 							? $titles[$prefix]
@@ -72,7 +72,7 @@ class B_core__devel__doc__everything extends B_core__devel__doc__index
 				));	
 
 			foreach ($prefix_blocks as $id => $block) {
-				$this->cascade_add('doc_'.$prefix.'__'.$id, 'core/devel/doc/show', null, array(
+				$this->cascadeAdd('doc_'.$prefix.'__'.$id, 'core/devel/doc/show', null, array(
 						'heading_level' => $heading_level + 1,
 						'block' => $block,
 						'link' => $link,

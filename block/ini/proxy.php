@@ -70,7 +70,7 @@ class B_core__ini__proxy extends Block {
 	/**
 	 * Set configuration loaded by IniBlockStorage when creating instance.
 	 */
-	public function set_configuration($conf)
+	public function setConfiguration($conf)
 	{
 		$this->conf = $conf;
 	}
@@ -98,7 +98,7 @@ class B_core__ini__proxy extends Block {
 		}
 
 		// Fill cascade
-		$done = $this->cascade_add_from_ini($conf);
+		$done = $this->cascadeAddFromIni($conf);
 
 		// Copy inputs
 		if (isset($conf['copy-inputs'])) {
@@ -112,7 +112,7 @@ class B_core__ini__proxy extends Block {
 			foreach ($conf['outputs'] as $out => $src) {
 				if (is_array($src)) {
 					list($src_mod, $src_out) = explode(':', $src[0]);
-					$this->out_forward($out, $src_mod, $src_out);
+					$this->outForward($out, $src_mod, $src_out);
 				} else {
 					$this->out($out, $src);
 				}
@@ -123,7 +123,7 @@ class B_core__ini__proxy extends Block {
 		if (isset($conf['forward-outputs'])) {
 			foreach ($conf['forward-outputs'] as $out => $src) {
 				list($src_mod, $src_out) = explode(':', $src);
-				$this->out_forward($out, $src_mod, $src_out);
+				$this->outForward($out, $src_mod, $src_out);
 			}
 		}
 
@@ -135,7 +135,7 @@ class B_core__ini__proxy extends Block {
 	{
 		// Check required blocks
 		foreach ((array) $arg as $rq_block) {
-			if (!$this->auth_is_block_allowed($rq_block)) {
+			if (!$this->authIsBlockAllowed($rq_block)) {
 				debug_msg('Required block "%s" is not allowed. Aborting.', $rq_block);
 				return;
 			}
@@ -149,7 +149,7 @@ class B_core__ini__proxy extends Block {
 		// Silently replace denied blocks with dummy. Useful when other blocksare connected to these.
 		foreach ((array) $arg as $id) {
 			$m = @ $conf['block:'.$id]['.block'];
-			if ($m !== null && !$this->auth_is_block_allowed($m)) {
+			if ($m !== null && !$this->authIsBlockAllowed($m)) {
 				debug_msg('Replacing block "%s" (%s) with dummy.', $id, $m);
 				$conf['block:'.$id]['.block'] = 'core/dummy';
 			}
@@ -162,7 +162,7 @@ class B_core__ini__proxy extends Block {
 		// Silently skip denied blocks. When nothing needs these.
 		foreach ((array) $arg as $id) {
 			$m = @ $conf['block:'.$id]['.block'];
-			if ($m !== null && !$this->auth_is_block_allowed($m)) {
+			if ($m !== null && !$this->authIsBlockAllowed($m)) {
 				debug_msg('Skipping block "%s" (%s).', $id, $m);
 				unset($conf['block:'.$id]);
 			}

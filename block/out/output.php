@@ -66,12 +66,12 @@ class B_core__out__output extends Block
 			$data = $this->in('data');
 			if ($data === false) {
 				$data = array();
-				foreach ($this->input_names() as $i) {
+				foreach ($this->inputNames() as $i) {
 					$data[$i] = $this->in($i);
 				}
 			}
 
-			$this->template_add(null, $this->in('template'), $data);
+			$this->templateAdd(null, $this->in('template'), $data);
 
 		} else {
 
@@ -79,11 +79,11 @@ class B_core__out__output extends Block
 			// and forward everything to template.
 
 			$data = array();
-			foreach ($this->input_names() as $i) {
+			foreach ($this->inputNames() as $i) {
 				$data[$i] = $this->in($i);
 			}
 
-			$this->template_add(null, $this->template, $data);
+			$this->templateAdd(null, $this->template, $data);
 
 		}
 

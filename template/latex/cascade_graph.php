@@ -42,7 +42,7 @@ function TPL_latex__core__cascade_graph($t, $id, $d, $so)
 		$whitelist = array();
 	}
 
-	$dot = $cascade->export_graphviz_dot($link, $whitelist);
+	$dot = $cascade->exportGraphvizDot($link, $whitelist);
 	$hash = md5($dot);
 
 	$dot_file = sprintf($dot_name, $hash, 'dot');
@@ -63,15 +63,15 @@ function TPL_latex__core__cascade_graph($t, $id, $d, $so)
 
 		// prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do
 		if ($animate) {
-			$steps = $cascade->current_step(false) + 1;
+			$steps = $cascade->currentStep(false) + 1;
 			for ($t = 0; $t <= $steps; $t++) {
 				$f = sprintf($movie_file, $t);
-				file_put_contents($f, gzencode($cascade->export_graphviz_dot($link, $whitelist, $t), 2));
+				file_put_contents($f, gzencode($cascade->exportGraphvizDot($link, $whitelist, $t), 2));
 			}
 		}
 		
 		// render graph
-		$cascade->exec_dot($dot, 'pdf', $pdf_file);
+		$cascade->execDot($dot, 'pdf', $pdf_file);
 	}
 
 

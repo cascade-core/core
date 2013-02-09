@@ -47,7 +47,7 @@ class B_core__in__server extends Block {
 		$this->out('all', $_SERVER);
 	}
 
-	public function get_output($name)
+	public function getOutput($name)
 	{
 		return @$_SERVER[strtoupper($name)];
 	}

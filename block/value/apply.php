@@ -52,7 +52,7 @@ class B_core__value__apply extends Block {
 			return;
 		}
 
-		foreach ($this->input_names() as $in) {
+		foreach ($this->inputNames() as $in) {
 			if ($in == 'enable' || $in == 'function') {
 				continue;
 			}

@@ -47,7 +47,7 @@ class B_core__in__get extends Block {
 		$this->out('all', $_GET);
 	}
 
-	public function get_output($name)
+	public function getOutput($name)
 	{
 		return @$_GET[$name];
 	}

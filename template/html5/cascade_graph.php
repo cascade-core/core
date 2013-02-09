@@ -38,7 +38,7 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 
 	// FIXME: this should not be done here
 
-	$dot = $cascade->export_graphviz_dot($link, $whitelist);
+	$dot = $cascade->exportGraphvizDot($link, $whitelist);
 	$hash = md5($dot);
 
 	$dot_file   = filename_format($dot_name_tpl, array('hash' => $hash, 'ext' => 'dot'));
@@ -72,16 +72,16 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 
 		// prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do
 		if (!empty($animate)) {
-			$steps = $cascade->current_step(false) + 1;
+			$steps = $cascade->currentStep(false) + 1;
 			for ($t = 0; $t <= $steps; $t++) {
 				$f = sprintf($movie_file, $t);
-				file_put_contents($f, gzencode($cascade->export_graphviz_dot($link, $whitelist, $t), 2));
+				file_put_contents($f, gzencode($cascade->exportGraphvizDot($link, $whitelist, $t), 2));
 			}
 		}
 		
 		// render graph (when target is not ordinary file, direct streaming may be broken)
-		file_put_contents($png_file, $cascade->exec_dot($dot, 'png'));
-		file_put_contents($map_file, $cascade->exec_dot($dot, 'cmapx'));
+		file_put_contents($png_file, $cascade->execDot($dot, 'png'));
+		file_put_contents($map_file, $cascade->execDot($dot, 'cmapx'));
 	}
 
 
