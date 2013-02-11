@@ -293,7 +293,12 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 
 
 function filename_format($template, $values = array()) {
-	return template_format($template, $values, null, get_defined_constants());
+	static $constants = false;
+	if ($constants === false) {
+		// Fixme: How to invalidate this cache?
+		$constants = get_defined_constants();
+	}
+	return template_format($template, $values, null, $constants);
 }
 
 
