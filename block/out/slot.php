@@ -38,7 +38,7 @@ class B_core__out__slot extends Block
 	protected $inputs = array(
 		'slot' => 'default',
 		'slot_weight' => 50,
-		'name' => array(),		// Name of the new slot.
+		'name' => null,			// Name of the new slot.
 		'extra_class' => null,		// Class added to slot.
 	);
 
@@ -49,21 +49,20 @@ class B_core__out__slot extends Block
 
 	public function main()
 	{
-		$name = get_ident($this->in('name'));
+		$name = $this->in('name');
+		$name = get_ident($name == '' ? 'slot_'.$this->fullId() : $name);
 
-		if ($name != '') {
-			$this->out('name', $name);
-			$this->out('done', true);
-
-			$inputs = array();
-			foreach ($this->inputNames() as $in) {
-				if ($in != 'slot' && $in != 'slot_weight') {
-					$inputs[$in] = $this->in($in);
-				}
+		$inputs = array();
+		foreach ($this->inputNames() as $in) {
+			if ($in != 'slot' && $in != 'slot_weight') {
+				$inputs[$in] = $this->in($in);
 			}
-
-			$this->templateAdd(null, 'core/slot', $inputs);
 		}
+		$inputs['name'] = $name;
+		$this->templateAdd(null, 'core/slot', $inputs);
+
+		$this->out('name', $name);
+		$this->out('done', true);
 	}
 }
 
