@@ -72,6 +72,9 @@ IniBlockStorage		= true
 ;
 ;; ... instead of these two:
 
+[block:config]
+.block		= core/json/config_loader
+
 [block:load_routes]
 .block		= core/ini/load
 filename	= routes.examples.ini.php
