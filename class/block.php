@@ -362,7 +362,7 @@ abstract class Block {
 			return null;
 		} else {
 			// create output and cache it
-			if (method_exists($this, 'get_output')) {
+			if (method_exists($this, 'getOutput')) {
 				$value = $this->getOutput($name);
 			} else {
 				return null;
