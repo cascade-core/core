@@ -103,6 +103,9 @@ class B_core__out__menu extends Block
 	private function findBestMatchWalk($items, $active_uri, & $path = null, & $best_len = null, & $best_path = null)
 	{
 		foreach ($items as $i => $item) {
+			if (!empty($item['hidden'])) {
+				continue;
+			}
 			if (!empty($item['link'])) {
 				$link  = $item['link'];
 				$len   = strlen($link);

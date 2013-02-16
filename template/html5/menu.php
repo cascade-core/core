@@ -90,6 +90,10 @@ function tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth = PHP_I
 {
 	/* show menu */
 	foreach ($items as $i => $item) {
+		if (!empty($item['hidden'])) {
+			continue;
+		}
+
 		$classes = (array) @ $item['classes'];
 
 		/* are there children nodes? */
@@ -129,6 +133,10 @@ function tpl_html5__core__menu__row($id, $items, $title_fmt, $max_depth = PHP_IN
 {
 
 	foreach ($items as $i => $item) {
+		if (!empty($item['hidden'])) {
+			continue;
+		}
+
 		$classes = (array) @ $item['classes'];
 
 		/* build class attribute */

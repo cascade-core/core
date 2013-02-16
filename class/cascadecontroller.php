@@ -131,7 +131,7 @@ class CascadeController {
 	private function createBlockInstance($block, & $errors = null, & $storage_name = null)
 	{
 		/* check replacement table */
-		for ($step = 32; isset($this->replacement[$block]) && $step > 0; $step--) {
+		for ($step = 32; is_string($block) && isset($this->replacement[$block]) && $step > 0; $step--) {
 			$block = $this->replacement[$block];
 		}
 
