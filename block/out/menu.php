@@ -39,7 +39,6 @@ class B_core__out__menu extends Block
 		'items' => null,		// Menu items.
 		'layout' => 'tree',		// Layout: tree or row.
 		'active_uri' => null,		// Highlight item linking to this URI.
-		'exact_match' => false,		// Highlight only exactly matching item.
 		'title_fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
 		'class' => null,		// Class set to top-level element.
 		'max_depth' => PHP_INT_MAX,	// Show only items up to specified depth.
@@ -54,17 +53,73 @@ class B_core__out__menu extends Block
 	public function main()
 	{
 		$items = $this->in('items');
+		$active_uri = $this->in('active_uri');
 
 		if (is_array($items)) {
+			if ($active_uri) {
+				$this->findBestMatch($items, $active_uri);
+			}
+
 			$this->templateAdd(null, 'core/menu', array(
 					'items' => $items,
 					'layout' => $this->in('layout'),
 					'title_fmt' => $this->in('title_fmt'),
-					'exact_match' => $this->in('exact_match'),
-					'active_uri' => $this->in('active_uri'),
 					'class' => $this->in('class'),
 					'max_depth' => $this->in('max_depth'),
 				));
+		}
+	}
+
+
+	/**
+	 * Find the best match for active url and mark that item adn it's parents with classes.
+	 */
+	protected function findBestMatch(& $items, $active_uri)
+	{
+		$path = array();
+		$best_len = 0;
+		$best_path = array();
+
+		$this->findBestMatchWalk($items, $active_uri, $path, $best_len, $best_path);
+
+		if ($best_len > 0) {
+			$last = array_pop($best_path);
+			if (empty($best_path)) {
+				$items[$last]['classes'][] = 'active';
+			} else {
+				$i = & $items[reset($best_path)];
+				$i['classes'][] = 'active_child';
+				while (next($best_path)) {
+					$i = & $i['children'][current($best_path)];
+					$i['classes'][] = 'active_child';
+				}
+				$i['children'][$last]['classes'][] = 'active';
+			}
+		}
+		//echo "<pre style=\"border:1px solid red\">", join('/', $best_path), "\n", json_encode($items, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), "</pre>";
+	}
+
+
+	private function findBestMatchWalk($items, $active_uri, & $path = null, & $best_len = null, & $best_path = null)
+	{
+		foreach ($items as $i => $item) {
+			if (!empty($item['link'])) {
+				$link  = $item['link'];
+				$len   = strlen($link);
+				$match = (strncmp($link, $active_uri, $len) == 0);
+
+				if ($match && $len > $best_len) {
+					$best_len = $len;
+					$best_path = $path;
+					array_push($best_path, $i);
+				}
+			}
+
+			if (!empty($item['children'])) {
+				array_push($path, $i);
+				$this->findBestMatchWalk($item['children'], $active_uri, $path, $best_len, $best_path);
+				array_pop($path);
+			}
 		}
 	}
 

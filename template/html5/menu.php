@@ -49,13 +49,13 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 		default:
 		case 'tree':
 			echo "<ul id=\"", htmlspecialchars($id), "\" class=\"menu", isset($class) ? ' '.$class : '', "\">\n";
-			tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth);
+			tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth);
 			echo "</ul>\n";
 			break;
 
 		case 'row':
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"menu", isset($class) ? ' '.$class : '', "\">\n";
-			tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth);
+			tpl_html5__core__menu__row($id, $items, $title_fmt, $max_depth);
 			echo "</div>\n";
 			break;
 	}
@@ -86,24 +86,22 @@ function tpl_html5__core__menu__label($id, $item, $title_fmt)
 }
 
 
-function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth = PHP_INT_MAX)
+function tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth = PHP_INT_MAX)
 {
+	/* show menu */
 	foreach ($items as $i => $item) {
+		$classes = (array) @ $item['classes'];
 
-		/* is link active ? */
-		if (isset($item['link'])) {
-			$link = & $item['link'];
-
-			if ($link == '/' || $exact_match) {
-				$match = ($link == $active_uri);
-			} else {
-				$match = (strncmp($item['link'], $active_uri, strlen($item['link'])) == 0);
-			}
-
-			$class = $match ? ' class="active"' : '';
+		/* are there children nodes? */
+		if (!empty($item['children']) && $max_depth > 0) {
+			$has_children = true;
+			$classes[] = 'has_children';
 		} else {
-			$class = '';
+			$has_children = false;
 		}
+
+		/* build class attribute */
+		$class = empty($classes) ? '' : ' class="'.join($classes, ' ').'"';
 
 		/* show non-numeric id */
 		if (is_numeric($i)) {
@@ -116,9 +114,9 @@ function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $ti
 		tpl_html5__core__menu__label($id, $item, $title_fmt);
 
 		/* recursively show children */
-		if (isset($item['children']) && $max_depth > 0) {
+		if ($has_children) {
 			echo "\n<ul>\n";
-			tpl_html5__core__menu__tree($id, $item['children'], $active_uri, $exact_match, $title_fmt, $max_depth - 1);
+			tpl_html5__core__menu__tree($id, $item['children'], $title_fmt, $max_depth - 1);
 			echo "</ul>\n";
 		}
 
@@ -127,23 +125,14 @@ function tpl_html5__core__menu__tree($id, $items, $active_uri, $exact_match, $ti
 }
 
 
-function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $title_fmt, $max_depth = PHP_INT_MAX, $first = true)
+function tpl_html5__core__menu__row($id, $items, $title_fmt, $max_depth = PHP_INT_MAX, $first = true)
 {
+
 	foreach ($items as $i => $item) {
-		/* is link active ? */
-		if (isset($item['link'])) {
-			$link = & $item['link'];
+		$classes = (array) @ $item['classes'];
 
-			if ($link == '/' || $exact_match) {
-				$match = ($link == $active_uri);
-			} else {
-				$match = (strncmp($item['link'], $active_uri, strlen($item['link'])) == 0);
-			}
-
-			$class = $match ? ' class="active"' : '';
-		} else {
-			$class = '';
-		}
+		/* build class attribute */
+		$class = empty($classes) ? '' : ' class="'.join($classes, ' ').'"';
 
 		/* separator */
 		if ($first) {
@@ -166,7 +155,7 @@ function tpl_html5__core__menu__row($id, $items, $active_uri, $exact_match, $tit
 
 		/* recursively show children */
 		if (isset($item['children']) && $max_depth > 0) {
-			tpl_html5__core__menu__row($id, $item['children'], $active_uri, $exact_match, $title_fmt, $max_depth - 1, false);
+			tpl_html5__core__menu__row($id, $item['children'], $title_fmt, $max_depth - 1, false);
 		}
 
 	}
