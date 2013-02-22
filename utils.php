@@ -132,6 +132,39 @@ function extra_msg($msg)
 }
 
 
+/**
+ * Simple function for quick and dirty debugging. This prints variable in nice 
+ * and readable way. Do not forget calls of this anywhere in final code.
+ */
+function dump($var, $label = '', $use_print_r = false)
+{
+	$div = $use_print_r ? 'pre':'div';
+
+	echo "<$div style='",
+		"display: block;",
+		"text-align: left;",
+		"font-size: 8pt;",
+		"margin: 1em; padding: 1ex 1em;",
+		"border: 1px solid #aaa; border-width: 2px 1px;",
+		"background: #fff; color: #000;",
+		"'>";
+
+	if ($label != '') {
+		echo "<big><b>", htmlspecialchars($label), "</b></big> = ";
+	}
+
+	if ($use_print_r) {
+		ob_start();
+		print_r($var);
+		echo htmlspecialchars(ob_get_clean());
+	} else {
+		highlight_string("<?php\n".preg_replace('/=> \n\s*/', "=> ", var_export($var, true)));
+	}
+
+	echo "</$div>";
+}
+
+
 function get_ident($name)
 {
 	if ((string) $name === '') {
