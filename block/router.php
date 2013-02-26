@@ -75,7 +75,8 @@ class B_core__router extends Block
 
 		// Convert current path to array
 		if (!is_array($path)) {
-			$path = explode('/', trim($path, '/'));
+			$path = trim($path, '/');
+			$path = ($path == '' ? array() : explode('/', $path));
 		}
 
 		// Prepare reverse router
@@ -101,6 +102,7 @@ class B_core__router extends Block
 				}
 				$this->outAll($route);
 				$done = true;
+				break;
 			}
 		}
 
@@ -180,7 +182,8 @@ class B_core__router extends Block
 		// match rules one by one
 		foreach($routes as $mask => $route) {
 			// get path fragments
-			$m = explode('/', trim($mask, '/'));
+			$m = trim($mask, '/');
+			$m = ($m == '' ? array() : explode('/', $m));
 			$m_len = count($m);
 			$last = end($m);
 
