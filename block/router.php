@@ -202,7 +202,7 @@ class B_core__router extends Block
 					// last part is '**' -- copy tail and finish
 					$outputs['path_head'] = array_slice($path, 0, $i);
 					$outputs['path_tail'] = array_slice($path, $i);
-					$i = count($m);
+					$i = $m_len;
 					break;
 				} else if ($mi != '*' && $mi != $path[$i]) {
 					// fail
