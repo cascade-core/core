@@ -169,6 +169,14 @@ class B_core__router extends Block
 						return false;
 					}
 					break;
+				// Check if user can execute all enumerated blocks
+				case 'block_allowed':
+					foreach ((array) $values as $block) {
+						if (!$this->authIsBlockAllowed($block)) {
+							return false;
+						}
+					}
+					break;
 			}
 		}
 		return true;
