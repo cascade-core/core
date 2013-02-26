@@ -136,7 +136,7 @@ function extra_msg($msg)
  * Simple function for quick and dirty debugging. This prints variable in nice 
  * and readable way. Do not forget calls of this anywhere in final code.
  */
-function dump($var, $label = '', $use_print_r = false)
+function debug_dump($var, $label = '', $use_print_r = false)
 {
 	$div = $use_print_r ? 'pre':'div';
 
