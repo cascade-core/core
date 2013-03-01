@@ -68,7 +68,7 @@ class JsonConfig
 	}
 
 
-	protected function readJson($filename)
+	public static function readJson($filename)
 	{
 		$d = json_decode(file_get_contents($filename), TRUE, 512, JSON_BIGINT_AS_STRING);
 		if ($d === null) {
@@ -98,6 +98,9 @@ class JsonConfig
 			error_msg("Failed to load \"%s\": %s", $filename, $err);
 			return false;
 		} else {
+			if (isset($d['_'])) {
+				unset($d['_']);
+			}
 			return $d;
 		}
 	}
