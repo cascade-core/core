@@ -80,7 +80,7 @@ class B_core__out__menu extends Block
 		$best_len = 0;
 		$best_path = array();
 
-		$this->findBestMatchWalk($items, $active_uri, $path, $best_len, $best_path);
+		$this->findBestMatchWalk($items, rtrim($active_uri, '/'), $path, $best_len, $best_path);
 
 		if ($best_len > 0) {
 			$last = array_pop($best_path);
@@ -89,7 +89,7 @@ class B_core__out__menu extends Block
 			} else {
 				$i = & $items[reset($best_path)];
 				$i['classes'][] = 'active_child';
-				while (next($best_path)) {
+				while (next($best_path) !== FALSE) {
 					$i = & $i['children'][current($best_path)];
 					$i['classes'][] = 'active_child';
 				}
@@ -107,7 +107,7 @@ class B_core__out__menu extends Block
 				continue;
 			}
 			if (!empty($item['link'])) {
-				$link  = $item['link'];
+				$link  = rtrim($item['link'], '/');
 				$len   = strlen($link);
 				$match = (strncmp($link, $active_uri, $len) == 0);
 
