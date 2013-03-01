@@ -140,7 +140,6 @@ class CascadeController {
 			error_msg('Invalid block name: %s', $block);
 			$errors[] = array(
 				'error'   => 'Invalid block name.',
-				'id'      => $id,
 				'block'   => $block,
 			);
 			return false;
@@ -155,8 +154,6 @@ class CascadeController {
 			}
 			$errors[] = array(
 				'error'   => 'Permission denied.',
-				'id'      => $id,
-				'full_id' => $full_id,
 				'block'   => $block,
 				'details' => $details,
 			);
