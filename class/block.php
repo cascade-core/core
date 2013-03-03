@@ -56,6 +56,7 @@ abstract class Block {
 	private $slot_weight_penalty;		// guarantees keeping order of output objects
 
 	private $status = self::QUEUED;
+	private $status_message = null;		// Reason, why is block in this status. Ususally description of error.
 	private $output_cache = array();
 	private $forward_list = array();
 	private $execution_time = null;		// time [ms] spent in main()
@@ -112,6 +113,12 @@ abstract class Block {
 	final public function status()
 	{
 		return $this->status;
+	}
+
+
+	final public function statusMessage()
+	{
+		return $this->status_message;
 	}
 
 
@@ -252,6 +259,7 @@ abstract class Block {
 					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of block "%s" is not defined!',
 							$this->blockName(), $in, $this->fullId());
 					$this->status = self::FAILED;
+					$this->status_message = 'In: No source';
 				} else {
 					for ($i = $out[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
 						$block_name = $out[$i];
@@ -260,6 +268,7 @@ abstract class Block {
 						if (!$m) {
 							error_msg('%s: Can\'t connect inputs -- block "%s" not found!', $this->blockName(), $block_name);
 							$this->status = self::FAILED;
+							$this->status_message = 'In: Block not found';
 						} else if (isset($m->outputs[$block_out]) || isset($m->outputs['*'])) {
 							$dependencies[$m->fullId()] = $m;
 							$out[$i] = $m;
@@ -267,6 +276,7 @@ abstract class Block {
 							error_msg('Can\'t connect input "%s:%s" to "%s:%s" !',
 									$this->fullId(), $in, $block_name, $block_out);
 							$this->status = self::FAILED;
+							$this->status_message = 'In: Bad connection';
 						}
 					}
 				}
@@ -286,6 +296,7 @@ abstract class Block {
 		foreach($dependencies as & $d) {
 			if (!$d->cc_execute()) {
 				$this->status = self::FAILED;
+				$this->status_message = 'Unsolved dependencies';
 				break;
 			}
 		}
@@ -324,6 +335,7 @@ abstract class Block {
 			if ($n == 0) {
 				error_msg('%s: Can\'t forward output to "%s:%s" -- no source output defined!', $this->blockName(), $this->fullId(), $name);
 				$this->status = self::FAILED;
+				$this->status_message = 'OutFwd: No source';
 			} else {
 				for ($i = $src[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
 					$block_name = $src[$i];
@@ -333,6 +345,7 @@ abstract class Block {
 						error_msg('%s: Can\'t forward output to "%s:%s" -- block "%s" not found!',
 								$this->blockName(), $this->fullId(), $name, $block_name);
 						$this->status = self::FAILED;
+						$this->status_message = 'OutFwd: Block not found';
 					} else if (isset($b->outputs[$block_out]) || isset($b->outputs['*'])) {
 						if (is_object($b) && !$b->cc_execute()) {
 							error_msg('Can\'t forward output to "%s:%s" -- block "%s" has failed!',
@@ -343,6 +356,7 @@ abstract class Block {
 						error_msg('Can\'t forward output to "%s:%s" from "%s:%s" !',
 							$this->fullId(), $name, $block_name, $block_out);
 						$this->status = self::FAILED;
+						$this->status_message = 'OutFwd: Bad connection';
 					}
 				}
 				$this->output_cache[$name] = $this->collectOutputs($src);

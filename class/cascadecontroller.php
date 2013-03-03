@@ -584,6 +584,15 @@ class CascadeController {
 				$out = next($output_names);
 			}
 
+			$msg = $block->statusMessage();
+			if ($msg != '') {
+				$gv .=   "	<tr>\n"
+					."		<td align=\"center\" colspan=\"2\">\n"
+					."			<font point-size=\"6\" color=\"dimgrey\">".htmlspecialchars($msg)."</font>\n"
+					."		</td>\n"
+					."	</tr>\n";
+			}
+
 			/*
 			$et = $block->cc_executionTime();
 			if ($et > 10) {
