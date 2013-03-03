@@ -320,9 +320,18 @@ abstract class Block {
 		debug_msg('%s: Starting block "%s"', $this->blockName(), $this->fullId());
 		$this->context->updateEnviroment();
 		$t = microtime(TRUE);
-		$this->main();
+		try {
+			$this->main();
+			$this->status = self::ZOMBIE;
+		}
+		catch (\Exception $ex) {
+			$this->status = self::FAILED;
+			$this->status_message = 'Exception: '.get_class($ex);
+			error_msg('%s: Uncaught exception %s in block "%s": "%s" in file %s on line %d.',
+				$this->blockName(), get_class($ex), $this->fullId(), $ex->getMessage(),
+				$ex->getFile(), $ex->getLine());
+		}
 		$this->execution_time = (microtime(TRUE) - $t) * 1000;
-		$this->status = self::ZOMBIE;
 		$this->timestamp_finish = $this->cascade_controller->currentStep();
 
 		/* execute & evaluate forwarded outputs */
