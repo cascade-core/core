@@ -206,7 +206,7 @@ class Template {
 		if ($redirect_url) {
 			$code    = @$this->slot_options['root']['redirect_code'];
 			$message = @$this->slot_options['root']['redirect_message'];
-			$code    = $code >= 300 && $code < 400 ? $code : 301;
+			$code    = $code >= 300 && $code < 400 ? $code : 303;
 		} else {
 			$code    = @$this->slot_options['root']['http_status_code'];
 			$message = @$this->slot_options['root']['http_status_message'];
@@ -219,7 +219,7 @@ class Template {
 		if ($redirect_url) {
 			session_write_close();
 			debug_msg('Redirecting to "%s" (%d %s)', $redirect_url, $code, $message);
-			header('Location: '.$redirect_url, TRUE, $code != 200 ? $code : 301);
+			header('Location: '.$redirect_url, TRUE, $code);
 			return;
 		}
 
