@@ -139,7 +139,7 @@ abstract class Block {
 	 */
 
 	// "constructor" -- called imediately after block creation
-	final public function cc_init($parent, $id, $full_id, $cascade_controller, $block_name, $context, $initial_status = self::QUEUED)
+	final public function cc_init($parent, $id, $full_id, $cascade_controller, $block_name, $context, $initial_status = self::QUEUED, $initial_status_message = null)
 	{
 		// basic init
 		$this->id = $id;
@@ -151,6 +151,7 @@ abstract class Block {
 		$this->timestamp_create = $this->cascade_controller->currentStep();
 		$this->slot_weight_penalty = 1.0 - 100.0 / ($this->timestamp_create + 100.0); // lim -> inf = 1
 		$this->status = $initial_status;
+		$this->status_message = $initial_status_message;
 
 		// add common inputs
 		$this->inputs['enable'] = true;

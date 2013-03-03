@@ -157,7 +157,7 @@ class CascadeController {
 				'block'   => $block,
 				'details' => $details,
 			);
-			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
+			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections, 'Permission denied');
 			return false;
 		}
 
@@ -214,7 +214,7 @@ class CascadeController {
 				'full_id' => $full_id,
 				'block'   => $block,
 			);
-			$this->addFailedBlock($parent, $id, $full_id, $block, $connections);
+			$this->addFailedBlock($parent, $id, $full_id, $block, $connections, 'Block not found');
 			return false;
 		}
 
@@ -231,7 +231,7 @@ class CascadeController {
 				'block'   => $block,
 				'inputs'  => $connections,
 			);
-			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections);
+			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections, 'Bad inputs');
 			return false;
 		}
 
@@ -252,11 +252,11 @@ class CascadeController {
 	}
 
 
-	private function addFailedBlock($parent, $id, $full_id, $real_block, array $connections)
+	private function addFailedBlock($parent, $id, $full_id, $real_block, array $connections, $message = null)
 	{
 		/* create dummy block */
 		$b = new B_core__dummy();
-		$b->cc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED);
+		$b->cc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED, $message);
 		$b->cc_connect($connections, $this->blocks);
 
 		/* put block to parent's namespace */
