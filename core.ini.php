@@ -47,6 +47,12 @@ profiler_stats_file	= "var/profiler.stats"
 [output]
 default_type		= "html5"
 
+; cascade renderer
+[graphviz]
+title			= "Cascade {hash}"
+src_file		= "{DIR_ROOT}data/graphviz/cascade-{hash}.{ext}"
+cache_file		= "{DIR_ROOT}var/graphviz/cascade-{hash}.{ext}"
+
 ; constants set by define(strtoupper(key), value)
 [define]
 ; key			= value
