@@ -70,7 +70,7 @@ class B_core__router extends Block
 
 		// Get default path
 		if ($path === null) {
-			$path = $_SERVER['REQUEST_URI'];
+			$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 		}
 
 		// Convert current path to array

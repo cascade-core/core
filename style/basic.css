@@ -26,16 +26,16 @@
  *	Cascade visualization
  */
 
-#_cascade_graph {
+#_cascade_graph.cascade_iframe {
 	display: block;
 	z-index: 2147483647;
 	font-size: 0.85em !important;
 
 	position: fixed;
-	right: 5em;
+	right: 60px;
 	bottom: 0px;
-	width: 9em;
-	height: 2em;
+	width: 120px;
+	height: 20px;
 
 	border: 0px solid #000;
 	padding: 0px;
@@ -45,18 +45,18 @@
 	background: transparent;
 }
 
-	#_cascade_graph h2 {
+	#_cascade_graph.cascade_iframe h2 {
 		display: block;
 		font-size: 1em !important;
 
 		position: absolute;
-		top: 0.2em;
+		bottom: 0px;
 		right: 1px;
-		width: 9em;
-		height: 2em;
+		width: 120px;
+		height: 20px;
 
-		margin: 0em;
-		padding: 0.4em 0em 0.6em 0em;
+		margin: 0px;
+		padding: 0px;
 
 		border-width: 1px 1px 0px 1px;
 		border-style: solid;
@@ -75,67 +75,65 @@
 		filter: alpha(opacity=40);
 	}
 
-	#_cascade_graph img {
-		display: block;
-		margin: 2em;
-		padding: 0em;
-		border: 0px;
-	}
+		#_cascade_graph.cascade_iframe h2 a {
+			color: #000;
+			padding: 4px;
+			text-decoration: none;
+			display: block;
+		}
 
-	#_cascade_graph hr {
+	#_cascade_graph.cascade_iframe hr {
 		display: none;
 	}
 
-	#_cascade_graph div {
+	#_cascade_graph.cascade_iframe iframe {
 		position: absolute;
 		left: 0px;
 		right: 0px;
 		top: 0px;
 		bottom: 0px;
 
-		height: auto;
-		width: auto;
-		border: 1px solid #fff;
+		height: 100%;
+		width: 100%;
+		border: 0px solid #fff;
 
-		overflow: auto;
 		margin: 0px;
 		padding: 0px;
 
-		visibility: hidden;
+		top: 200%;
 
 		color: #000;
 		background: #fff;
 	}
 
-	#_cascade_graph:hover {
+	#_cascade_graph.cascade_iframe:hover {
 		width: 90%;
 		height: 86%;
-		bottom: 2em;
-		right: 3em;
-
+		bottom: 20px;
+		right: 30px;
 		border: 1px solid #000;
 	}
-
-		#_cascade_graph:hover,
-		#_cascade_graph:hover h2 {
+		#_cascade_graph.cascade_iframe:hover,
+		#_cascade_graph.cascade_iframe:hover h2 {
 			box-shadow: 0px 0px 1em #000;
+		}
+
+		#_cascade_graph.cascade_iframe:hover h2 {
+			bottom: -21px;
+			right: 30px;
+			border-top-color: #fff;
 			opacity: 1;
 			-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
 			filter: alpha(opacity=100);
 		}
 
-		#_cascade_graph:hover h2 {
-			top: 100%;
-			right: 2em;
-			border-top-color: #fff;
-		}
-
-		#_cascade_graph:hover div {
-			visibility: visible;
+		#_cascade_graph.cascade_iframe:hover iframe {
+			top: 0px;
+			visibility: visible !important;
 		}
 
 
-	#_cascade_graph {
+	#_cascade_graph.cascade_iframe {
 		-moz-transition:    height 0.2s linear, width 0.2s linear,
 		                    bottom 0.2s step-end, right 0.2s step-end, background-color 0.2s step-end,
 				    border-width 0.2s step-end, box-shadow 0.2s step-end;
@@ -150,36 +148,36 @@
 				    border-width 0.2s step-end, box-shadow 0.2s step-end;
 	}
 
-		#_cascade_graph h2 {
-			-moz-transition:    top 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
-			-webkit-transition: top 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
-			-o-transition:      top 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
-			transition:         top 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
+		#_cascade_graph.cascade_iframe h2 {
+			-moz-transition:    bottom 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
+			-webkit-transition: bottom 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
+			-o-transition:      bottom 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
+			transition:         bottom 0.2s step-end, right 0.2s step-end, box-shadow 0.2s step-end;
 		}
 
 
-		#_cascade_graph div {
+		#_cascade_graph.cascade_iframe iframe {
 			-moz-transition:    visibility 0.2s step-end;
 			-webkit-transition: visibility 0.2s step-end;
 			-o-transition:      visibility 0.2s step-end;
 			transition:         visibility 0.2s step-end;
 		}
 
-	#_cascade_graph:hover {
+	#_cascade_graph.cascade_iframe:hover {
 		-moz-transition:    width 0.2s ease-out, height 0.2s ease-out;
 		-webkit-transition: width 0.2s ease-out, height 0.2s ease-out;
 		-o-transition:      width 0.2s ease-out, height 0.2s ease-out;
 		transition:         width 0.2s ease-out, height 0.2s ease-out;
 	}
 
-		#_cascade_graph:hover h2 {
+		#_cascade_graph.cascade_iframe:hover h2 {
 			-moz-transition:    none;
 			-webkit-transition: none;
 			-o-transition:      none;
 			transition:         none;
 		}
 
-		#_cascade_graph:hover div {
+		#_cascade_graph.cascade_iframe:hover iframe {
 			-moz-transition:    none;
 			-webkit-transition: none;
 			-o-transition:      none;

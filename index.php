@@ -169,14 +169,40 @@ $cascade->start();
 
 /* Visualize executed cascade */
 if (!empty($core_cfg['debug']['add_cascade_graph'])) {
+	/* Dump cascade to DOT */
+	$dot = $cascade->exportGraphvizDot(DEBUG_CASCADE_GRAPH_DOC_LINK);
+	$hash = md5($dot);
+	$dot_file   = filename_format(DEBUG_CASCADE_GRAPH_FILE, array('hash' => $hash, 'ext' => 'dot'));
+	$movie_file = filename_format(DEBUG_CASCADE_GRAPH_FILE, array('hash' => $hash, 'ext' => '%06d.dot.gz'));
+
+	// store dot file, it will be rendered later
+	file_put_contents($dot_file, $dot);
+
+	// prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do
+	if (!empty($core_cfg['debug']['animate_cascade'])) {
+		$steps = $cascade->currentStep(false) + 1;
+		for ($t = 0; $t <= $steps; $t++) {
+			$f = sprintf($movie_file, $t);
+			file_put_contents($f, gzencode($cascade->exportGraphvizDot($link, array(), $t), 2));
+		}
+	}
+
+	// Store hash to HTTP header
+	header('X-Cascade-Hash: '.$hash);
+
 	/* Template object will render & cache image */
 	$template->addObject('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
+			'hash' => $hash,
+			'link' => DEBUG_CASCADE_GRAPH_URL,
+			'style' => @$core_cfg['debug']['add_cascade_graph'],
+		/*
 			'cascade' => $cascade,
 			'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
 			'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
 			'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,
 			'animate' => !empty($core_cfg['debug']['animate_cascade']),
 			'style' => @$core_cfg['debug']['add_cascade_graph'],
+		*/
 		));
 }
 

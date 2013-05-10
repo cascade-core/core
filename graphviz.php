@@ -184,9 +184,9 @@ switch ($format) {
 			"<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n",
 			"<title>", template_format($cfg['title'], array('hash' => $hash)), "</title>\n",
 			"<style type=\"text/css\">\n",
-				"body { text-align: center; background: #fff; color: #000; margin: 2em; }\n",
-				"div { display: block; border: none; margin: 1em auto; font-size: 0.85em; }\n",
-				"img { display: block; border: none; margin: 1em auto; }\n",
+				"body { text-align: center; background: #fff; color: #000; margin: 1em; }\n",
+				"div { display: block; border: none; margin: 1em auto; padding: 0em 1em; font-size: 0.85em; }\n",
+				"img { display: block; border: none; margin: 1em auto; padding: 0em 1em; }\n",
 			"</style>\n",
 			"</head>\n";
 		echo "<body>\n";
@@ -203,7 +203,8 @@ switch ($format) {
 		$map_replacement = array('<map id="'.$map_html_name.'" name="'.$map_html_name.'">', '');
 		echo str_replace($map_needle, $map_replacement, file_get_contents($map_file));
 
-		echo "<img src=\"", url('png'), "\" usemap=\"cascade_graph_map__", htmlspecialchars($hash), "\">\n";
+		echo "<img src=\"", url('png'), "\" usemap=\"#cascade_graph_map__", htmlspecialchars($hash), "\">\n";
+
 		echo "</body>\n";
 		echo "</html>\n";
 		break;
@@ -219,15 +220,16 @@ switch ($format) {
 			'dot'   => 'text/plain; encoding=UTF-8',
 			'xdot'  => 'text/plain; encoding=UTF-8',
 			'plain' => 'text/plain; encoding=UTF-8',
+			'cmapx' => 'text/html; encoding=UTF-8',
 			'png'   => 'image/png',
 			'svg'   => 'image/svg+xml',
 			'pdf'   => 'application/pdf',
 			'eps'   => 'application/postscript',
 		);
-		if ($format != 'dot') {
-			header('Content-Type: '.(isset($content_type_map[$format]) ? $content_type_map[$format] : 'application/octet-stream'));
+		header('Content-Type: '.(isset($content_type_map[$format]) ? $content_type_map[$format] : 'application/octet-stream'));
+		if ($format != 'dot' && $format != 'cmapx') {
+			header('Content-Disposition: attachment; filename="'.basename($dst_file).'"');
 		}
-		header('Content-Disposition: attachment; filename="'.basename($dst_file).'"');
 		readfile($dst_file);
 		break;
 }

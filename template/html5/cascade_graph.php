@@ -32,64 +32,13 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 {
 	extract($d);
 
-	if (!isset($whitelist)) {
-		$whitelist = array();
-	}
-
-	// FIXME: this should not be done here
-
-	$dot = $cascade->exportGraphvizDot($link, $whitelist);
-	$hash = md5($dot);
-
-	$dot_file   = filename_format($dot_name_tpl, array('hash' => $hash, 'ext' => 'dot'));
-	$dot_url    = filename_format($dot_url_tpl,  array('hash' => $hash, 'ext' => 'dot'));
-	$movie_file = filename_format($dot_name_tpl, array('hash' => $hash, 'ext' => '%06d.dot.gz'));
-	$movie_url  = filename_format($dot_url_tpl,  array('hash' => $hash, 'ext' => '%06d.dot.gz'));
-	$png_file   = filename_format($dot_name_tpl, array('hash' => $hash, 'ext' => 'png'));
-	$png_url    = filename_format($dot_url_tpl,  array('hash' => $hash, 'ext' => 'png'));
-	$map_file   = filename_format($dot_name_tpl, array('hash' => $hash, 'ext' => 'map'));
-	$map_url    = filename_format($dot_url_tpl,  array('hash' => $hash, 'ext' => 'map'));
-	debug_msg('Cascade graph file: %s', $png_file);
-
-	// Create directory if missing and if file is on ordinary filesystem
-	if (parse_url($dot_file, PHP_URL_SCHEME) == '' && ($dot_dir = dirname($dot_file)) != '' && !is_dir($dot_dir)) {
-		mkdir($dot_dir);
-	}
-
-	$dot_mtime = @filemtime($dot_file);
-	$png_mtime = @filemtime($png_file);
-	$map_mtime = @filemtime($png_file);
-
-	if (!$dot_mtime || !$png_mtime || !$map_mtime
-			|| $dot_mtime > $png_mtime || $dot_mtime > $map_mtime
-			|| $png_mtime <= filemtime(__FILE__) || $map_mtime <= filemtime(__FILE__)
-			|| (!empty($animate) && !file_exists(sprintf($movie_file, 0))))
-	{
-		debug_msg('Rendering graph ...');
-
-		// store dot file, it will be rendered later
-		file_put_contents($dot_file, $dot);
-
-		// prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do
-		if (!empty($animate)) {
-			$steps = $cascade->currentStep(false) + 1;
-			for ($t = 0; $t <= $steps; $t++) {
-				$f = sprintf($movie_file, $t);
-				file_put_contents($f, gzencode($cascade->exportGraphvizDot($link, $whitelist, $t), 2));
-			}
-		}
-		
-		// render graph (when target is not ordinary file, direct streaming may be broken)
-		file_put_contents($png_file, $cascade->execDot($dot, 'png'));
-		file_put_contents($map_file, $cascade->execDot($dot, 'cmapx'));
-	}
-
+	$url = filename_format(DEBUG_CASCADE_GRAPH_URL, array('hash' => $hash, 'ext' => 'html'));
 
 	// autodetect graph style
-	if ((int) $d['style'] === 1) {
-		$style = class_exists('NDebugger') && NDebugger::isEnabled() ? 'nette' : 'image';
+	if ((int) $style === 1) {
+		$style = class_exists('NDebugger') && NDebugger::isEnabled() ? 'nette' : 'include';
 	} else {
-		$style = $d['style'];
+		$style = $style;
 	}
 
 	switch ($style) {
@@ -99,11 +48,19 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 
 		case 'link':
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_link\">",
-				"<a target=\"_blank\" href=\"", htmlspecialchars($png_url), "\">Cascade graph</a>",
+				"<a target=\"_blank\" href=\"", htmlspecialchars($url), "\">Cascade graph</a>",
 				"</div>\n";
 			break;
 
 		default:
+		case 'include':
+			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_iframe\" style=\"clear: both;\">\n";
+			echo	"\t<hr>\n",
+				"\t<h2><a target=\"_blank\" href=\"", htmlspecialchars($url), "\">Cascade</a></h2>\n",
+				"\t<iframe src=\"", htmlspecialchars($url), "\" seamless frameborder=\"0\"></iframe>\n",
+				"</div>";
+			break;
+
 		case 'image':
 		case 'page_content':
 			if ($style == 'image') {
