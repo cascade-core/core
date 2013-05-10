@@ -36,6 +36,9 @@ function first_msg()
 	global $_utils_php__first_msg;
 
 	$_utils_php__first_msg = false;
+	if (php_sapi_name() == "cli") {
+		return;
+	}
 	if (DEBUG_VERBOSE_BANNER) {
 		error_log('--');
 		error_log(sprintf('New client:  %s:%d  at  %s',
@@ -138,6 +141,19 @@ function extra_msg($msg)
  */
 function debug_dump($var, $label = '', $use_print_r = false)
 {
+	if (php_sapi_name() == "cli") {
+		if ($label != '') {
+			echo $label, ': ';
+		}
+		if ($use_print_r) {
+			print_r($var);
+		} else {
+			var_export($var);
+		}
+		echo "\n";
+		return;
+	}
+
 	$div = $use_print_r ? 'pre':'div';
 
 	echo "<$div style='",

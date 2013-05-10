@@ -209,7 +209,7 @@ class JsonDocument
 		}
 
 		// Update mtime
-		$this->data['info']['mtime'] = time();
+		$this->data['info']['mtime'] = strftime('%Y-%m-%d %H:%M:%S %z');
 
 		// Put stop snipped at marked position (it is here to prevent 
 		// overwriting from $json_array).
@@ -235,6 +235,15 @@ class JsonDocument
 	public function getSections()
 	{
 		return array_keys($this->data);
+	}
+
+
+	/**
+	 * Get copy of all sections at once.
+	 */
+	public function getData()
+	{
+		return $this->data;
 	}
 
 

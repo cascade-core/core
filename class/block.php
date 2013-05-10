@@ -65,7 +65,7 @@ abstract class Block {
 	private $timestamp_finish = null;	// when block execution finished ?
 
 	private $parent = null;			// parent block
-	private $namespace = null;		// references to other blocks
+	private $namespace = array();		// references to other blocks
 	protected $context;
 
 	private $cascade_errors = array();	// list of errors received from cascade controller
@@ -444,7 +444,7 @@ abstract class Block {
 		$str = '';
 		$indent = str_repeat('. ', $level);
 		foreach ($this->namespace as $name => $m) {
-			$str .= $indent.$name."\n".($name != 'self' && $name != 'parent' && $m ? $m->cc_dumpNamespace($level + 1) : '');
+			$str .= $indent.$name." (".$m->blockName().")\n".($name != 'self' && $name != 'parent' && $m ? $m->cc_dumpNamespace($level + 1) : '');
 		}
 		return $str;
 	}

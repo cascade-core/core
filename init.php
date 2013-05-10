@@ -31,23 +31,23 @@
 /* Define directory and file names.
  * Each DIR_* must be slash-terminated!
  */
-define('DIR_ROOT',		dirname(dirname(__FILE__)).'/');
-define('DIR_CORE',		DIR_ROOT.'core/');
-define('DIR_APP',		DIR_ROOT.'app/');
-define('DIR_PLUGIN',		DIR_ROOT.'plugin/');
+@define('DIR_ROOT',		dirname(dirname(__FILE__)).'/');
+@define('DIR_CORE',		DIR_ROOT.'core/');
+@define('DIR_APP',		DIR_ROOT.'app/');
+@define('DIR_PLUGIN',		DIR_ROOT.'plugin/');
 
 /* Config files */
-define('FILE_CORE_CONFIG',	DIR_CORE.'core.ini.php');
-define('FILE_APP_CONFIG',	DIR_APP.'core.ini.php');
-define('FILE_DEVEL_CONFIG',	DIR_ROOT.'core.devel.ini.php');
+@define('FILE_CORE_CONFIG',	DIR_CORE.'core.ini.php');
+@define('FILE_APP_CONFIG',	DIR_APP.'core.ini.php');
+@define('FILE_DEVEL_CONFIG',	DIR_ROOT.'core.devel.ini.php');
 
 /* Use with get_block_filename() */
-define('DIR_CLASS',		'class/');
-define('DIR_BLOCK',		'block/');
-define('DIR_TEMPLATE',		'template/');
+@define('DIR_CLASS',		'class/');
+@define('DIR_BLOCK',		'block/');
+@define('DIR_TEMPLATE',		'template/');
 
 /* Check if this is development environment */
-define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
+@define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
 
 
 require(DIR_CORE.'utils.php');
@@ -75,12 +75,12 @@ if (isset($core_cfg['php'])) {
 }
 
 /* Enable debug logging -- a lot of messages from debug_msg() */
-define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
-define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
-define('DEBUG_CASCADE_GRAPH_FILE',     @$core_cfg['debug']['cascade_graph_file']);
-define('DEBUG_CASCADE_GRAPH_URL',      @$core_cfg['debug']['cascade_graph_url']);
-define('DEBUG_CASCADE_GRAPH_DOC_LINK', @$core_cfg['debug']['cascade_graph_doc_link']);
-define('DEBUG_PROFILER_STATS_FILE',    @$core_cfg['debug']['profiler_stats_file']);
+@define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
+@define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
+@define('DEBUG_CASCADE_GRAPH_FILE',     @$core_cfg['debug']['cascade_graph_file']);
+@define('DEBUG_CASCADE_GRAPH_URL',      @$core_cfg['debug']['cascade_graph_url']);
+@define('DEBUG_CASCADE_GRAPH_DOC_LINK', @$core_cfg['debug']['cascade_graph_doc_link']);
+@define('DEBUG_PROFILER_STATS_FILE',    @$core_cfg['debug']['profiler_stats_file']);
 
 /* Show banner in log */
 if (!empty($core_cfg['debug']['always_log_banner'])) {
@@ -111,7 +111,7 @@ if (function_exists('mb_internal_encoding')) {
 }
 
 /* fix $_GET from lighttpd */
-if (strncmp($_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER['REQUEST_URI'],'?')) {
+if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER['REQUEST_URI'],'?')) {
 	$_SERVER['QUERY_STRING'] = preg_replace('#^.*?\?#','',$_SERVER['REQUEST_URI']);
 	parse_str($_SERVER['QUERY_STRING'], $_GET);
 }
@@ -158,6 +158,74 @@ spl_autoload_register(function ($class)
 		return;
 	}
 });
+
+/* Get plugin list */
+function get_plugin_list()
+{
+	global $plugin_list;
+
+	/* $plugin_list contains everything in plugin directory. It is not
+	 * filtered becouse CascadeController will not allow ugly block names
+	 * to be loaded. */
+
+	return array_filter(array_keys($plugin_list), function($block) {
+			/* Same as block name check in CascadeController */
+			return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
+		});
+}
+
+/* Get block's file from it's name */
+function get_block_filename($block, $extension = '.php')
+{
+	global $plugin_list;
+
+	@ list($head, $tail) = explode('/', $block, 2);
+
+	/* Core */
+	if ($head == 'core') {
+		return DIR_CORE.DIR_BLOCK.$tail.$extension;
+	}
+
+	/* Plugins */
+	if ($tail !== null && isset($plugin_list[$head])) {
+		return DIR_PLUGIN.$head.'/'.DIR_BLOCK.$tail.$extension;
+	}
+
+	/* Application */
+	return DIR_APP.DIR_BLOCK.$block.$extension;
+}
+
+/* Get block's class name */
+function get_block_class_name($block)
+{
+	$class_name = 'B_'.str_replace('/', '__', $block);
+	if (class_exists($class_name)) {
+		return $class_name;
+	} else {
+		return false;
+	}
+}
+
+/* Get template's file from it's name */
+function get_template_filename($output_type, $template_name, $extension = '.php')
+{
+	global $plugin_list;
+
+	@ list($head, $tail) = explode('/', $template_name, 2);
+
+	/* Core */
+	if ($head == 'core') {
+		return DIR_CORE.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
+	}
+
+	/* Plugins */
+	if ($tail !== null && isset($plugin_list[$head])) {
+		return DIR_PLUGIN.$head.'/'.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
+	}
+
+	/* Application */
+	return DIR_APP.DIR_TEMPLATE.$output_type.'/'.$template_name.$extension;
+}
 
 return $core_cfg;
 

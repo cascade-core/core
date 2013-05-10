@@ -318,7 +318,7 @@ class CascadeController {
 	{
 		$str = '';
 		foreach ($this->root_namespace as $name => $b) {
-			$str .= $name."\n".$b->cc_dumpNamespace(1);
+			$str .= $name." (".$b->blockName().")\n".$b->cc_dumpNamespace(1);
 		}
 		return $str;
 	}
