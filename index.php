@@ -32,9 +32,6 @@
 /* Call core's init file */
 $core_cfg = require(dirname(__FILE__).'/init.php');
 
-/* Scan plugins */
-$plugin_list = array_flip(scandir(DIR_PLUGIN));
-
 /* initialize template engine */
 if (isset($core_cfg['template']['engine-class'])) {
 	$template = new $core_cfg['template']['engine-class']();

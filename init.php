@@ -116,11 +116,13 @@ if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER
 	parse_str($_SERVER['QUERY_STRING'], $_GET);
 }
 
+/* Scan plugins */
+$plugin_list = array_flip(scandir(DIR_PLUGIN));		// FIXME: remove this
+
 /* Class autoloader */
 spl_autoload_register(function ($class)
 {
 	global $plugin_list;
-
 	$lc_class = strtolower($class);
 	@ list($head, $tail) = explode("\\", $lc_class, 2);
 
