@@ -16,6 +16,7 @@ $tmpdir = dirname(__FILE__).'/smalldb';
 mkdir($tmpdir);
 mkdir($tmpdir.'/a');
 mkdir($tmpdir.'/b');
+chmod($tmpdir.'/b', 0111);
 mkdir($tmpdir.'/a/c');
 file_put_contents($tmpdir.'/a/c/a.json.php', '{
         "_": "<?php printf(\'_%c%c}%c\',34,10,10);__halt_compiler();?>",
@@ -32,34 +33,74 @@ file_put_contents($tmpdir.'/hello.json.php', '{
 
 $db = new \JsonDatabase\JsonDatabase($tmpdir);
 
-debug_dump($db->getBaseLocation(), 'Base location');
+echo "Base location: ";
+print_r($db->getBaseLocation());
+
+echo "\n\n== Folder operations ==\n\n";
 
 // Show few listings
-debug_dump($db->listFolders('/'), 'Base folders');
-debug_dump($db->listFoldersRecursive('/'), 'Base folders (recursive)');
-debug_dump($db->listDocuments('/'), 'Documents');
+echo "Base folders: ";
+print_r($db->listFolders('/'));
+echo "Base folders (recursive): ";
+print_r($db->listFoldersRecursive('/'));
+echo "Documents: ";
+print_r($db->listDocuments('/'));
+
+// List non-existent folder
+try {
+	echo "List missing folder: ";
+	print_r($db->listFolders('/missing/'));
+}
+catch (\Exception $e) {
+	echo "Exception: ", $e->getMessage(), "\n";
+}
+
+// List inaccessible folder
+try {
+	echo "List inaccessible folder: ";
+	print_r($db->listFolders('/b/'));
+}
+catch (\Exception $e) {
+	echo "Exception: ", $e->getMessage(), "\n";
+}
+
+// List non-existent folder recursively
+try {
+	echo "List missing folder (recursive): ";
+	print_r($db->listFoldersRecursive('/missing/'));
+}
+catch (\Exception $e) {
+	echo "Exception: ", $e->getMessage(), "\n";
+}
+
+echo "\n== Document operations ==\n\n";
 
 // Load prepared file
+echo "Original: ";
 $hello = $db->openDocument('/', 'hello');
-debug_dump($hello->getData(), 'Original', true);
+print_r($hello->getData());
 
 // Create World
+echo "World before write: ";
 $world = $db->createDocument('/', 'world');
 $world->foo['bar'] = 123;
-debug_dump($world->foo, 'World before write', true);
+print_r($world->foo);
 $world->close();
 
 // Load created World
+echo "World reloaded: ";
 $reloaded = $db->openDocument('/', 'world');
-debug_dump($reloaded->foo, 'World reloaded', true);
+print_r($reloaded->foo);
 $reloaded->close();
 
 // List documents again to see created world
-debug_dump($db->listDocuments('/'), 'Documents');
+echo "Documents: ";
+print_r($db->listDocuments('/'));
 
-//debug_dump((file_get_contents($db->getDocumentLocation('/', 'world'))), 'file');
+//print_r(file_get_contents($db->getDocumentLocation('/', 'world')));
 
 // Delete World
+echo "Delete world ...\n";
 if ($db->documentExists('/', 'world')) {
 	$db->deleteDocument('/', 'world');
 } else {
@@ -67,7 +108,8 @@ if ($db->documentExists('/', 'world')) {
 }
 
 // List documents again to see no world
-debug_dump($db->listDocuments('/'), 'Documents');
+echo "Documents: ";
+print_r($db->listDocuments('/'));
 
 ?>
 --CLEAN--
@@ -81,19 +123,30 @@ array_map('rmdir',  glob($tmpdir.'/*/'));
 rmdir($tmpdir);
 ?>
 --EXPECTF--
-Base location: '%s'
-Base folders: array (
-  'a' => '/a/',
-  'b' => '/b/',
+Base location: %s
+
+== Folder operations ==
+
+Base folders: Array
+(
+    [a] => /a/
+    [b] => /b/
 )
-Base folders (recursive): array (
-  'a' => '/a/',
-  'a/c' => '/a/c/',
-  'b' => '/b/',
+Base folders (recursive): Array
+(
+    [a] => /a/
+    [a/c] => /a/c/
 )
-Documents: array (
-  0 => 'hello',
+Documents: Array
+(
+    [0] => hello
 )
+List missing folder: Exception: Cannot open folder: No such directory.
+List inaccessible folder: Exception: Cannot open folder: Directory permission denied.
+List missing folder (recursive): Exception: Cannot open folder: No such directory.
+
+== Document operations ==
+
 Original: Array
 (
     [foo] => Array
@@ -102,21 +155,22 @@ Original: Array
         )
 
 )
-
 World before write: Array
 (
     [bar] => 123
 )
-
 World reloaded: Array
 (
     [bar] => 123
 )
+Documents: Array
+(
+    [0] => world
+    [1] => hello
+)
+Delete world ...
+Documents: Array
+(
+    [0] => hello
+)
 
-Documents: array (
-  0 => 'world',
-  1 => 'hello',
-)
-Documents: array (
-  0 => 'hello',
-)

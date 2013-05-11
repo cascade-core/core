@@ -107,10 +107,9 @@ class JsonDatabase {
 	public function listFolders($parent_folder)
 	{
 		$loc = $this->getFolderLocation($parent_folder);
-
 		$list = array();
 
-		foreach (scandir($loc) as $dir) {
+		foreach ($this->scanDirectory($loc) as $dir) {
 			$full_path = $loc.$dir;
 
 			if ($dir[0] == '.' || !is_dir($full_path)) {
@@ -124,6 +123,37 @@ class JsonDatabase {
 			}
 
 			$list[$dir] = $ns;
+		}
+
+		return $list;
+	}
+
+
+	/**
+	 * List entire folder subtree. Returns flat list of all folders.
+	 */
+	public function listFoldersRecursive($parent_folder, & $list = array(), $prefix = '')
+	{
+		$loc = $this->getFolderLocation($parent_folder);
+
+		foreach ($this->scanDirectory($loc) as $dir) {
+			$full_path = $loc.$dir;
+
+			if ($dir[0] == '.' || !is_dir($full_path) || !is_readable($full_path)) {
+				continue;
+			}
+
+			if (is_array($parent_folder)) {
+				$ns = array_merge($parent_folder, array($dir));
+			} else {
+				$ns = $parent_folder.$dir.'/';
+			}
+
+			$key = $prefix == '' ? $dir : $prefix.'/'.$dir;
+
+			$list[$key] = $ns;
+
+			$this->listFoldersRecursive($ns, $list, $key);
 		}
 
 		return $list;
@@ -163,37 +193,6 @@ class JsonDatabase {
 			$err = error_get_last();
 			throw new \Exception('Cannot create folder: '.$err['message']);
 		}
-	}
-
-
-	/**
-	 * List entire folder subtree. Returns flat list of all folders.
-	 */
-	public function listFoldersRecursive($parent_folder, & $list = array(), $prefix = '')
-	{
-		$loc = $this->getFolderLocation($parent_folder);
-
-		foreach (scandir($loc) as $dir) {
-			$full_path = $loc.$dir;
-
-			if ($dir[0] == '.' || !is_dir($full_path)) {
-				continue;
-			}
-
-			if (is_array($parent_folder)) {
-				$ns = array_merge($parent_folder, array($dir));
-			} else {
-				$ns = $parent_folder.$dir.'/';
-			}
-
-			$key = $prefix == '' ? $dir : $prefix.'/'.$dir;
-
-			$list[$key] = $ns;
-
-			$this->listFoldersRecursive($ns, $list, $key);
-		}
-
-		return $list;
 	}
 
 
@@ -315,5 +314,28 @@ class JsonDatabase {
 		}
 	}
 
+
+	/**
+	 * Helper function: scandir() wrapper
+	 */
+	protected function scanDirectory($loc)
+	{
+		if (!is_dir($loc)) {
+			throw new \DomainException('Cannot open folder: No such directory.');
+		}
+
+		if (!is_readable($loc)) {
+			throw new \DomainException('Cannot open folder: Directory permission denied.');
+		}
+
+		$items = scandir($loc);
+
+		if ($items === FALSE) {
+			$err = error_get_last();
+			throw new \DomainException('Cannot open folder: '.$err['message']);
+		}
+
+		return $items;
+	}
 }
 
