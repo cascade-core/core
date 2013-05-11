@@ -29,6 +29,7 @@ $cascade->start();
 
 echo "Namespaces:\n  ", str_replace("\n", "\n  ", $cascade->dumpNamespaces()), "\n\n";
 
+?>
 --EXPECT--
 Namespaces:
   foo (core/dummy)

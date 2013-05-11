@@ -6,6 +6,7 @@ $tmpdir = dirname(__FILE__).'/smalldb';
 if (file_exists($tmpdir)) {
 	die('Temporary dir "'.$tmpdir.'" already exists.');
 }
+?>
 --FILE--
 <?php
 require dirname(__FILE__).'/../init.php';
@@ -68,6 +69,7 @@ if ($db->documentExists('/', 'world')) {
 // List documents again to see no world
 debug_dump($db->listDocuments('/'), 'Documents');
 
+?>
 --CLEAN--
 <?php
 $tmpdir = dirname(__FILE__).'/smalldb';
@@ -77,7 +79,7 @@ array_map('unlink', glob($tmpdir.'/*/*/*.json.php'));
 array_map('rmdir',  glob($tmpdir.'/*/*/'));
 array_map('rmdir',  glob($tmpdir.'/*/'));
 rmdir($tmpdir);
-
+?>
 --EXPECTF--
 Base location: '%s'
 Base folders: array (
