@@ -28,6 +28,7 @@
  * SUCH DAMAGE.
  */
 
+define('CASCADE_MAIN', true);
 
 /* Call core's init file */
 $core_cfg = require(dirname(__FILE__).'/init.php');

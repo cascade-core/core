@@ -74,6 +74,9 @@ if (isset($core_cfg['php'])) {
 	}
 }
 
+/* If true, this is main program */
+@define('CASCADE_MAIN', false);
+
 /* Enable debug logging -- a lot of messages from debug_msg() */
 @define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
 @define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
@@ -83,7 +86,7 @@ if (isset($core_cfg['php'])) {
 @define('DEBUG_PROFILER_STATS_FILE',    @$core_cfg['debug']['profiler_stats_file']);
 
 /* Show banner in log */
-if (!empty($core_cfg['debug']['always_log_banner'])) {
+if (CASCADE_MAIN && !empty($core_cfg['debug']['always_log_banner'])) {
 	first_msg();
 }
 
