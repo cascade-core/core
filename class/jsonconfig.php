@@ -35,6 +35,11 @@ class JsonConfig
 	{
 		$filenames = array();
 
+		// Validate $name
+		if (!preg_match('/^[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*$/', $name)) {
+			throw new Exception('Malformed config name: '.$name);
+		}
+
 		// Core
 		$cfn = DIR_CORE.$name.'.json.php';
 		if (file_exists($cfn)) {

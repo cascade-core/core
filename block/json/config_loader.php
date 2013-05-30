@@ -56,7 +56,16 @@ class B_core__json__config_loader extends Block {
 	public function getOutput($name)
 	{
 		// TODO: Cache loaded configuration
-		return $this->config->load($name);
+
+		@ list($config_name, $section) = explode('.', $name, 2);
+
+		$cfg = $this->config->load($config_name);
+
+		if ($section === null) { 
+			return $cfg;
+		} else {
+			return $cfg[$section];
+		}
 	}
 }
 
