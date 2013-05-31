@@ -30,6 +30,7 @@
 
 class Context {
 
+	private $config_loader = null;
 	private $locale = DEFAULT_LOCALE;
 	private $template_engine = null;
 
@@ -43,6 +44,19 @@ class Context {
 		// Don't forget to call this from derived classes, even if this
 		// is empty now.
 	}
+
+
+	public function setConfigLoader($config_loader)
+	{
+		$this->config_loader = $config_loader;
+	}
+
+	
+	public function getConfigLoader()
+	{
+		return $this->config_loader;
+	}
+
 
 
 	/****************************************************************************
@@ -59,6 +73,7 @@ class Context {
 	{
 		$this->template_engine = $template_engine;
 	}
+
 
 
 	/****************************************************************************

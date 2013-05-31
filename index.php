@@ -31,7 +31,7 @@
 define('CASCADE_MAIN', true);
 
 /* Call core's init file */
-$core_cfg = require(dirname(__FILE__).'/init.php');
+list($config_loader, $core_cfg) = require(dirname(__FILE__).'/init.php');
 
 /* initialize template engine */
 $template = new $core_cfg['output']['template_engine_class']();
@@ -56,6 +56,7 @@ if (!isset($_SESSION)) {
 /* Initialize default context */
 $context_class = $core_cfg['core']['context_class'];
 $default_context = new $context_class();
+$default_context->setConfigLoader($config_loader);
 $default_context->setLocale(DEFAULT_LOCALE);
 $default_context->setTemplateEngine($template);
 

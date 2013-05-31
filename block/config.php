@@ -29,11 +29,12 @@
  */
 
 /**
- * Load JSON configuration on demand. Each output matches merged config file as 
- * loaded by JsonConfig class. Loaded configuration is cached automatically.
+ * Load configuration on demand. Each output matches merged config file as 
+ * loaded by config loader suplied by cascade controller. Loaded configuration 
+ * is cached automatically.
  */
 
-class B_core__json__config_loader extends Block {
+class B_core__config extends Block {
 
 	protected $inputs = array(
 	);
@@ -43,12 +44,12 @@ class B_core__json__config_loader extends Block {
 		'*' => true,
 	);
 
-	private $config;
+	private $config = null;
 
 
 	public function main()
 	{
-		$this->config = new JsonConfig();
+		$this->config = $this->context->getConfigLoader();
 		$this->out('done', true);
 	}
 

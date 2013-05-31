@@ -226,5 +226,5 @@ if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER
 	parse_str($_SERVER['QUERY_STRING'], $_GET);
 }
 
-return $core_cfg;
+return array($config_loader, $core_cfg);
 

@@ -128,7 +128,7 @@ function url($format = null, $hash = null)
 //--------------------------------------------------------------------------
 
 // Call core's init file
-$core_cfg = require(dirname(__FILE__).'/init.php');
+list($config_loader, $core_cfg) = require(dirname(__FILE__).'/init.php');
 
 // Get parameters
 $section = @ $_GET['cfg'];
