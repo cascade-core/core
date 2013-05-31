@@ -1,7 +1,7 @@
 #!/usr/bin/env php
-<?
+<?php
 /*
- * Copyright (c) 2010, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2013, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,57 +29,14 @@
  * SUCH DAMAGE.
  */
 
+$src = @ $argv[1];
 
-if (isset($_SERVER['REMOTE_ADDR'])) {
-	die('Please execute this from your command line!');
+if ($src == null) {
+	die('Usage: '.$argv[0].' source-file.ini');
 }
 
-$dirs = array(
-	'app',
-	'app/block',
-	'app/style',
-	'app/template',
-	'app/default-config',
-	'app/lib',
-	'app/class',
-	'app/font',
-	'app/icon',
-	'plugin',
-	'data',
-	'var',
-);
+$data = parse_ini_file($src, TRUE);
 
-chdir(dirname(dirname(realpath($argv[0]))));
+echo json_encode($data, JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-$err = false;
-foreach ($dirs as $d) {
-	if (!is_dir($d) && !mkdir($d)) {
-		$err = true;
-	}
-}
-
-if ($err) {
-	echo "Something gone wrong while creating directories.\n";
-} else {
-	echo "Directory hiearchy created (or already existed).\n";
-	echo "Do not forget to allow read-write access to 'data/' and 'var/'.\n";
-}
-
-if (!file_exists('./index.php') && copy('./core/skeleton-index.php', './index.php')) {
-	echo "Bootstrap index.php created\n";
-}
-
-if (!file_exists('./.gitignore')) {
-	file_put_contents('./.gitignore', "./data\n./var\n./*.local.json.php\n");
-}
-
-if (!file_exists('./favicon.ico')) {
-	file_put_contents('./favicon.ico', base64_decode(
-		 'AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-		.'AAAAAABVVVUAqv/MAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-		.'AAAAAAAAAAAAAAAAMAAAMzMzMzMwIiAzMzMzMzAiIAAzMzMzMCIgMwMwAAAwERAzAzAiIDAREDMw'
-		.'ACIgMAAAMzMwIiAzMzMzMAAiIDAAADMDMCIgMCIgMwMwERAwIiAAMzAREDAiIDMzMAAAMBEQMzMz'
-		.'MzMwERAzMzMzMzAAADMzMzMzMzMzMzMzMzOD/wAAg/8AAID/AACDYAAAg2AAAIOAAACD4AAA/4AA'
-		.'AINgAACDYAAAgOAAAIPgAACD/wAAg/8AAIP/AAD//wAA'));
-}
 

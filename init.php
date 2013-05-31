@@ -36,91 +36,98 @@
 @define('DIR_APP',		DIR_ROOT.'app/');
 @define('DIR_PLUGIN',		DIR_ROOT.'plugin/');
 
-/* Config files */
-@define('FILE_CORE_CONFIG',	DIR_CORE.'core.ini.php');
-@define('FILE_APP_CONFIG',	DIR_APP.'core.ini.php');
-@define('FILE_DEVEL_CONFIG',	DIR_ROOT.'core.devel.ini.php');
-
 /* Use with get_block_filename() */
 @define('DIR_CLASS',		'class/');
 @define('DIR_BLOCK',		'block/');
 @define('DIR_TEMPLATE',		'template/');
 
-/* Check if this is development environment */
-@define('DEVELOPMENT_ENVIRONMENT', !! getenv('DEVELOPMENT_ENVIRONMENT'));
-
+/* Configuration loader class name */
+@define('CLASS_CONFIG_LOADER',	'JsonConfig');
 
 require(DIR_CORE.'utils.php');
 
 /* Add bin directory to $PATH, so bundled tools can be used */
 putenv('PATH='.DIR_ROOT.'bin'.(DIRECTORY_SEPARATOR == '/' ? ':' : ';').getenv('PATH'));
 
-/* Load core configuration */
-if (is_readable(FILE_APP_CONFIG)) {
-	$core_cfg = parse_ini_file(FILE_APP_CONFIG, true);
-} else {
-	$core_cfg = parse_ini_file(FILE_CORE_CONFIG, true);
-}
-
-/* Load debugging overrides */
-if (DEVELOPMENT_ENVIRONMENT && is_readable(FILE_DEVEL_CONFIG) && function_exists('array_replace_recursive')) {
-	$core_cfg = array_replace_recursive($core_cfg, parse_ini_file(FILE_DEVEL_CONFIG, true));
-}
-
-/* Load php.ini options */
-if (isset($core_cfg['php'])) {
-	foreach($core_cfg['php'] as $k => $v) {
-		ini_set($k, $v);
-	}
-}
-
-/* If true, this is main program */
-@define('CASCADE_MAIN', false);
-
-/* Enable debug logging -- a lot of messages from debug_msg() */
-@define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
-@define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
-@define('DEBUG_CASCADE_GRAPH_FILE',     @$core_cfg['debug']['cascade_graph_file']);
-@define('DEBUG_CASCADE_GRAPH_URL',      @$core_cfg['debug']['cascade_graph_url']);
-@define('DEBUG_CASCADE_GRAPH_DOC_LINK', @$core_cfg['debug']['cascade_graph_doc_link']);
-@define('DEBUG_PROFILER_STATS_FILE',    @$core_cfg['debug']['profiler_stats_file']);
-
-/* Show banner in log */
-if (CASCADE_MAIN && !empty($core_cfg['debug']['always_log_banner'])) {
-	first_msg();
-}
-
-/* Default locale */
-$lc = empty($core_cfg['core']['default_locale']) ? 'cs_CZ' : $core_cfg['core']['default_locale'];
-define('DEFAULT_LOCALE', setlocale(LC_ALL, $lc.'.UTF8', $lc));
-
-/* Define constants */
-if (isset($core_cfg['define'])) {
-	foreach($core_cfg['define'] as $k => $v) {
-		define(strtoupper($k), $v);
-	}
-}
-
-/* Initialize iconv */
-if (function_exists('iconv_set_encoding')) {
-	iconv_set_encoding('input_encoding',    'UTF-8');
-	iconv_set_encoding('output_encoding',   'UTF-8');
-	iconv_set_encoding('internal_encoding', 'UTF-8');
-}
-
-/* Initialize mb */
-if (function_exists('mb_internal_encoding')) {
-	mb_internal_encoding('UTF-8');
-}
-
-/* fix $_GET from lighttpd */
-if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER['REQUEST_URI'],'?')) {
-	$_SERVER['QUERY_STRING'] = preg_replace('#^.*?\?#','',$_SERVER['REQUEST_URI']);
-	parse_str($_SERVER['QUERY_STRING'], $_GET);
-}
 
 /* Scan plugins */
 $plugin_list = array_flip(scandir(DIR_PLUGIN));		// FIXME: remove this
+
+/**
+ * Get plugin list
+ */
+function get_plugin_list()
+{
+	global $plugin_list;
+
+	/* $plugin_list contains everything in plugin directory. It is not
+	 * filtered becouse CascadeController will not allow ugly block names
+	 * to be loaded. */
+
+	return array_filter(array_keys($plugin_list), function($block) {
+			/* Same as block name check in CascadeController */
+			return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
+		});
+}
+
+/**
+ * Get block's file from it's name
+ */
+function get_block_filename($block, $extension = '.php')
+{
+	global $plugin_list;
+
+	@ list($head, $tail) = explode('/', $block, 2);
+
+	/* Core */
+	if ($head == 'core') {
+		return DIR_CORE.DIR_BLOCK.$tail.$extension;
+	}
+
+	/* Plugins */
+	if ($tail !== null && isset($plugin_list[$head])) {
+		return DIR_PLUGIN.$head.'/'.DIR_BLOCK.$tail.$extension;
+	}
+
+	/* Application */
+	return DIR_APP.DIR_BLOCK.$block.$extension;
+}
+
+/**
+ * Get block's class name
+ */
+function get_block_class_name($block)
+{
+	$class_name = 'B_'.str_replace('/', '__', $block);
+	if (class_exists($class_name)) {
+		return $class_name;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Get template's file from it's name
+ */
+function get_template_filename($output_type, $template_name, $extension = '.php')
+{
+	global $plugin_list;
+
+	@ list($head, $tail) = explode('/', $template_name, 2);
+
+	/* Core */
+	if ($head == 'core') {
+		return DIR_CORE.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
+	}
+
+	/* Plugins */
+	if ($tail !== null && isset($plugin_list[$head])) {
+		return DIR_PLUGIN.$head.'/'.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
+	}
+
+	/* Application */
+	return DIR_APP.DIR_TEMPLATE.$output_type.'/'.$template_name.$extension;
+}
 
 /* Class autoloader */
 spl_autoload_register(function ($class)
@@ -164,72 +171,59 @@ spl_autoload_register(function ($class)
 	}
 });
 
-/* Get plugin list */
-function get_plugin_list()
-{
-	global $plugin_list;
 
-	/* $plugin_list contains everything in plugin directory. It is not
-	 * filtered becouse CascadeController will not allow ugly block names
-	 * to be loaded. */
+/* Initialize config loader and load core config */
+$config_loader_class = CLASS_CONFIG_LOADER;
+$config_loader = new $config_loader_class();
+$core_cfg = $config_loader->load('core');
 
-	return array_filter(array_keys($plugin_list), function($block) {
-			/* Same as block name check in CascadeController */
-			return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
-		});
+/* If true, this is main program -- this is defined in index.php */
+@define('CASCADE_MAIN', false);
+
+/* Setup debugging tools -- define few constants used all over this thing */
+@define('DEVELOPMENT_ENVIRONMENT',       $core_cfg['debug']['development_environment']);
+@define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
+@define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
+@define('DEBUG_CASCADE_GRAPH_FILE',      $core_cfg['debug']['cascade_graph_file']);
+@define('DEBUG_CASCADE_GRAPH_URL',       $core_cfg['debug']['cascade_graph_url']);
+@define('DEBUG_CASCADE_GRAPH_DOC_LINK',  $core_cfg['debug']['cascade_graph_doc_link']);
+@define('DEBUG_PROFILER_STATS_FILE',     $core_cfg['debug']['profiler_stats_file']);
+
+/* Load php.ini options */
+foreach($core_cfg['php'] as $k => $v) {
+	ini_set($k, $v);
 }
 
-/* Get block's file from it's name */
-function get_block_filename($block, $extension = '.php')
-{
-	global $plugin_list;
-
-	@ list($head, $tail) = explode('/', $block, 2);
-
-	/* Core */
-	if ($head == 'core') {
-		return DIR_CORE.DIR_BLOCK.$tail.$extension;
-	}
-
-	/* Plugins */
-	if ($tail !== null && isset($plugin_list[$head])) {
-		return DIR_PLUGIN.$head.'/'.DIR_BLOCK.$tail.$extension;
-	}
-
-	/* Application */
-	return DIR_APP.DIR_BLOCK.$block.$extension;
+/* Show banner in log */
+if (CASCADE_MAIN && !empty($core_cfg['debug']['always_log_banner'])) {
+	first_msg();
 }
 
-/* Get block's class name */
-function get_block_class_name($block)
-{
-	$class_name = 'B_'.str_replace('/', '__', $block);
-	if (class_exists($class_name)) {
-		return $class_name;
-	} else {
-		return false;
-	}
+/* Default locale */
+$lc = $core_cfg['core']['default_locale'];
+define('DEFAULT_LOCALE', setlocale(LC_ALL, $lc.'.UTF8', $lc));
+
+/* Define constants */
+foreach($core_cfg['define'] as $k => $v) {
+	define(strtoupper($k), $v);
 }
 
-/* Get template's file from it's name */
-function get_template_filename($output_type, $template_name, $extension = '.php')
-{
-	global $plugin_list;
+/* Initialize iconv */
+if (function_exists('iconv_set_encoding')) {
+	iconv_set_encoding('input_encoding',    'UTF-8');
+	iconv_set_encoding('output_encoding',   'UTF-8');
+	iconv_set_encoding('internal_encoding', 'UTF-8');
+}
 
-	@ list($head, $tail) = explode('/', $template_name, 2);
+/* Initialize mb */
+if (function_exists('mb_internal_encoding')) {
+	mb_internal_encoding('UTF-8');
+}
 
-	/* Core */
-	if ($head == 'core') {
-		return DIR_CORE.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
-	}
-
-	/* Plugins */
-	if ($tail !== null && isset($plugin_list[$head])) {
-		return DIR_PLUGIN.$head.'/'.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
-	}
-
-	/* Application */
-	return DIR_APP.DIR_TEMPLATE.$output_type.'/'.$template_name.$extension;
+/* fix $_GET from lighttpd */
+if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER['REQUEST_URI'],'?')) {
+	$_SERVER['QUERY_STRING'] = preg_replace('#^.*?\?#','',$_SERVER['REQUEST_URI']);
+	parse_str($_SERVER['QUERY_STRING'], $_GET);
 }
 
 return $core_cfg;

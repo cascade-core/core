@@ -34,14 +34,10 @@ define('CASCADE_MAIN', true);
 $core_cfg = require(dirname(__FILE__).'/init.php');
 
 /* initialize template engine */
-if (isset($core_cfg['template']['engine-class'])) {
-	$template = new $core_cfg['template']['engine-class']();
-} else {
-	$template = new Template();
-}
+$template = new $core_cfg['output']['template_engine_class']();
 
 /* set default output type */
-if (isset($core_cfg['output']['default_type'])) {
+if (!empty($core_cfg['output']['default_type'])) {
 	$template->slotOptionSet('root', 'type', $core_cfg['output']['default_type']);
 }
 
@@ -58,7 +54,7 @@ if (!isset($_SESSION)) {
 }
 
 /* Initialize default context */
-$context_class = empty($core_cfg['core']['context_class']) ? 'Context' : $core_cfg['core']['context_class'];
+$context_class = $core_cfg['core']['context_class'];
 $default_context = new $context_class();
 $default_context->setLocale(DEFAULT_LOCALE);
 $default_context->setTemplateEngine($template);
@@ -72,17 +68,18 @@ if (!empty($core_cfg['core']['auth_class'])) {
 }
 
 /* Initialize cascade controller */
-$cascade = new CascadeController($auth, @$core_cfg['block-map']);
+$cascade = new CascadeController($auth, @$core_cfg['block_map']);
 
 /* Initialize block storages */
-foreach (empty($core_cfg['block-storage'])
-		? array('ClassBlockStorage' => true, 'IniBlockStorage' => true)
-		: $core_cfg['block-storage']
-	as $storage_class => $storage_opts)
-{
-	debug_msg('Initializing block storage "%s" ...', $storage_class);
+uasort($core_cfg['block_storage'], function($a, $b) { return $a['storage_weight'] - $b['storage_weight']; });
+foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
+	if ($storage_opts == null) {
+		continue;
+	}
+	$storage_class = $storage_opts['storage_class'];
+	debug_msg('Initializing block storage "%s" (class %s) ...', $storage_name, $storage_class);
 	$s = new $storage_class($storage_opts);
-	$cascade->addBlockStorage($s, $storage_class);
+	$cascade->addBlockStorage($s, $storage_name);
 }
 
 /* Prepare starting blocks */
