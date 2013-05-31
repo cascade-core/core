@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2010, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,55 +28,14 @@
  * SUCH DAMAGE.
  */
 
-/**
- * Load configuration on demand. Each output matches merged config file as 
- * loaded by config loader suplied by cascade controller. Loaded configuration 
- * is cached automatically.
- */
+function TPL_html5__core__graphviz_diagram($t, $id, $d, $so)
+{
+	extract($d);
 
-class B_core__config extends Block {
+	$url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'png'));
 
-	protected $inputs = array(
-	);
-
-	protected $outputs = array(
-		'done' => true,
-		'*' => true,
-	);
-
-	private $config = null;
-
-
-	public function main()
-	{
-		$this->config = $this->context->getConfigLoader();
-		$this->out('done', true);
-	}
-
-
-	public function getOutput($name)
-	{
-		// TODO: Cache loaded configuration
-
-		$keys = explode('.', $name);
-		$config_name = array_shift($keys);
-
-		$cfg = $this->config->load($config_name);
-
-
-		if (empty($keys)) {
-			return $cfg;
-		} else {
-			$p = $cfg;
-			foreach ($keys as $k) {
-				if (isset($p[$k])) {
-					$p = $p[$k];
-				} else {
-					return null;
-				}
-			}
-			return $p;
-		}
-	}
+	echo "<div id=\"", htmlspecialchars($id), "\" class=\"graphviz_diagram\">\n",
+		"\t<img src=\"", htmlspecialchars($url), "\" alt=\"[", htmlspecialchars($alt), "]\">\n",
+		"</div>\n";
 }
 

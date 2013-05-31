@@ -184,9 +184,6 @@ $core_cfg = $config_loader->load('core');
 @define('DEVELOPMENT_ENVIRONMENT',       $core_cfg['debug']['development_environment']);
 @define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
 @define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
-@define('DEBUG_CASCADE_GRAPH_FILE',      $core_cfg['debug']['cascade_graph_file']);
-@define('DEBUG_CASCADE_GRAPH_URL',       $core_cfg['debug']['cascade_graph_url']);
-@define('DEBUG_CASCADE_GRAPH_DOC_LINK',  $core_cfg['debug']['cascade_graph_doc_link']);
 @define('DEBUG_PROFILER_STATS_FILE',     $core_cfg['debug']['profiler_stats_file']);
 
 /* Load php.ini options */

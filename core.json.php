@@ -22,9 +22,6 @@
 		"log_memory_usage": true,
 		"add_cascade_graph": true,
 		"animate_cascade": false,
-		"cascade_graph_file": "{DIR_ROOT}var/graphviz/cascade-{hash}.{ext}",
-		"cascade_graph_url": "/core/graphviz.php?hash={hash}&format={ext}",
-		"cascade_graph_doc_link": "/documentation/block/{block}",
 		"profiler_stats_file": "var/profiler.stats"
 	},
 	"output": {
@@ -32,9 +29,15 @@
 		"default_type": "html5"
 	},
 	"graphviz": {
-		"title": "Cascade {hash}",
-		"src_file": "{DIR_ROOT}var/graphviz/cascade-{hash}.{ext}",
-		"cache_file": "{DIR_ROOT}var/graphviz/cascade-{hash}.{ext}"
+		"renderer": {
+			"link": "/core/graphviz.php?hash={hash}&cfg={profile}&format={ext}"
+		},
+		"cascade": {
+			"title": "Cascade {hash}",
+			"src_file": "{DIR_ROOT}var/graphviz/cascade-{hash}.{ext}",
+			"cache_file": "{DIR_ROOT}var/graphviz/cascade-{hash}.{ext}",
+			"doc_link": null
+		}
 	},
 	"block_map": {
 	},

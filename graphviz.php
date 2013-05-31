@@ -131,7 +131,7 @@ function url($format = null, $hash = null)
 list($config_loader, $core_cfg) = require(dirname(__FILE__).'/init.php');
 
 // Get parameters
-$section = @ $_GET['cfg'];
+$profile = @ $_GET['cfg'];
 $hash    = @ $_GET['hash'];
 $format  = @ $_GET['format'];
 
@@ -141,8 +141,8 @@ if (empty($format)) {
 }
 
 // Check config
-$cfg = @ $core_cfg[$section ? 'graphviz:'.$section : 'graphviz'];
-if (empty($cfg)) {
+$cfg = @ $core_cfg['graphviz'][$profile];
+if (empty($cfg) || $profile == 'renderer') {
 	fail(500, 'Configuration not found.');
 }
 

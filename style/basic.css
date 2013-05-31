@@ -249,3 +249,13 @@ h6 {
 	font-size: 1.0em;
 }
 
+.graphviz_diagram {
+	overflow: auto;
+	text-align: center;
+	margin: 1em 0em;
+	padding: 0px;
+}
+	.graphviz_diagram img {
+		display: block;
+		margin: 0em auto;
+	}

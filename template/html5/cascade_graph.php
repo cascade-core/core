@@ -32,7 +32,7 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 {
 	extract($d);
 
-	$url = filename_format(DEBUG_CASCADE_GRAPH_URL, array('hash' => $hash, 'ext' => 'html'));
+	$url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'html'));
 
 	// autodetect graph style
 	if ((int) $style === 1) {
