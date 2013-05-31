@@ -60,6 +60,15 @@ class JsonConfig
 			$filenames[] = $afn;
 		}
 
+		// And local config is even laster, so it can overwrite more 
+		// than anything. These files should not be commited, they are 
+		// .gitignored by default. Use them for things like database 
+		// configuration and other installation-specific setup.
+		$afn = DIR_ROOT.$name.'.local.json.php';
+		if (file_exists($afn)) {
+			$filenames[] = $afn;
+		}
+
 		// Load and merge all
 		$all_cfg = array_map(array($this, 'readJson'), $filenames);
 		$count = count($all_cfg);
