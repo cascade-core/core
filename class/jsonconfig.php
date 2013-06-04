@@ -28,12 +28,63 @@
  * SUCH DAMAGE.
  */
 
+/**
+ * Manage configuration stored in JSON files in core, plugins and application 
+ * directories. All files of the same name in these locations are merged 
+ * together.
+ *
+ * This class does not use caching, but other classes can extend this one and 
+ * add any cache implementation.
+ */
 class JsonConfig
 {
 
-	public function load($name)
+	/**
+	 * Retrieve configuration from cache.
+	 */
+	protected function fetchFromCache($key, & $hit)
+	{
+		$hit = false;
+		return null;
+	}
+
+
+	/**
+	 * Add configuration to cache.
+	 */
+	protected function addToCache($key, $value)
+	{
+		return true;
+	}
+
+
+	/**
+	 * Clear cache.
+	 *
+	 * This should be called after deploy.
+	 */
+	public function clearCache()
+	{
+		return true;
+	}
+
+
+	/**
+	 * Load and compose configuration from config files. Core, plugins, 
+	 * application and local config files are searched.
+	 */
+	public function load($name, $force_cache_reload = false)
 	{
 		$filenames = array();
+		$cache_key = __CLASS__.'.'.$name;
+
+		// Check if configuration is cached (invalid name will not be cached)
+		if (!$force_cache_reload) {
+			$cached_cfg = $this->fetchFromCache($cache_key, $hit);
+			if ($hit && is_array($cached_cfg)) {
+				return $cached_cfg;
+			}
+		}
 
 		// Validate $name
 		if (!preg_match('/^[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*$/', $name)) {
@@ -73,12 +124,17 @@ class JsonConfig
 		$all_cfg = array_map(array($this, 'readJson'), $filenames);
 		$count = count($all_cfg);
 		if ($count == 0) {
-			return array();
+			$final_cfg = array();
 		} else if ($count == 1) {
-			return reset($all_cfg);
+			$final_cfg = reset($all_cfg);
 		} else {
-			return call_user_func_array('array_replace_recursive', $all_cfg);
+			$final_cfg = call_user_func_array('array_replace_recursive', $all_cfg);
 		}
+
+		// Store loaded configuration to cache
+		$this->addToCache($cache_key, $final_cfg);
+
+		return $final_cfg;
 	}
 
 
