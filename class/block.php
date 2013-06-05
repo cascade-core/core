@@ -489,6 +489,16 @@ abstract class Block {
 	}
 
 
+	final protected function inAll()
+	{
+		$vals = array();
+		foreach ($this->inputNames() as $in) {
+			$vals[$in] = $this->in($in);
+		}
+		return $vals;
+	}
+
+
 	private function collectOutputs(& $ref)
 	{
 		// read input
