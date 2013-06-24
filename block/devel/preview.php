@@ -39,7 +39,8 @@ class B_core__devel__preview extends Block
 
 	protected $inputs = array(
 		'blocks' => array(),			// Blocks loaded from INI file.
-		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
+		'graphviz_cfg' => array('config', 'core.graphviz'),	// Cascade visualization config
+		'graphviz_profile' => 'cascade',	// Cascade visualization profile
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -50,6 +51,9 @@ class B_core__devel__preview extends Block
 
 	public function main()
 	{
+		$gv_cfg = $this->in('graphviz_cfg');
+		$gv_profile = $this->in('graphviz_profile');
+
 		/* Initialize cascade controller */
 		$cascade = $this->getCascadeController()->cloneEmpty();
 
@@ -57,14 +61,19 @@ class B_core__devel__preview extends Block
 		$errors = array();
 		$done = $cascade->addBlocksFromIni(null, $this->in('blocks'), $this->context, $errors);
 
+		// export dot file
+		$dot = $cascade->exportGraphvizDot($gv_cfg[$gv_profile]['doc_link'], $this->visibleBlockNames());
+		$hash = md5($dot);
+		$dot_file = filename_format($gv_cfg[$gv_profile]['src_file'], array('hash' => $hash, 'ext' => 'dot'));
+
+		file_put_contents($dot_file, $dot);
+
 		/* Template object will render & cache image */
 		$this->templateAdd('_cascade_graph', 'core/cascade_graph', array(
-				'cascade' => $cascade,
-				'dot_name_tpl' => DEBUG_CASCADE_GRAPH_FILE,
-				'dot_url_tpl' => DEBUG_CASCADE_GRAPH_URL,
-				'link' => $this->in('link'),
+				'hash' => $hash,
+				'profile' => 'cascade',
+				'link' => $gv_cfg['renderer']['link'],
 				'preview' => true,
-				'whitelist' => $this->visibleBlockNames(),
 				'errors' => $errors,
 				'style' => 'page_content',
 			));

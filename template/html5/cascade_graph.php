@@ -32,8 +32,6 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 {
 	extract($d);
 
-	$url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'html'));
-
 	// autodetect graph style
 	if ((int) $style === 1) {
 		$style = class_exists('NDebugger') && NDebugger::isEnabled() ? 'nette' : 'include';
@@ -47,6 +45,8 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 			break;
 
 		case 'link':
+			$url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'html'));
+
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_link\">",
 				"<a target=\"_blank\" href=\"", htmlspecialchars($url), "\">Cascade graph</a>",
 				"</div>\n";
@@ -54,6 +54,8 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 
 		default:
 		case 'include':
+			$url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'html'));
+
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_iframe\" style=\"clear: both;\">\n";
 			echo	"\t<hr>\n",
 				"\t<h2><a target=\"_blank\" href=\"", htmlspecialchars($url), "\">Cascade</a></h2>\n",
@@ -63,6 +65,9 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 
 		case 'image':
 		case 'page_content':
+			$png_url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'png'));
+			$dot_url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'dot'));
+
 			if ($style == 'image') {
 				echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_dump\" style=\"clear: both;\">\n";
 				echo	"\t<hr>\n",
@@ -76,15 +81,9 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 			} else {
 				echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_dump\">\n";
 			}
-			$map_html_name = 'cascade_graph_map__'.htmlspecialchars($id);
-			$map_needle = array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""');
-			$map_replacement = array('<map id="'.$map_html_name.'" name="'.$map_html_name.'">', '');
-			if (!empty($preview)) {
-				$map_needle[] = ' target="_blank"';
-				$map_replacement[] = '';
-			}
-			echo str_replace($map_needle, $map_replacement, file_get_contents($map_file)),
-				'<img src="', htmlspecialchars($png_url), '" usemap="cascade_graph_map__', htmlspecialchars($id), "\">\n";
+
+			echo '<img src="', htmlspecialchars($png_url), "\">\n";
+
 			//echo "<pre>", htmlspecialchars($dot), "</pre>\n";
 			if ($style == 'page_content' && !empty($errors)) {
 				echo "<b>Errors:</b>\n<ul>\n";

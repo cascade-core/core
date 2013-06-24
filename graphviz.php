@@ -66,7 +66,7 @@ function render_graphviz($src_file, $dst_file, $format)
 	// Execute dot
 	$src = file_get_contents($src_file);
 	$result = exec_dot($src, $format);
-	if ($result !== false) {
+	if (!empty($result)) {
 		return file_put_contents($dst_file, $result);
 	} else {
 		return false;

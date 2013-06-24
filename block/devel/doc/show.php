@@ -42,7 +42,6 @@ class B_core__devel__doc__show extends Block
 	protected $inputs = array(
 		'block' => array(),			// Name of the block to describe.
 		'show_code' => false,			// Show full source code of the block?
-		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
 		'require_description' => false,		// Fail if there is no description.
 		'heading_level' => 2,			// Level of the first heading.
 		'slot' => 'default',
@@ -51,6 +50,7 @@ class B_core__devel__doc__show extends Block
 
 	protected $outputs = array(
 		'title' => true,			// Page title
+		'graphviz_cfg' => true,
 		'done' => true,
 	);
 
@@ -116,7 +116,7 @@ class B_core__devel__doc__show extends Block
 					'filename' => $filename,
 					'heading_level' => $this->in('heading_level'),
 					'description' => _('Block is composed of blocks as shown on following diagram. Note that diagram '
-							.'represents cascade before it\'s execution, not contents of the INI file.'),
+							.'represents cascade before its execution, not contents of the INI file.'),
 					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
 				));
 
@@ -125,7 +125,6 @@ class B_core__devel__doc__show extends Block
 				));
 			$this->cascadeAdd('show_image', 'core/devel/preview', null, array(
 					'blocks' => array('load', 'data'),
-					'link' => $this->in('link'),
 					'slot' => $this->in('slot'),
 					'slot_weight' => $this->in('slot_weight'),
 				));
