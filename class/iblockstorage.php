@@ -38,8 +38,14 @@ interface IBlockStorage {
 
 	/**
 	 * Constructor will get options from core.ini.php file.
+	 *
+	 * Arguments:
+	 * 	$storage_opts - Options loaded from config file
+	 * 	$context - Common default context (dependency injection 
+	 *		container) passed to all storages, and later also to 
+	 *		all blocks.
 	 */
-	public function __construct($storage_opts);
+	public function __construct($storage_opts, $context);
 
 	/**
 	 * Returns true if there is no way that this storage can modify or 

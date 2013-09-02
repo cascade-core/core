@@ -19,7 +19,7 @@ $auth = null;
 $cascade = new CascadeController($auth, array());
 
 /* Initialize some block storage */
-$cascade->addBlockStorage(new ClassBlockStorage(true), 'ClassBlockStorage');
+$cascade->addBlockStorage(new ClassBlockStorage(true, $default_context), 'ClassBlockStorage');
 
 /* Add dummy */
 $cascade->addBlock(null, 'foo', 'core/dummy', true, array(), $default_context);

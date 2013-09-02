@@ -41,12 +41,19 @@ class ClassBlockStorage implements IBlockStorage {
 	protected $filename_match_regexp = '/^[\/a-zA-Z0-9_]+\.php$/';
 	protected $filename_to_block_regexp ='/^\/([\/a-zA-Z0-9_-]+)\.php$/'; 
 
+
 	/**
-	 * Constructor will get options from core.ini.php file, but this 
-	 * storage use no options.
+	 * Constructor will get options from core.ini.php file.
+	 *
+	 * Arguments:
+	 * 	$storage_opts - Options loaded from config file
+	 * 	$context - Common default context (dependency injection 
+	 *		container) passed to all storages, and later also to 
+	 *		all blocks.
 	 */
-	public function __construct($storage_opts)
+	public function __construct($storage_opts, $context)
 	{
+		// nop
 	}
 
 	/**
