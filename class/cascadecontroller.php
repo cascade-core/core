@@ -157,7 +157,6 @@ class CascadeController {
 				'block'   => $block,
 				'details' => $details,
 			);
-			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections, 'Permission denied');
 			return false;
 		}
 
@@ -171,6 +170,12 @@ class CascadeController {
 			}
 		}
 
+		/* block not found */
+		error_msg('Block "%s" not found.', $block);
+		$errors[] = array(
+			'error'   => 'Block not found.',
+			'block'   => $block,
+		);
 		return false;
 	}
 
@@ -206,15 +211,8 @@ class CascadeController {
 		/* create block instance */
 		$b = $this->createBlockInstance($block, $errors, $storage_name);
 		if (!$b) {
-			/* block not found */
-			error_msg('Block "%s" not found.', $block);
-			$errors[] = array(
-				'error'   => 'Block not found.',
-				'id'      => $id,
-				'full_id' => $full_id,
-				'block'   => $block,
-			);
-			$this->addFailedBlock($parent, $id, $full_id, $block, $connections, 'Block not found');
+			$last_error = end($errors);
+			$this->addFailedBlock($parent, $id, $full_id, $block, $connections, $last_error['error']);
 			return false;
 		}
 
