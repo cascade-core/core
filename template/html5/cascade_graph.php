@@ -105,23 +105,12 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 			class CascadeGraphPanelWidget implements IBarPanel
 			{
 				var $id;
-				var $dot_file;
-				var $dot_url;
-				var $png_file;
-				var $png_url;
-				var $map_file;
-				var $map_url;
+				var $url;
 
-				function __construct($id, $hash, $dot_file, $dot_url, $png_file, $png_url, $map_file, $map_url)
+				function __construct($id, $url)
 				{
 					$this->id = $id;
-					$this->hash = $hash;
-					$this->dot_file = $dot_file;
-					$this->dot_url = $dot_url;
-					$this->png_file = $png_file;
-					$this->png_url = $png_url;
-					$this->map_file = $map_file;
-					$this->map_url = $map_url;
+					$this->url = $url;
 				}
 
 				function getTab() {
@@ -129,24 +118,23 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 				}
 
 				function getPanel() {
-					return '<h1>Cascade Graph</h1><div class="nette-inner">'
-							."\t<div><small>[ "
-							.	"<a href=\"".htmlspecialchars($this->png_url)."\">png</a>"
-							.	" | <a href=\"".htmlspecialchars($this->dot_url)."\">dot</a>"
-							.	" | ".$this->hash
-							." ]</small></div>\n"
-							.str_replace(array('<map id="structs" name="structs">', ' title="&lt;TABLE&gt;" alt=""'),
-								array('<map id="cascade_graph_map" name="cascade_graph_map">', ''),
-								file_get_contents($this->map_file))
-							.'<img src="'.htmlspecialchars($this->png_url).'" usemap="cascade_graph_map">'
-							.'</div>';
+					ob_start();
+					echo "<h1>Cascade Graph</h1><div class=\"nette-inner\">\n",
+						"\t<iframe src=\"", htmlspecialchars($this->url), "\" seamless frameborder=\"0\"
+							onLoad=\"",
+								"this.height = (this.contentWindow.document.body.scrollHeight) + 'px';",
+								"this.width  = (this.contentWindow.document.body.scrollWidth)  + 'px';",
+							"\"></iframe>\n",
+						"</div>\n";
+					return ob_get_clean();
 				}
 
 				function getId() {
 					return $this->id;
 				}
 			}
-			$plgpw = new CascadeGraphPanelWidget($id, $hash, $dot_file, $dot_url, $png_file, $png_url, $map_file, $map_url);
+
+			$plgpw = new CascadeGraphPanelWidget($id, filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'html')));
 			NDebugger::addPanel($plgpw);
 			break;
 	}
