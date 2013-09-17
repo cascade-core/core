@@ -259,3 +259,15 @@ h6 {
 		display: block;
 		margin: 0em auto;
 	}
+
+.placeholder {
+	border-width: 1px;
+	border-style: dashed;
+	margin: 1em;
+	padding: 25% 1em;
+	font-size: 0.85em;
+	text-align: center;
+	opacity:0.33;
+	filter:alpha(opacity=33);
+}
+
