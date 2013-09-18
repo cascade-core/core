@@ -101,10 +101,10 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	$dot_file   = filename_format($link, array('hash' => $hash, 'ext' => 'dot'));
 	$movie_file = filename_format($link, array('hash' => $hash, 'ext' => '%06d.dot.gz'));
 
-	// store dot file, it will be rendered later
+	/* Store dot file, it will be rendered later */
 	file_put_contents($dot_file, $dot);
 
-	// prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do
+	/* Prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do */
 	if (!empty($core_cfg['debug']['animate_cascade'])) {
 		$steps = $cascade->currentStep(false) + 1;
 		for ($t = 0; $t <= $steps; $t++) {
@@ -113,9 +113,6 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 		}
 	}
 
-	// Store hash to HTTP header
-	header('X-Cascade-Hash: '.$hash);
-
 	/* Template object will render & cache image */
 	$template->addObject('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
 			'hash' => $hash,
@@ -123,11 +120,17 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 			'profile' => 'cascade',
 			'style' => $core_cfg['debug']['add_cascade_graph'],
 		));
+
+	/* Store hash to HTTP header */
+	header('X-Cascade-Hash: '.$hash);
+
+	/* Log hash to make messages complete */
+	extra_msg('Cascade hash: %s', $hash);
 }
 
 /* Log memory usage */
 if (!empty($core_cfg['debug']['log_memory_usage'])) {
-	extra_msg('Cascade memory usage: %1.3f B', $cascade->getMemoryUsage() / 1024);
+	extra_msg('Cascade memory usage: %s', format_bytes($cascade->getMemoryUsage()));
 }
 
 /* Store profiler statistics */
