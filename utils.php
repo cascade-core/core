@@ -206,19 +206,44 @@ function format_bytes($bytes)
 }
 
 
+/**
+ * Returns decimal part of float.
+ *
+ * frac(+12.34) == 0.34
+ * frac(-12.34) == 0.34
+ */
+function frac($number)
+{
+	return $number >= 0 ? $number - (int) $number : - $number + (int) $number;
+}
+
+
+/**
+ * Returns decimal part as string without leading '0.'.
+ */
+function frac_str($number)
+{
+	return substr(sprintf('%F', frac($number)), 2);
+}
+
+
 function template_format($template, $values, $escaping_function = 'htmlspecialchars', array $raw_values = array())
 {
 	$available_functions = array(
 		'sprintf'	=> 'sprintf',
 		'strftime'	=> 'strftime',
-		'date'		=> 'strftime',
-		'time'		=> 'strftime',
+		'floor'		=> 'sprintf',
+		'ceil'		=> 'sprintf',
+		'frac'		=> 'sprintf',
+		'frac_str'	=> 'sprintf',
+		'intval'	=> 'sprintf',
+		'floatval'	=> 'sprintf',
 	);
 
 	$tokens = preg_split('/({)'
 				."(\\/?[a-zA-Z0-9_.-]+)"			// symbol name
 				.'(?:'
-					.'([:%])([a-zA-Z0-9_}]*)'		// function name
+					.'([:%])([^:}\s]*)'		// function name
 					."(?:([:])((?:[^}\\\\]|\\\\.)*))?"	// format string
 				.')?'
 				.'(})/',
@@ -227,6 +252,8 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 	$status = 0;		// Current status of parser
 	$append = 0;		// Append value to result after token is processed ?
 	$result = array();
+	$process_function = null;
+	$format_function = null;
 
 	foreach($tokens as $token) {
 		switch ($status) {
@@ -234,7 +261,8 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 			case 0:
 				if ($token === '{') {
 					$status = 10;
-					$function = null;
+					$process_function = null;
+					$format_function  = null;
 					$fmt = null;
 				} else {
 					$result[] = $token;
@@ -254,7 +282,8 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 					$append = true;
 					$status = 0;
 				} else if ($token === '%') {
-					$function = sprintf;
+					$process_function = null;
+					$format_function  = 'sprintf';
 					$status = 51;
 				} else if ($token === ':') {
 					$status = 30;
@@ -265,10 +294,12 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 
 			// format function
 			case 30:
-				if (array_key_exists($token, $available_functions)) {
-					$function = $available_functions[$token];
+				if (isset($available_functions[$token])) {
+					$process_function = ($token != $available_functions[$token] ? $token : null);
+					$format_function  = $available_functions[$token];
 				} else {
-					$function = null;
+					$process_function = null;
+					$format_function  = null;
 				}
 				$status = 40;
 				break;
@@ -324,9 +355,14 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 				continue;
 			}
 
-			// apply $function
-			if ($function !== null) {
-				$v = $function($fmt, $v);
+			// apply $process_function
+			if ($process_function !== null) {
+				$v = $process_function($v);
+			}
+
+			// apply $format_function
+			if ($format_function !== null && $fmt !== null) {
+				$v = $format_function($fmt, $v);
 			}
 
 			// apply $escaping_function

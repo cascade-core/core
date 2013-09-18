@@ -191,6 +191,12 @@ foreach($core_cfg['php'] as $k => $v) {
 	ini_set($k, $v);
 }
 
+/* Set log file, use filename_format with $_SERVER to generate filename.
+ * (You can have one log file per request.) */
+if ($core_cfg['debug']['error_log'] !== null) {
+	ini_set('error_log', filename_format($core_cfg['debug']['error_log'], $_SERVER));
+}
+
 /* Show banner in log */
 if (CASCADE_MAIN && !empty($core_cfg['debug']['always_log_banner'])) {
 	first_msg();
@@ -203,6 +209,11 @@ define('DEFAULT_LOCALE', setlocale(LC_ALL, $lc.'.UTF8', $lc));
 /* Define constants */
 foreach($core_cfg['define'] as $k => $v) {
 	define(strtoupper($k), $v);
+}
+
+/* Set umask */
+if ($core_cfg['core']['umask'] !== null) {
+	umask($core_cfg['core']['umask']);
 }
 
 /* Initialize iconv */

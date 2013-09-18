@@ -12,7 +12,8 @@
 		"default_locale": "cs_CZ",
 		"auth_class": "",
 		"context_class": "Context",
-		"app_init_file": []
+		"app_init_file": [],
+		"umask": null
 	},
 	"define": {
 	},
@@ -23,7 +24,8 @@
 		"log_memory_usage": true,
 		"add_cascade_graph": true,
 		"animate_cascade": false,
-		"profiler_stats_file": "var/profiler.stats"
+		"profiler_stats_file": "var/profiler.stats",
+		"error_log": null
 	},
 	"output": {
 		"template_engine_class": "Template",
