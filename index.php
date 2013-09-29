@@ -41,13 +41,6 @@ if (!empty($core_cfg['output']['default_type'])) {
 	$template->slotOptionSet('root', 'type', $core_cfg['output']['default_type']);
 }
 
-/* Call app's init file(s) */
-if (!empty($core_cfg['core']['app_init_file'])) {
-	foreach((array) $core_cfg['core']['app_init_file'] as $f) {
-		require(DIR_ROOT.$f);
-	}
-}
-
 /* Start session if not started yet */
 if (!isset($_SESSION)) {
 	session_start();

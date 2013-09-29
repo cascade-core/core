@@ -44,6 +44,8 @@
 /* Configuration loader class name */
 @define('CLASS_CONFIG_LOADER',	'JsonConfig');
 
+chdir(DIR_ROOT);
+
 require(DIR_CORE.'utils.php');
 
 /* Add bin directory to $PATH, so bundled tools can be used */
@@ -232,6 +234,13 @@ if (function_exists('mb_internal_encoding')) {
 if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER['REQUEST_URI'],'?')) {
 	$_SERVER['QUERY_STRING'] = preg_replace('#^.*?\?#','',$_SERVER['REQUEST_URI']);
 	parse_str($_SERVER['QUERY_STRING'], $_GET);
+}
+
+/* Call app's init file(s) */
+if (!empty($core_cfg['core']['app_init_file'])) {
+	foreach((array) $core_cfg['core']['app_init_file'] as $f) {
+		require(DIR_ROOT.$f);
+	}
 }
 
 return array($config_loader, $core_cfg);
