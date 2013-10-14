@@ -43,6 +43,7 @@ class B_core__out__header extends Block
 		'option' => null,	// Load text from slot option.
 		'slot' => 'default',
 		'slot_weight' => 50,
+		'*' => null,
 	);
 
 	protected $outputs = array(
@@ -50,12 +51,14 @@ class B_core__out__header extends Block
 
 	public function main()
 	{
+		$in = $this->inAll();
+
 		$this->templateAdd(null, 'core/header', array(
-				'option' => $this->in('option'),
-				'text' => $this->in('text'),
-				'link' => $this->in('link'),
-				'anchor' => $this->in('anchor'),
-				'level' => $this->in('level'),
+				'option' => $in['option'],
+				'text'   => template_format($in['text'], $in),
+				'link'   => $in['link'],
+				'anchor' => $in['anchor'],
+				'level'  => $in['level'],
 			));
 	}
 }

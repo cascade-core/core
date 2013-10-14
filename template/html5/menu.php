@@ -72,7 +72,9 @@ function tpl_html5__core__menu__label($id, $item, $title_fmt)
 			$open =  "<span>";
 			$close = "</span>";
 		}
-		$arg = array('a' => $open, '/a' => $close);
+		$arg = $item;
+		$arg['a'] = $open;
+		$arg['/a'] = $close;
 		echo template_format($title_fmt, $item, 'htmlspecialchars', $arg);
 	} else {
 		$label = isset($item['label']) ? $item['label'] : @$item['title'];
