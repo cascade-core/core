@@ -514,3 +514,114 @@ function write_json_file($json_array, $whitelist = null, $json_options = null)
                         : $json_flags & ~(JSON_HEX_TAG | JSON_HEX_APOS));
 }
 
+
+
+/****************************************************************************
+ *
+ *	Gettext functions with contexts
+ *
+ *
+ * To extract strings with contexts, use:
+ *
+ *	xgettext \
+ *		-kpgettext:1c,2 \
+ *		-kdpgettext:2c,3 \
+ *		-kdcpgettext:2c,3 \
+ *		-knpgettext:1c,2,3 \
+ *		-kdnpgettext:2c,3,4 \
+ *		-kdcnpgettext:2c,3,4
+ *
+ */
+
+if (!function_exists('pgettext')) {
+/**
+ * Missing gettext function: gettext with context.
+ *
+ * See http://www.gnu.org/software/gettext/manual/gettext.html#Contexts
+ *
+ * Thanks to https://bugs.php.net/bug.php?id=51285
+ */
+function pgettext($context, $message)
+{
+	$actual_message = $context . "\04" . $message;
+	return gettext($actual_message);
+}}
+
+
+if (!function_exists('dpgettext')) {
+/**
+ * Missing gettext function: dgettext with context.
+ *
+ * See http://www.gnu.org/software/gettext/manual/gettext.html#Contexts
+ *
+ * Thanks to https://bugs.php.net/bug.php?id=51285
+ */
+function dpgettext($domain, $context, $message)
+{
+	$actual_message = $context . "\04" . $message;
+	return dgettext($domain, $actual_message);
+}}
+
+
+if (!function_exists('dcpgettext')) {
+/**
+ * Missing gettext function: dpgettext with context.
+ *
+ * See http://www.gnu.org/software/gettext/manual/gettext.html#Contexts
+ *
+ * Thanks to https://bugs.php.net/bug.php?id=51285
+ */
+function dcpgettext($domain, $context, $message, $category)
+{
+	$actual_message = $context . "\04" . $message;
+	return dcgettext($domain, $actual_message, $category);
+}}
+
+
+if (!function_exists('npgettext')) {
+/**
+ * Missing gettext function: npgettext with context.
+ *
+ * See http://www.gnu.org/software/gettext/manual/gettext.html#Contexts
+ *
+ * Thanks to https://bugs.php.net/bug.php?id=51285
+ */
+function npgettext($context, $msgid1, $msgid2, $n)
+{
+	$actual_msgid1 = $context . "\04" . $msgid1;
+	$actual_msgid2 = $context . "\04" . $msgid2;
+	return ngettext($actual_msgid1, $actual_msgid2, $n);
+}}
+
+
+if (!function_exists('dnpgettext')) {
+/**
+ * Missing gettext function: dngettext with context.
+ *
+ * See http://www.gnu.org/software/gettext/manual/gettext.html#Contexts
+ *
+ * Thanks to https://bugs.php.net/bug.php?id=51285
+ */
+function dnpgettext($domain, $context, $msgid1, $msgid2, $n)
+{
+	$actual_msgid1 = $context . "\04" . $msgid1;
+	$actual_msgid2 = $context . "\04" . $msgid2;
+	return dngettext($domain, $actual_msgid1, $actual_msgid2, $n);
+}}
+
+
+if (!function_exists('dcnpgettext')) {
+/**
+ * Missing gettext function: dcngettext with context.
+ *
+ * See http://www.gnu.org/software/gettext/manual/gettext.html#Contexts
+ *
+ * Thanks to https://bugs.php.net/bug.php?id=51285
+ */
+function dcnpgettext($domain, $context, $msgid1, $msgid2, $n, $category)
+{
+	$actual_msgid1 = $context . "\04" . $msgid1;
+	$actual_msgid2 = $context . "\04" . $msgid2;
+	return dcngettext($domain, $actual_msgid1, $actual_msgid2, $n, $category);
+}}
+
