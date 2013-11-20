@@ -271,3 +271,74 @@ h6 {
 	filter:alpha(opacity=33);
 }
 
+
+/**********************************************************************************
+ * Forms
+ *
+ * Labels should have the same geometry as simple input to make them nicely
+ * vertically aligned.
+ */
+
+form {
+	margin: 0em;
+	padding: 0em;
+	border: none;
+}
+
+	form > table {
+		border-collapse: collapse;
+		margin: 1em 0em;
+		padding: 0px;
+		width: 100%;
+	}
+
+		form > table th,
+		form > table td {
+			border: none;
+			padding: 0px;
+			vertical-align: top;
+		}
+
+		form > table th {
+			width: 15%;
+			white-space: nowrap;
+			font-weight: normal;
+		}
+
+		form > table td {
+			padding-left: 1ex;
+		}
+
+	form input:not([type=button]):not([type=reset]):not([type=submit]),
+	form textarea,
+	form select,
+	form label {
+		display: inline-block;
+		border: 1px solid #888;
+		padding: 2px;
+		margin: 2px 0em;
+	}
+
+	form > table input:not([width]):not([type=button]):not([type=reset]):not([type=submit]) {
+		width: 99%;
+	}
+
+	form input[type=reset],
+	form input[type=submit] {
+		margin: 1ex 0em;
+	}
+
+	form label {
+		padding-left: 0px;
+		display: inline-block;
+		border-color: transparent;
+	}
+	form textarea {
+		display: block;
+		width: 99%;
+	}
+
+	form textarea:not([rows]) {
+		height: 7em;
+	}
+
