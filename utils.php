@@ -174,7 +174,7 @@ function debug_dump($var, $label = '', $use_print_r = false)
 		print_r($var);
 		echo htmlspecialchars(ob_get_clean());
 	} else {
-		highlight_string("<?php\n".preg_replace('/=> \n\s*/', "=> ", var_export($var, true)));
+		echo preg_replace('|^([^/]*)&lt;\?php<br />|Um', '\1', highlight_string("<?php\n".preg_replace('/=> \n\s*/', "=> ", var_export($var, true)), true));
 	}
 
 	echo "</$div>";
