@@ -143,7 +143,7 @@ spl_autoload_register(function ($class)
 		$m = str_replace('__', '/', substr($lc_class, 2));
 		$f = get_block_filename($m);
 		if (file_exists($f)) {
-			include($f);
+			require($f);
 		}
 		return;
 	}
@@ -152,7 +152,7 @@ spl_autoload_register(function ($class)
 	if ($tail !== null && isset($plugin_list[$head])) {
 		$f = DIR_PLUGIN.$head.'/'.DIR_CLASS.str_replace("\\", '/', $tail).'.php';
 		if (file_exists($f)) {
-			include($f);
+			require($f);
 		}
 		return;
 	}
@@ -161,17 +161,23 @@ spl_autoload_register(function ($class)
 	$f = str_replace("\\", '/', strtolower($class)).'.php';
 	$cf = DIR_CORE.DIR_CLASS.$f;
 	if (file_exists($cf)) {
-		include($cf);
+		require($cf);
 		return;
 	}
 
 	/* Application */
 	$af = DIR_APP.DIR_CLASS.$f;
 	if (file_exists($af)) {
-		include($af);
+		require($af);
 		return;
 	}
 });
+
+/* Composer autoloader */
+$composer_autoloader = DIR_ROOT.'lib/autoload.php';
+if (file_exists($composer_autoloader)) {
+	require $composer_autoloader;
+}
 
 
 /* Initialize config loader and load core config */
