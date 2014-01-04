@@ -191,9 +191,9 @@ switch ($format) {
 			"</head>\n";
 		echo "<body>\n";
 		echo "<div>[ ",
-				"<a href=\"", url('png'), "\">png</a>",
-				" | <a href=\"", url('pdf'), "\">pdf</a>",
-				" | <a href=\"", url('dot'), "\">dot</a>",
+				"<a href=\"", url('png'), "\" target=\"_blank\">png</a>",
+				" | <a href=\"", url('pdf'), "\" target=\"_blank\">pdf</a>",
+				" | <a href=\"", url('dot'), "\" target=\"_blank\">dot</a>",
 				" | ", $hash,
 			" ]</div>\n";
 
@@ -228,7 +228,7 @@ switch ($format) {
 		);
 		header('Content-Type: '.(isset($content_type_map[$format]) ? $content_type_map[$format] : 'application/octet-stream'));
 		if ($format != 'dot' && $format != 'cmapx') {
-			header('Content-Disposition: attachment; filename="'.basename($dst_file).'"');
+			header('Content-Disposition: inline; filename="'.basename($dst_file).'"');
 		}
 		readfile($dst_file);
 		break;
