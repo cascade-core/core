@@ -1,0 +1,19 @@
+{
+	"name": "cascade/core",
+	"type": "cascade-core",
+	"description": "Core of the framework",
+	"license": "BSD-3-Clause",
+	"authors": [
+		{
+			"name": "Josef Kufner",
+			"email": "jk@frozen-doe.net"
+		}
+	],
+	"extra": {
+	},
+	"require": {
+		"php": ">=5.3.3",
+		"cascade/composer-plugin": "dev-master"
+	}
+}
+
