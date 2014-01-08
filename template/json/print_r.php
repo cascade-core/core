@@ -30,44 +30,8 @@
 
 function TPL_json__core__print_r($t, $id, $d, $so)
 {
-	TPL_json__core__print_r__dump($d['data']);
-}
+	header('Content-type: application/json');
 
-
-function TPL_json__core__print_r__dump($val, $depth = 0)
-{
-	if ($depth >= 100) {
-		error_msg('Maximum depth reached. Something is wrong.');
-		die();
-	}
-
-	if ($val === null) {
-		echo "null";
-	} else if ($val === false) {
-		echo "false";
-	} else if ($val === true) {
-		echo "true";
-	} else if (is_int($val)) {
-		echo $val;
-	} else if (is_float($val)) {
-		printf('%F', $val);
-	} else if (is_array($val) || is_object($val)) {
-		echo "{";
-		$first = true;
-		foreach($val as $k => $v) {
-			if ($first) {
-				$first = false;
-			} else {
-				echo ",";
-			}
-			echo "\n";
-			TPL_json__core__print_r__dump($k, $depth + 1);
-			echo ":";
-			TPL_json__core__print_r__dump($v, $depth + 1);
-		}
-		echo "}";
-	} else {
-		echo '"', str_replace(array("\\", "\"", "/"), array("\\\\", "\\\"", "\\/"), $val), '"';
-	}
+	echo json_encode($d['data'], defined('JSON_PRETTY_PRINT') ? JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES : JSON_NUMERIC_CHECK);
 }
 

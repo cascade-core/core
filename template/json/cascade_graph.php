@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2010, Josef Kufner  <jk@frozen-doe.net>
+ * Copyright (c) 2011, Josef Kufner  <jk@frozen-doe.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,33 +28,8 @@
  * SUCH DAMAGE.
  */
 
-function TPL_json__core__pipeline_graph($t, $id, $d, $so)
+function TPL_json__core__cascade_graph($t, $id, $d, $so)
 {
-	extract($d);
-
-	// FIXME: this should not be done here
-
-	if (!is_dir(dirname($dot_name))) {
-		@mkdir(dirname($dot_name));
-	}
-
-	$dot = $pipeline->exportGraphvizDot($link, isset($whitelist) ? $whitelist : array());
-	$hash = md5($dot);
-
-	$dot_file = sprintf($dot_name, $hash, 'dot');
-	$png_file = sprintf($dot_name, $hash, 'png');
-	$map_file = sprintf($dot_name, $hash, 'map');
-	debug_msg('Pipeline graph file: %s', $png_file);
-
-	$dot_mtime = @filemtime($dot_file);
-	$png_mtime = @filemtime($png_file);
-
-	if (!$dot_mtime || !$png_mtime
-			|| $dot_mtime > $png_mtime
-			|| $png_mtime <= filemtime(__FILE__))
-	{
-		file_put_contents($dot_file, $dot);
-		$pipeline->execDot($dot, 'png', $png_file);
-	}
+	// Do not show anything, not even error about missing template.
 }
 
