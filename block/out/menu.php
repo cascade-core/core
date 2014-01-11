@@ -77,12 +77,14 @@ class B_core__out__menu extends Block
 	protected function findBestMatch(& $items, $active_uri)
 	{
 		$path = array();
-		$best_len = 0;
+		$best_len = -1;
 		$best_path = array();
 
 		$this->findBestMatchWalk($items, rtrim($active_uri, '/'), $path, $best_len, $best_path);
 
-		if ($best_len > 0) {
+		//debug_dump($best_path, $this->fullId().': Best path');
+
+		if ($best_len >= 0) {
 			$last = array_pop($best_path);
 			if (empty($best_path)) {
 				$items[$last]['classes'][] = 'active';
@@ -96,7 +98,8 @@ class B_core__out__menu extends Block
 				$i['children'][$last]['classes'][] = 'active';
 			}
 		}
-		//echo "<pre style=\"border:1px solid red\">", join('/', $best_path), "\n", json_encode($items, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), "</pre>";
+
+		//debug_dump($items, $this->fullId().': Items');
 	}
 
 
