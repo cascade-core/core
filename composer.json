@@ -13,7 +13,7 @@
 	},
 	"require": {
 		"php": ">=5.3.3",
-		"cascade/composer-plugin": "dev-master"
+		"cascade/composer-plugin": ">=1.1"
 	},
 	"autoload": {
 		"psr-4": { "Cascade\\Core\\": "class/" }
