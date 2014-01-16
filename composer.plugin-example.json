@@ -1,0 +1,22 @@
+{
+	"name": "vendor/example",
+	"type": "cascade-plugin",
+	"description": "Description of vendor/example",
+	"license": "Apache-2.0",
+	"authors": [
+		{
+			"name": "Author Name",
+			"email": "author@example.com"
+		}
+	],
+	"extra": {
+		"plugin": "example"
+	},
+	"autoload": {
+		"psr-4": { "Vendor\\Example\\": "class/" }
+	},
+	"require": {
+		"cascade/composer-plugin": ">=1.1"
+	}
+}
+
