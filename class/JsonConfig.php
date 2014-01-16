@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 /**
  * Manage configuration stored in JSON files in core, plugins and application 
  * directories. All files of the same name in these locations are merged 

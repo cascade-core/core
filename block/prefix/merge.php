@@ -21,7 +21,7 @@
  *
  * See also core/prefix/split.
  */
-class B_core__prefix__merge extends Block {
+class B_core__prefix__merge extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'*' => null,

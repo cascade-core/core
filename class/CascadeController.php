@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 class CascadeController {
 
 	private $queue = array();	// waiting blocks

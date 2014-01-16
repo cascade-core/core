@@ -20,7 +20,7 @@
  * Apply function to each input and put results to outputs. When value is array,
  * array_map() function is used.
  */
-class B_core__value__apply extends Block {
+class B_core__value__apply extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'function' => array(),	// Function to apply.

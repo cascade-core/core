@@ -30,7 +30,7 @@
  * This block is designed for use with core/ini/router. See default
  * configuration for detailed example.
  */
-class B_core__value__cascade_loader extends Block
+class B_core__value__cascade_loader extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

@@ -22,7 +22,7 @@
  * items may be cached when neccesary.
  */
 
-class B_core__stream__split extends Block {
+class B_core__stream__split extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'iter' => array(),

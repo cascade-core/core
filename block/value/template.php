@@ -21,7 +21,7 @@
  * collected and passed as values to format function.
  */
 
-class B_core__value__template extends Block {
+class B_core__value__template extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'escaping_fn' => null,

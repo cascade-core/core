@@ -19,7 +19,7 @@
 /**
  * Show simple placeholder until that piece of application is created.
  */
-class B_core__out__placeholder extends Block
+class B_core__out__placeholder extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

@@ -21,7 +21,7 @@
  * when website navigation is not finished yet. Works well with core/out/menu.
  */
 
-class B_core__router_links extends Block {
+class B_core__router_links extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'config' => null,		// Configuration or filename where configuration is.

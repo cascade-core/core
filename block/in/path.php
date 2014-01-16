@@ -22,7 +22,7 @@
  *
  * See also core/ini/router -- it is much more useful.
  */
-class B_core__in__path extends Block {
+class B_core__in__path extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 	);

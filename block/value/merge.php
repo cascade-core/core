@@ -21,7 +21,7 @@
  *
  * See also core/prefix/merge.
  */
-class B_core__value__merge extends Block {
+class B_core__value__merge extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'*' => null,

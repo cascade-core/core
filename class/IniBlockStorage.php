@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 /**
  * Load block composition from INI file.
  */
@@ -45,7 +47,7 @@ class IniBlockStorage extends ClassBlockStorage implements IBlockStorage {
 		$conf = $this->loadBlock($block);
 
 		if ($conf) {
-			$b = new B_core__ini__proxy();
+			$b = new \B_core__ini__proxy();
 			$b->setConfiguration($conf);
 			return $b;
 		} else {

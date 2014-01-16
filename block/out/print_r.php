@@ -20,7 +20,7 @@
  * Show some data. Useful when debugging.
  */
 
-class B_core__out__print_r extends Block
+class B_core__out__print_r extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

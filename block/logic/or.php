@@ -19,7 +19,7 @@
 /**
  * Do logical OR of all inputs. Output is first non-zero value.
  */
-class B_core__logic__or extends Block {
+class B_core__logic__or extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'*' => null,

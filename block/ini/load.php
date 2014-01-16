@@ -20,7 +20,7 @@
  * Load INI file using parse_ini_file() function.
  */
 
-class B_core__ini__load extends Block {
+class B_core__ini__load extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'filename' => array(),		// Name of the file to load.

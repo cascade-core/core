@@ -11,7 +11,7 @@
 	"core": {
 		"default_locale": "cs_CZ",
 		"auth_class": "",
-		"context_class": "Context",
+		"context_class": "\\Cascade\\Core\\Context",
 		"app_init_file": [],
 		"umask": null
 	},
@@ -28,7 +28,7 @@
 		"error_log": null
 	},
 	"output": {
-		"template_engine_class": "Template",
+		"template_engine_class": "\\Cascade\\Core\\Template",
 		"default_type": "html5"
 	},
 	"graphviz": {
@@ -46,11 +46,11 @@
 	},
 	"block_storage": {
 		"class": {
-			"storage_class": "ClassBlockStorage",
+			"storage_class": "\\Cascade\\Core\\ClassBlockStorage",
 			"storage_weight": 30
 		},
 		"ini": {
-			"storage_class": "IniBlockStorage",
+			"storage_class": "\\Cascade\\Core\\IniBlockStorage",
 			"storage_weight": 60
 		}
 	}

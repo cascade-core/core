@@ -19,7 +19,7 @@
 /**
  * Show heading.
  */
-class B_core__out__header extends Block
+class B_core__out__header extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

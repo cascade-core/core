@@ -19,7 +19,7 @@
 /**
  * Create one slot.
  */
-class B_core__out__slot extends Block
+class B_core__out__slot extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

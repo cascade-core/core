@@ -20,7 +20,7 @@
  * Show raw data without any processing.
  */
 
-class B_core__out__raw extends Block
+class B_core__out__raw extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

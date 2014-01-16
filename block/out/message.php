@@ -21,7 +21,7 @@
  *
  * If redirect is requested, message can be displayed using core/out/message_queue.
  */
-class B_core__out__message extends Block
+class B_core__out__message extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

@@ -20,7 +20,7 @@
  * Do nothing. Used as placeholder when some block is missing or denied.
  */
 
-class B_core__dummy extends Block {
+class B_core__dummy extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'*' => null

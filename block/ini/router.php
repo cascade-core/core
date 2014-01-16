@@ -27,7 +27,7 @@
  *
  * Example: See routes.examples.ini.php.
  */
-class B_core__ini__router extends Block {
+class B_core__ini__router extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'path' => null,			// Path to match.

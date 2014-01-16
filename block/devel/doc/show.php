@@ -23,7 +23,7 @@
 
 // TODO: Use block storage to retrive informations.
 
-class B_core__devel__doc__show extends Block
+class B_core__devel__doc__show extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

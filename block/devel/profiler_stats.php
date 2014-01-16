@@ -19,7 +19,7 @@
 /**
  * Show data collected by integrated profiler in nice table.
  */
-class B_core__devel__profiler_stats extends Block
+class B_core__devel__profiler_stats extends \Cascade\Core\Block
 {
 	const force_exec = true;
 
@@ -49,7 +49,7 @@ class B_core__devel__profiler_stats extends Block
 		$this->blocks_stats = & $this->cascade_stats['blocks'];
 		arsort($this->blocks_stats);
 
-		$table = new TableView();
+		$table = new \Cascade\Core\TableView();
 		$table->addColumn('text', array(
 				'title'  => 'Block',
 				'key'    => 'block',

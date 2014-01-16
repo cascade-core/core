@@ -40,7 +40,7 @@
  *
  */
 
-class B_core__ini__proxy extends Block {
+class B_core__ini__proxy extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'*' => null,

@@ -21,7 +21,7 @@
  * matching rule is found, insert specified block into cascade and set 
  * specified outputs.
  */
-class B_core__router extends Block
+class B_core__router extends \Cascade\Core\Block
 {
 
 	protected $inputs = array(

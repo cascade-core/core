@@ -19,7 +19,7 @@
 /**
  * Block loader inserts one block into cascade. It allows to set block's inputs.
  */
-class B_core__value__block_loader extends Block
+class B_core__value__block_loader extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

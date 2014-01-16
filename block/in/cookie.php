@@ -20,7 +20,7 @@
  * Load data from $_COOKIE superglobal variable, so other blocks can use it.
  */
 
-class B_core__in__cookie extends Block {
+class B_core__in__cookie extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 	);

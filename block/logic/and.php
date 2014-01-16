@@ -19,7 +19,7 @@
 /**
  * Do logical AND of all inputs.
  */
-class B_core__logic__and extends Block {
+class B_core__logic__and extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'*' => null,

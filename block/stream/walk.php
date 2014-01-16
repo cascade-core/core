@@ -20,7 +20,7 @@
  * Iterate over provided array. Useful for testing.
  */
 
-class B_core__stream__walk extends Block {
+class B_core__stream__walk extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'array' => array(),

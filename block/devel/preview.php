@@ -21,7 +21,7 @@
  * into it. It uses it's own instance of cascade controller to make
  * the  preview.
  */
-class B_core__devel__preview extends Block
+class B_core__devel__preview extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

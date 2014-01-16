@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 class Template {
 
 	private $objects = array();

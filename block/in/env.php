@@ -20,7 +20,7 @@
  * Load data from $_ENV superglobal variable, so other blocks can use it.
  */
 
-class B_core__in__env extends Block {
+class B_core__in__env extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 	);

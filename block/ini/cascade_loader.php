@@ -22,7 +22,7 @@
  *
  * See also core/value/cascade_loader.
  */
-class B_core__ini__cascade_loader extends Block
+class B_core__ini__cascade_loader extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

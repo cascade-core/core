@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 class Context {
 
 	private $config_loader = null;

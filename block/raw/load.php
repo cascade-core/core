@@ -20,7 +20,7 @@
  * Load raw file.
  */
 
-class B_core__raw__load extends Block {
+class B_core__raw__load extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'filename' => array(),	// Filename

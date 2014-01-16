@@ -20,7 +20,7 @@
  * Load data from $_REQUEST superglobal variable, so other blocks can use it.
  */
 
-class B_core__in__request extends Block {
+class B_core__in__request extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 	);

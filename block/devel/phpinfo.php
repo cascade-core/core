@@ -21,7 +21,7 @@
  * installed extensions in nice table. It is not supposed to replace phpinfo()
  * function, it only shows the most interesting data.
  */
-class B_core__devel__phpinfo extends Block {
+class B_core__devel__phpinfo extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'slot' => 'default',
@@ -60,7 +60,7 @@ class B_core__devel__phpinfo extends Block {
 			array(_('Installed extensions:'), join(', ', $extensions)),
 		);
 
-		$table = new TableView();
+		$table = new \Cascade\Core\TableView();
 		$table->show_header = false;
 		$table->addColumn('heading', array(
 				'title' => null,

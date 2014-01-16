@@ -21,7 +21,7 @@
  * core/deve/doc/show block.
  */
 
-class B_core__devel__doc__index extends Block
+class B_core__devel__doc__index extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

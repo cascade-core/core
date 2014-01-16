@@ -24,7 +24,7 @@
  * If 'data' input is false or $template property is set, all inputs are
  * forwarded to template, otherwise 'data' input is used.
  */
-class B_core__out__output extends Block
+class B_core__out__output extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

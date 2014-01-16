@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 abstract class Block {
 
 	// block status

@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 /**
  * Load configuration of blocks. It allows loading blocks from many 
  * different storages like simple INI files, SQL database or cloud blob 

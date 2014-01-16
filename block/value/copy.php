@@ -21,7 +21,7 @@
  * are not implemented yet.
  */
 
-class B_core__value__copy extends Block {
+class B_core__value__copy extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'*' => null,

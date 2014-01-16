@@ -23,7 +23,7 @@
  * installed on server, try using Git plugin.
  */
 
-class B_core__devel__version extends Block {
+class B_core__devel__version extends \Cascade\Core\Block {
 	
 	const force_exec = true;
 

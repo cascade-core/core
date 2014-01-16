@@ -19,7 +19,7 @@
 /**
  * Show menu.
  */
-class B_core__out__menu extends Block
+class B_core__out__menu extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

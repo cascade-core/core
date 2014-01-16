@@ -22,7 +22,7 @@
  * is cached automatically.
  */
 
-class B_core__config extends Block {
+class B_core__config extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 	);

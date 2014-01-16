@@ -20,7 +20,7 @@
  * Store specified value into session using specified key.
  */
 
-class B_core__session__store extends Block
+class B_core__session__store extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

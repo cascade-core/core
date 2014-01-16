@@ -19,7 +19,7 @@
 /**
  * Store inputs as cookies
  */
-class B_core__out__cookie extends Block
+class B_core__out__cookie extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

@@ -20,7 +20,7 @@
  * Create slots. When used with core/ini/load, sections are slot names and
  * section contents specifies all options like slot and weight.
  */
-class B_core__out__multi_slot extends Block
+class B_core__out__multi_slot extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

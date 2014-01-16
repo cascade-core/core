@@ -19,7 +19,7 @@
 /**
  * Load specified session variables and set them on according outputs.
  */
-class B_core__session__load extends Block {
+class B_core__session__load extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'key' => array(),	// Key to load.

@@ -21,7 +21,7 @@
  * to multiple blocks using :or function.
  */
 
-class B_core__out__set_type extends Block
+class B_core__out__set_type extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

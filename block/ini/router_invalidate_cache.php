@@ -16,7 +16,7 @@
  *
  */
 
-class B_core__ini__router_invalidate_cache extends Block
+class B_core__ini__router_invalidate_cache extends \Cascade\Core\Block
 {
 	protected $inputs = array(
 	);

@@ -20,7 +20,7 @@
  * Load data from $_SERVER superglobal variable, so other blocks can use it.
  */
 
-class B_core__in__server extends Block {
+class B_core__in__server extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 	);

@@ -19,7 +19,7 @@
 /**
  * Show page skeleton. It fills 'root' slot.
  */
-class B_core__out__page extends Block
+class B_core__out__page extends \Cascade\Core\Block
 {
 	const force_exec = true;
 

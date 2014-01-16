@@ -50,7 +50,7 @@ if (!empty($core_cfg['core']['auth_class'])) {
 }
 
 /* Initialize cascade controller */
-$cascade = new CascadeController($auth, @$core_cfg['block_map']);
+$cascade = new \Cascade\Core\CascadeController($auth, @$core_cfg['block_map']);
 
 /* Initialize block storages */
 uasort($core_cfg['block_storage'], function($a, $b) { return $a['storage_weight'] - $b['storage_weight']; });

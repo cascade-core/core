@@ -20,7 +20,7 @@
  * Split one array to many outputs using prefix as output name. This is reverse
  * operation to core/prefix/merge.
  */
-class B_core__prefix__split extends Block {
+class B_core__prefix__split extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'in' => array(),	// Merged array.

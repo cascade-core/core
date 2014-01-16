@@ -16,6 +16,8 @@
  *
  */
 
+namespace Cascade\Core;
+
 /**
  * Load configuration of blocks. It allows loading blocks from many 
  * different storages like simple INI files, SQL database or cloud blob 
@@ -41,7 +43,24 @@ class ClassBlockStorage implements IBlockStorage {
 	 */
 	public function __construct($storage_opts, $context)
 	{
-		// nop
+		spl_autoload_register(function ($class)
+		{
+			// TODO: Remove this
+			global $plugin_list;
+
+			@ list($head, $tail) = explode("\\", $class, 2);
+
+			/* Block */
+			if ($tail === null && $class[0] == 'B' && $class[1] == '_') {
+				$m = str_replace('__', '/', substr($class, 2));
+				$f = get_block_filename($m);
+				if (file_exists($f)) {
+					require($f);
+				}
+				return;
+			}
+		});
+
 	}
 
 	/**

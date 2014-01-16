@@ -30,7 +30,7 @@
 @define('DIR_TEMPLATE',		'template/');
 
 /* Configuration loader class name */
-@define('CLASS_CONFIG_LOADER',	'JsonConfig');
+@define('CLASS_CONFIG_LOADER',	'\Cascade\Core\JsonConfig');
 
 chdir(DIR_ROOT);
 
@@ -119,54 +119,9 @@ function get_template_filename($output_type, $template_name, $extension = '.php'
 	return DIR_APP.DIR_TEMPLATE.$output_type.'/'.$template_name.$extension;
 }
 
-/* Class autoloader */
-spl_autoload_register(function ($class)
-{
-	global $plugin_list;
-	$lc_class = strtolower($class);
-	@ list($head, $tail) = explode("\\", $lc_class, 2);
-
-	/* Block */
-	if ($tail === null && $class[0] == 'B' && $class[1] == '_') {
-		$m = str_replace('__', '/', substr($lc_class, 2));
-		$f = get_block_filename($m);
-		if (file_exists($f)) {
-			require($f);
-		}
-		return;
-	}
-
-	/* Plugin (by namespace) */
-	if ($tail !== null && isset($plugin_list[$head])) {
-		$f = DIR_PLUGIN.$head.'/'.DIR_CLASS.str_replace("\\", '/', $tail).'.php';
-		if (file_exists($f)) {
-			require($f);
-		}
-		return;
-	}
-
-	/* Core */
-	$f = str_replace("\\", '/', strtolower($class)).'.php';
-	$cf = DIR_CORE.DIR_CLASS.$f;
-	if (file_exists($cf)) {
-		require($cf);
-		return;
-	}
-
-	/* Application */
-	$af = DIR_APP.DIR_CLASS.$f;
-	if (file_exists($af)) {
-		require($af);
-		return;
-	}
-});
 
 /* Composer autoloader */
-$composer_autoloader = DIR_ROOT.'lib/autoload.php';
-if (file_exists($composer_autoloader)) {
-	require $composer_autoloader;
-}
-
+require DIR_ROOT.'lib/autoload.php';
 
 /* Initialize config loader and load core config */
 $config_loader_class = CLASS_CONFIG_LOADER;
