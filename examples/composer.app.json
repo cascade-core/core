@@ -1,0 +1,37 @@
+{
+	"name": "vendor/site",
+	"description": "Web site at example.com",
+	"license": "Apache-2.0",
+	"authors": [
+		{
+			"name": "Author Name",
+			"email": "author@example.com"
+		}
+	],
+	"repositories": [
+		{ "type": "composer", "url": "https://akvarko.frozen-doe.net/composer/" }
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"require": {
+		"cascade/core": "dev-master",
+		"cascade/admin": "dev-master",
+		"cascade/block_editor": "dev-master",
+		"cascade/book": "dev-master",
+		"cascade/developers_manual": "dev-master",
+		"cascade/duf": "dev-master",
+		"cascade/git": "dev-master",
+		"cascade/smalldb": "dev-master"
+	},
+        "autoload": {
+                "psr-4": { "Vendor\\Site\\": "class/" }
+        },
+	"config": {
+		"bin-dir": "bin",
+		"vendor-dir": "lib",
+		"prepend-autoloader": false
+	},
+	"extra": {
+	}
+}
+

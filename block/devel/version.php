@@ -52,7 +52,7 @@ class B_core__devel__version extends \Cascade\Core\Block {
 			 * IIS will not survive that little bash script and there is no Bash anyway. Use git plugin instead.
 			 */
 		} else if ($this->isUpdateNeeded($version_file, $format)) {
-			if (system(escapeshellarg(DIR_CORE.'update-version.sh')) === FALSE) {
+			if (system(escapeshellarg(DIR_CORE.'bin/update-version.sh')) === FALSE) {
 				error_msg('Cannot update version info, executing update-version.sh failed.');
 			}
 			touch($version_file);	// be sure that file is created even if script failed

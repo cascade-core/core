@@ -27,17 +27,16 @@ $dirs = array(
 	'app/block',
 	'app/style',
 	'app/template',
-	'app/default-config',
-	'app/lib',
 	'app/class',
 	'app/font',
 	'app/icon',
-	'plugin',
 	'data',
+	'lib',
+	'plugin',
 	'var',
 );
 
-chdir(dirname(dirname(realpath($argv[0]))));
+chdir(dirname(dirname(dirname(__FILE__))));
 
 $err = false;
 foreach ($dirs as $d) {
@@ -53,12 +52,16 @@ if ($err) {
 	echo "Do not forget to allow read-write access to 'data/' and 'var/'.\n";
 }
 
-if (!file_exists('./index.php') && copy('./core/skeleton-index.php', './index.php')) {
-	echo "Bootstrap index.php created\n";
+if (!file_exists('./index.php') && copy('./core/examples/index.php', './index.php')) {
+	echo "Bootstrap index.php created.\n";
+}
+
+if (!file_exists('./composer.json') && copy('./core/examples/composer.app.json', './composer.json')) {
+	echo "Initial composer.json created.\n";
 }
 
 if (!file_exists('./.gitignore')) {
-	file_put_contents('./.gitignore', "./data\n./var\n./*.local.json.php\n");
+	file_put_contents('./.gitignore', "./data\n./lib\n./var\n./*.local.json.php\n");
 }
 
 if (!file_exists('./favicon.ico')) {

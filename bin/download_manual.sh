@@ -31,6 +31,8 @@ url="$prefix/documentation/everything.tex"
 
 set -e
 
+cd "`dirname "$0"`"
+
 [ -d "manual" ] || mkdir "manual"
 
 cd "manual"
