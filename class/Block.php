@@ -56,26 +56,45 @@ abstract class Block {
 
 	private $parent = null;			// parent block
 	private $namespace = array();		// references to other blocks
-	protected $context;
 
 	private $cascade_errors = array();	// list of errors received from cascade controller
 
 
-	// list of inputs and their default values
+	/**
+	 * List of inputs and their default values
+	 */
 	protected $inputs = array(
 		// 'input_name' => 'default_value',
-		// 'input_name' => array('block', 'output'),
 		// '*' => 'default_value',
 	);
 
-	// list of outputs (no default values)
+	/**
+	 * List of input connections (all inputs mentioned here must be present in $inputs array)
+	 */
+	protected $connections = array(
+		// 'input_name' => array('block', 'output'),
+	);
+
+	/**
+	 * List of outputs (no default values)
+	 */
 	protected $outputs = array(
 		// 'output_name' => true,
 		// '*' => true,
 	);
 
 
+	/**
+	 * Global context. A not-so-ugly way to make global things nice.
+	 */
+	protected $context;
+
+
+	/**
+	 * Block body. A method called when block is evaluated.
+	 */
 	abstract public function main();
+
 
 	// Get unprepared output (called after main; once or never for each output).
 	// Remember to call $this->context->updateEnviroment() if required.
