@@ -130,39 +130,11 @@ class JsonConfig
 
 	public static function readJson($filename)
 	{
-		$d = json_decode(file_get_contents($filename), TRUE, 512, JSON_BIGINT_AS_STRING);
-		if ($d === null) {
-			switch (json_last_error()) {
-				case JSON_ERROR_NONE:
-					$err = 'No errors';
-					break;
-				case JSON_ERROR_DEPTH:
-					$err = 'Maximum stack depth exceeded';
-					break;
-				case JSON_ERROR_STATE_MISMATCH:
-					$err = 'Underflow or the modes mismatch';
-					break;
-				case JSON_ERROR_CTRL_CHAR:
-					$err = 'Unexpected control character found';
-					break;
-				case JSON_ERROR_SYNTAX:
-					$err = 'Syntax error, malformed JSON';
-					break;
-				case JSON_ERROR_UTF8:
-					$err = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-					break;
-				default:
-					$err = 'Unknown error';
-					break;
-			}
-			error_msg("Failed to load \"%s\": %s", $filename, $err);
-			return false;
-		} else {
-			if (isset($d['_'])) {
-				unset($d['_']);
-			}
-			return $d;
+		$d = parse_json_file($filename);
+		if (isset($d['_'])) {
+			unset($d['_']);
 		}
+		return $d;
 	}
 
 }

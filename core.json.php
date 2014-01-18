@@ -49,6 +49,10 @@
 			"storage_class": "\\Cascade\\Core\\ClassBlockStorage",
 			"storage_weight": 30
 		},
+		"json": {
+			"storage_class": "\\Cascade\\Core\\JsonBlockStorage",
+			"storage_weight": 50
+		},
 		"ini": {
 			"storage_class": "\\Cascade\\Core\\IniBlockStorage",
 			"storage_weight": 60

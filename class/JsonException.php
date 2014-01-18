@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /*
  * Copyright (c) 2013, Josef Kufner  <jk@frozen-doe.net>
@@ -17,25 +16,13 @@
  *
  */
 
-require dirname(dirname(__FILE__)).'/utils.php';
+namespace Cascade\Core;
 
-array_shift($argv);
-
-if (count($argv) == 0) {
-	die("Usage: ".$argv[0]." source-file.ini\n");
-}
-
-foreach ($argv as $src) {
-	$dst = preg_replace('/\.ini(\.php)?$/', '.json\1', $src);
-
-	if (file_exists($dst)) {
-		echo "File exists - skipping: ", $dst, "\n";
-	}
-
-	$data = parse_ini_file($src, TRUE);
-	if ($data === FALSE) {
-		die('Load error: '.$src."\n");
-	}
-	write_json_file($dst, $data);
+/**
+ * Something went wrong while parsing JSON file.
+ */
+class JsonException extends \RuntimeException
+{
+	// Nothing interesting here.
 }
 

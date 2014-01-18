@@ -455,7 +455,10 @@ function write_ini_file($filename, $array, $sections = FALSE,
 
 /**
  * Encode array to JSON using json_encode, but insert PHP snippet to protect 
- * sensitive data. You are expected to store result into *.json.php file. 
+ * sensitive data.
+ *
+ * If $filename is set, JSON will be written to given file. Otherwise you are 
+ * expected to store returned string into *.json.php file. 
  *
  * Stop snippet: When JSON file is evaluated as PHP, stop snippet will 
  * interrupt evaluation without breaking JSON syntax, only underscore 
@@ -471,7 +474,7 @@ function write_ini_file($filename, $array, $sections = FALSE,
  * Options JSON_HEX_TAG and JSON_HEX_APOS are disabled, becouse they break 
  * PHP snippet.
  */
-function write_json_file($json_array, $whitelist = null, $json_options = null)
+function write_json_file($filename, $json_array, $whitelist = null, $json_options = null)
 {
         $stop_snippet = "<?php printf('_%c%c}%c',34,10,10);__halt_compiler();?>";
 
@@ -495,13 +498,72 @@ function write_json_file($json_array, $whitelist = null, $json_options = null)
         // overwriting from $json_array).
         $result['_'] = $stop_snippet;
 
-        return json_encode($result, $json_options === null
-                        ? (defined('JSON_PRETTY_PRINT')
-                                ? JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-                                : JSON_NUMERIC_CHECK)
-                        : $json_flags & ~(JSON_HEX_TAG | JSON_HEX_APOS));
+	$json_str = json_encode($result, $json_options === null
+			? (defined('JSON_PRETTY_PRINT')
+				? JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				: JSON_NUMERIC_CHECK)
+			: $json_flags & ~(JSON_HEX_TAG | JSON_HEX_APOS));
+
+	if ($filename === null) {
+		return $json_str;
+	} else {
+		return file_put_contents($filename, $json_str);
+	}
 }
 
+
+/**
+ * JSON version of parse_ini_file().
+ *
+ * Throws JsonException on error.
+ */
+function parse_json_file($filename)
+{
+	$json_str = file_get_contents($filename);
+	if ($json_str === FALSE) {
+		// FIXME: Use different exception ?
+		throw new \Cascade\Core\JsonException("Failed to read file: ".$filename);
+	}
+
+	$data = json_decode($json_str, TRUE, 512, JSON_BIGINT_AS_STRING);
+	$error = json_last_error();
+
+	if ($error !== JSON_ERROR_NONE) {
+		throw new \Cascade\Core\JsonException(json_last_error_msg().' ('.$filename.')', $error);
+	}
+
+	return $data;
+}
+
+
+if (!function_exists('json_last_error_msg')) {
+/**
+ * json_last_error_msg() implementation for PHP < 5.5
+ */
+function json_last_error_msg()
+{
+	switch (json_last_error()) {
+		default:
+			// Other errors are only in PHP >=5.5, where native 
+			// implementation of this function is used.
+			return null;
+		case JSON_ERROR_DEPTH:
+			$msg = 'Maximum stack depth exceeded';
+			break;
+		case JSON_ERROR_STATE_MISMATCH:
+			$msg = 'Underflow or the modes mismatch';
+			break;
+		case JSON_ERROR_CTRL_CHAR:
+			$msg = 'Unexpected control character found';
+			break;
+		case JSON_ERROR_SYNTAX:
+			$msg = 'Syntax error, malformed JSON';
+			break;
+		case JSON_ERROR_UTF8:
+			$msg = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+			break;
+	}
+}}
 
 
 /****************************************************************************
