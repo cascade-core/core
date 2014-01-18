@@ -10,7 +10,8 @@ Quick Start
 
 1. Install [Graphviz](http://www.graphviz.org/) and [Composer](http://getcomposer.org/).
    (Graphviz packages are in most Linux distributions.)
-2. Create `composer.json` in a root directory of your application (see examples/composer.app.json).
+2. Create `composer.json` in a root directory of your application (see
+   [doc/examples/composer.app.json](examples/composer.app.json)).
 3. Let Composer to install everything for you (including this core package).
 4. Run `./core/bin/skeleton-prepare-hier.php` to create basic structure of your application.
 5. Make `data` and `var` directories writable by webserver.
@@ -29,15 +30,14 @@ Documentation
 Documentation is built by Doxygen. The generated documentation is located in
 `doc/doxygen/html/index.html`.
 
-To generate documentation run `make doc`.
-
-Doxygen 1.8.3 or newer and Graphviz are required.
+To generate documentation run `make doc`. Do not use Doxyfile directly,
+otherwise links get broken. Doxygen 1.8.3 or newer and Graphviz are required.
 
 
 License
 -------
 
-The most of the code is published under Apache 2.0 license. See [LICENSE](@ref license) file for details.
+The most of the code is published under Apache 2.0 license. See [LICENSE](doc/license.md) file for details.
 
 
 
