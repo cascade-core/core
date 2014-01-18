@@ -24,7 +24,7 @@
 		"cascade/smalldb": "dev-master"
 	},
         "autoload": {
-                "psr-4": { "Vendor\\Site\\": "class/" }
+                "psr-4": { "Vendor\\Site\\": "app/class/" }
         },
 	"config": {
 		"bin-dir": "bin",

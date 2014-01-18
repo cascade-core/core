@@ -11,7 +11,7 @@ Quick Start
 1. Install [Graphviz](http://www.graphviz.org/) and [Composer](http://getcomposer.org/).
    (Graphviz packages are in most Linux distributions.)
 2. Create `composer.json` in a root directory of your application (see
-   [doc/examples/composer.app.json](examples/composer.app.json)).
+   [doc/examples/composer.app.json](doc/composer.md)).
 3. Let Composer to install everything for you (including this core package).
 4. Run `./core/bin/skeleton-prepare-hier.php` to create basic structure of your application.
 5. Make `data` and `var` directories writable by webserver.
