@@ -26,7 +26,7 @@ namespace Cascade\Core;
  * This class does not use caching, but other classes can extend this one and 
  * add any cache implementation.
  */
-class JsonConfig
+class JsonConfig implements IConfig
 {
 
 	/**
@@ -128,6 +128,11 @@ class JsonConfig
 	}
 
 
+	/**
+	 * Read JSON file.
+	 *
+	 * FIXME: Why this is not private?
+	 */
 	public static function readJson($filename)
 	{
 		$d = parse_json_file($filename);

@@ -18,20 +18,39 @@
 
 namespace Cascade\Core;
 
-abstract class Block {
+/**
+ * Base block infrastructure common to all blocks.
+ */
+abstract class Block
+{
 
-	// block status
-	const QUEUED   = 0x00;
-	const RUNNING  = 0x01;
-	const ZOMBIE   = 0x02;
-	const DISABLED = 0x04;
-	const FAILED   = 0x08;
+	/**
+	 * \name Block states
+	 *
+	 * @image html  block-states.png
+	 * @image latex block-states.pdf
+	 * @{
+	 */
+	const QUEUED   = 0x00;  ///< The block is waiting for execution.
+	const RUNNING  = 0x01;	///< The block or its dependencies are being evaluated.
+	const ZOMBIE   = 0x02;	///< The block is finished, exist only to maintain its outputs.
+	const DISABLED = 0x04;  ///< The block is disabled, its 'enable' input is false.
+	const FAILED   = 0x08;	///< The block has failed, because its inputs cannot be connected,
+				///< or its dependencies cannot be solved, or it threw an exception.
+	/** @} */
 
-	// Default value of 'force_exec' flag when adding this block into
-	// cascade (not when calling addBlock() from this class).
-	// This is used when force_exec arg. is null (or not set at all).
+
+	/**
+	 * Default value of 'force_exec' flag. It is used only when adding this 
+	 * block into cascade (not when calling CascadeController::addBlock() 
+	 * from this class). This is used when force_exec arg. is null (or not 
+	 * set at all).
+	 */
 	const force_exec = false;
 
+	/**
+	 * Map block state constants to strings.
+	 */
 	public static $STATUS_NAMES = array(
 		self::QUEUED   => 'queued',
 		self::RUNNING  => 'running',
@@ -40,24 +59,26 @@ abstract class Block {
 		self::FAILED   => 'failed',
 	);
 
-	private $id, $full_id;
+
+	private $id;
+	private $full_id;
 	private $cascade_controller;
 	private $block_name;
-	private $slot_weight_penalty;		// guarantees keeping order of output objects
+	private $slot_weight_penalty;		///< Guarantees keeping order of output objects
 
 	private $status = self::QUEUED;
-	private $status_message = null;		// Reason, why is block in this status. Ususally description of error.
+	private $status_message = null;		///< Reason, why is block in this status. Ususally description of error.
 	private $output_cache = array();
 	private $forward_list = array();
-	private $execution_time = null;		// time [ms] spent in main()
-	private $timestamp_create = null;	// when was block created ?
-	private $timestamp_start = null;	// when block execution started ?
-	private $timestamp_finish = null;	// when block execution finished ?
+	private $execution_time = null;		///< Time [ms] spent in main()
+	private $timestamp_create = null;	///< When was block created ?
+	private $timestamp_start = null;	///< When block execution started ?
+	private $timestamp_finish = null;	///< When block execution finished ?
 
-	private $parent = null;			// parent block
-	private $namespace = array();		// references to other blocks
+	private $parent = null;			///< Parent block
+	private $namespace = array();		///< References to other blocks
 
-	private $cascade_errors = array();	// list of errors received from cascade controller
+	private $cascade_errors = array();	///< List of errors received from cascade controller
 
 
 	/**
@@ -91,7 +112,7 @@ abstract class Block {
 
 
 	/**
-	 * Block body. A method called when block is evaluated.
+	 * Body of the block. The method called when block is evaluated.
 	 */
 	abstract public function main();
 
@@ -101,50 +122,97 @@ abstract class Block {
 	//abstract public function getOutput();
 
 
+	/**
+	 * Get block id without namespaces.
+	 */
 	final public function id()
 	{
 		return $this->id;
 	}
 
 
+	/**
+	 * Get full block id (including all parent namespaces).
+	 */
 	final public function fullId()
 	{
 		return $this->full_id;
 	}
 
 
+	/**
+	 * Get block type
+	 */
 	final public function blockName()
 	{
 		return $this->block_name;
 	}
 
 
+	/**
+	 * Get block state
+	 */
 	final public function status()
 	{
 		return $this->status;
 	}
 
 
+	/**
+	 * Get status message - usually contains an error message why block failed.
+	 */
 	final public function statusMessage()
 	{
 		return $this->status_message;
 	}
 
 
+	/**
+	 * Get CascadeController which owns this block.
+	 */
 	final public function getCascadeController()
 	{
 		return $this->cascade_controller;
 	}
 
 
+	/**
+	 * Get profiler data
+	 *
+	 * Returns array of timestams, when block has been created, started and 
+	 * finished.
+	 */
 	final public function getTimestamps()
 	{
 		return array($this->timestamp_create, $this->timestamp_start, $this->timestamp_finish);
 	}
 
 
-	/****************************************************************************
-	 *	Part of Cascade Controller
+	/**
+	 * List all visible block names already in cascade (for debugging only)
+	 *
+	 * @bug This does not really work. It is only hotfix for Graphviz diagrams.
+	 */
+	final public function visibleBlockNames()
+	{
+		$m = $this;
+		$names = $this->cascade_controller->rootNamespaceBlockNames();
+
+		while ($m && $m->namespace) {
+			$names = array_merge($names, array_keys($m->namespace));
+			$m = $m->parent;
+		}
+
+		return $names;
+	}
+
+
+	/************************************************************************//**
+	 * @}
+	 * \name	Part of Cascade Controller
+	 *
+	 * These methods should not be used by anything except the CascadeController.
+	 * @{
 	 */
 
 	// "constructor" -- called imediately after block creation
@@ -471,17 +539,24 @@ abstract class Block {
 	}
 
 
-	/****************************************************************************
-	 *	For block itself
+	/******************************************************************//**
+	 * @}
+	 * \name	Inputs and outputs
+	 * @{
 	 */
 
-	// get value from input
+
+	/**
+	 * Get value from input
+	 */
 	final protected function in($name)
 	{
-		// TODO: Virtualni moduly -- Neexistujici moduly vzdy pritomne
-		//       v cascade, ktere maji zvlastni jmeno osetrene zde.
-		//       Umozni to velmi efektivne pristupovat k casto
-		//       pouzivanym hodnotam. Mozna by tak sel resit kontext.
+		/** @todo
+		 * Virtualni moduly -- Neexistujici moduly vzdy pritomne
+		 * v cascade, ktere maji zvlastni jmeno osetrene zde.
+		 * Umozni to velmi efektivne pristupovat k casto
+		 * pouzivanym hodnotam. Mozna by tak sel resit kontext.
+		 */
 
 		// get input
 		if (array_key_exists($name, $this->inputs)) {
@@ -498,6 +573,9 @@ abstract class Block {
 	}
 
 
+	/**
+	 * Get values from all inputs
+	 */
 	final protected function inAll()
 	{
 		$vals = array();
@@ -506,6 +584,263 @@ abstract class Block {
 		}
 		return $vals;
 	}
+
+
+	/**
+	 * Get all input names, excluding common inputs (`enable` and `*`)
+	 */
+	final protected function inputNames()
+	{
+		return array_diff(array_keys($this->inputs), array(
+				'*',
+				'enable',
+			));
+	}
+
+
+	/**
+	 * Collect values from numeric inputs - works well with vsprintf()
+	 *
+	 * @deprecated Use template_format and inAll instead.
+	 */
+	final protected function collectNumericInputs()
+	{
+		$real_inputs = $this->inputNames();
+		$virtual_cnt = count($real_inputs) - count($this->inputs);
+		$vals = array_pad(array(), $virtual_cnt, null);
+
+		foreach ($real_inputs as $in) {
+			if (is_numeric($in) && $in > 0) {
+				$vals[$in - 1] = $this->in($in);
+			}
+		}
+
+		return $vals;
+	}
+
+
+	/**
+	 * Set value to output
+	 */
+	final protected function out($name, $value)
+	{
+		if (array_key_exists($name, $this->outputs) || array_key_exists('*', $this->outputs)) {
+			$this->output_cache[$name] = & $value;
+		} else {
+			error_msg('%s: Output "%s" does not exist!', $this->blockName(), $name);
+		}
+	}
+
+
+	/**
+	 * Set all output values
+	 *
+	 * Keys are output names. Outputs missing in $values are unset.
+	 */
+	final protected function outAll($values)
+	{
+		$this->output_cache = & $values;
+	}
+
+
+	/**
+	 * Forward output from another block
+	 *
+	 * Output value of $source_block:$source_name output is copied to local output $name.
+	 */
+	final protected function outForward($name, $source_block, $source_name = null)
+	{
+		if (!array_key_exists($name, $this->outputs) && !array_key_exists('*', $this->outputs)) {
+			error_msg('%s: Output "%s" does not exist!', $this->blockName(), $name);
+		} else if ($source_name === null && is_array($source_block)) {
+			$this->forward_list[$name] = $source_block;
+		} else {
+			$this->forward_list[$name] = array($source_block, $source_name);
+		}
+	}
+
+
+	/******************************************************************//**
+	 * @}
+	 * \name	Template helpers
+	 * @{
+	 */
+
+
+	/**
+	 * Add output object to template subsystem
+	 */
+	final protected function templateAdd($id_suffix, $template, $data = array())
+	{
+		$this->templateAddToSlot($id_suffix, null, null, $template, $data);
+	}
+
+
+	/**
+	 * Add output object to template subsystem (with slot and weight)
+	 */
+	final protected function templateAddToSlot($id_suffix, $slot, $weight, $template, $data = array())
+	{
+		$id = $id_suffix === null ? $this->fullId() : $this->fullId().'_'.$id_suffix;
+		$t = $this->context->getTemplateEngine();
+		$t->addObject($id, $slot === null ? $this->in('slot') : $slot,
+				($weight === null ? $this->in('slot_weight') : $weight) + $this->slot_weight_penalty,
+				$template, $data, $this->context);
+
+	}
+
+
+	/**
+	 * Set page title
+	 */
+	final protected function templateSetPageTitle($title, $format = null)
+	{
+		$t = $this->context->getTemplateEngine();
+		if ($title !== null) {
+			$t->slotOptionSet('root', 'page_title', $title);
+		}
+		if ($format !== null) {
+			$t->slotOptionSet('root', 'page_title_format', $format);
+		}
+	}
+
+
+	/**
+	 * Set output type
+	 */
+	final protected function templateSetType($type)
+	{
+		$t = $this->context->getTemplateEngine();
+		$t->slotOptionSet('root', 'type', $type);
+	}
+
+
+	/**
+	 * Set slot option
+	 */
+	final protected function templateOptionSet($slot, $option, $value)
+	{
+		$t = $this->context->getTemplateEngine();
+		return $t->slotOptionSet($slot, $option, $value);
+	}
+
+
+	/**
+	 * Append value to slot option (which is list)
+	 */
+	final protected function templateOptionAppend($slot, $option, $value)
+	{
+		$t = $this->context->getTemplateEngine();
+		return $t->addSlotOption($slot, $option, $value);
+	}
+
+
+	/******************************************************************//**
+	 * @}
+	 * \name	Cascade manipulation helpers
+	 * @{
+	 */
+
+
+	/**
+	 * Add block to cascade
+	 */
+	final protected function cascadeAdd($id, $block, $force_exec = null, $connections = array(), $context = null)
+	{
+		$this->cascade_errors = array();
+		return $this->cascade_controller->addBlock($this, $id, $block, $force_exec, $connections,
+				$context === null ? $this->context : $context,
+				$this->cascade_errors);
+	}
+
+
+	/**
+	 * Add blocks to cascade from parsed inifile
+	 */
+	final protected function cascadeAddFromIni($parsed_ini_with_sections, $context = null)
+	{
+		$this->cascade_errors = array();
+		return $this->cascade_controller->addBlocksFromIni($this, $parsed_ini_with_sections,
+				$context === null ? $this->context : $context,
+				$this->cascade_errors);
+	}
+
+
+	/**
+	 * Get errors from cascade controller (errors can occur when cascade_add or cascade_add_from_ini is called)
+	 */
+	final protected function cascadeGetErrors()
+	{
+		return $this->cascade_errors;
+	}
+
+
+	/******************************************************************//**
+	 * @}
+	 * \name	Authentication & Authorization helpers
+	 * @{
+	 */
+
+
+	/**
+	 * Get auth object from cascade controller
+	 */
+	final protected function auth()
+	{
+		return $this->cascade_controller->getAuth();
+	}
+
+
+	/**
+	 * Security - Level 1: check if block is allowed before cascade controller loads it
+	 */
+	final protected function authIsBlockAllowed($block_name, & $details = null)
+	{
+		$auth = $this->cascade_controller->getAuth();
+
+		// Return false if access should be denied and set $details to string with explanation.
+		if ($auth !== null) {
+			return $auth->isBlockAllowed($block_name, $details);
+		} else {
+			// If there is no Auth object, everything is allowed
+			return true;
+		}
+	}
+
+
+	/**
+	 * Security - Level 2: check permissions to specified entity
+	 */
+	final protected function authCheckItem(& $item, & $details = null)
+	{
+		$auth = $this->cascade_controller->getAuth();
+
+		if ($auth !== null) {
+			return $auth->checkItem($this->block_name, $item, $details);
+		} else {
+			// If there is no Auth object, everything is allowed
+			return true;
+		}
+	}
+
+
+	/**
+	 * Security - Level 2: check permissions to specified entity
+	 */
+	final protected function authAddCondition($block_name, & $query, $options = array())
+	{
+		$auth = $this->cascade_controller->getAuth();
+
+		if ($auth !== null) {
+			return $auth->addCondition($this->block_name, $query, $options = array());
+		} else {
+			// If there is no Auth object, do nothing
+			return true;
+		}
+	}
+
+
+	/** @} */
 
 
 	private function collectOutputs(& $ref)
@@ -594,214 +929,5 @@ abstract class Block {
 		}
 	}
 
-
-	// get input names, excluding common inputs and '*'
-	final protected function inputNames()
-	{
-		return array_diff(array_keys($this->inputs), array(
-				'*',
-				'enable',
-			));
-	}
-
-
-	// collect values from numeric inputs - works well with vsprintf()
-	final protected function collectNumericInputs()
-	{
-		$real_inputs = $this->inputNames();
-		$virtual_cnt = count($real_inputs) - count($this->inputs);
-		$vals = array_pad(array(), $virtual_cnt, null);
-
-		foreach ($real_inputs as $in) {
-			if (is_numeric($in) && $in > 0) {
-				$vals[$in - 1] = $this->in($in);
-			}
-		}
-
-		return $vals;
-	}
-
-
-	// set value to output
-	final protected function out($name, $value)
-	{
-		if (array_key_exists($name, $this->outputs) || array_key_exists('*', $this->outputs)) {
-			$this->output_cache[$name] = & $value;
-		} else {
-			error_msg('%s: Output "%s" does not exist!', $this->blockName(), $name);
-		}
-	}
-
-
-	// set all output values (keys are output names)
-	final protected function outAll($values)
-	{
-		$this->output_cache = & $values;
-	}
-
-
-	// forward output from another block
-	final protected function outForward($name, $source_block, $source_name = null)
-	{
-		if (!array_key_exists($name, $this->outputs) && !array_key_exists('*', $this->outputs)) {
-			error_msg('%s: Output "%s" does not exist!', $this->blockName(), $name);
-		} else if ($source_name === null && is_array($source_block)) {
-			$this->forward_list[$name] = $source_block;
-		} else {
-			$this->forward_list[$name] = array($source_block, $source_name);
-		}
-	}
-
-
-	// list all visible block names already in cascade (for debugging only)
-	final public function visibleBlockNames()
-	{
-		$m = $this;
-		$names = $this->cascade_controller->rootNamespaceBlockNames();
-
-		while ($m && $m->namespace) {
-			$names = array_merge($names, array_keys($m->namespace));
-			$m = $m->parent;
-		}
-
-		return $names;
-	}
-
-
-	// add output object to template subsystem
-	final protected function templateAdd($id_suffix, $template, $data = array())
-	{
-		$this->templateAddToSlot($id_suffix, null, null, $template, $data);
-	}
-
-
-	// add output object to template subsystem (with slot and weight)
-	final protected function templateAddToSlot($id_suffix, $slot, $weight, $template, $data = array())
-	{
-		$id = $id_suffix === null ? $this->fullId() : $this->fullId().'_'.$id_suffix;
-		$t = $this->context->getTemplateEngine();
-		$t->addObject($id, $slot === null ? $this->in('slot') : $slot,
-				($weight === null ? $this->in('slot_weight') : $weight) + $this->slot_weight_penalty,
-				$template, $data, $this->context);
-
-	}
-
-
-	// set page title
-	final protected function templateSetPageTitle($title, $format = null)
-	{
-		$t = $this->context->getTemplateEngine();
-		if ($title !== null) {
-			$t->slotOptionSet('root', 'page_title', $title);
-		}
-		if ($format !== null) {
-			$t->slotOptionSet('root', 'page_title_format', $format);
-		}
-	}
-
-
-	// set output type
-	final protected function templateSetType($type)
-	{
-		$t = $this->context->getTemplateEngine();
-		$t->slotOptionSet('root', 'type', $type);
-	}
-
-
-	// set slot option
-	final protected function templateOptionSet($slot, $option, $value)
-	{
-		$t = $this->context->getTemplateEngine();
-		return $t->slotOptionSet($slot, $option, $value);
-	}
-
-
-	// append value to slot option (which is list)
-	final protected function templateOptionAppend($slot, $option, $value)
-	{
-		$t = $this->context->getTemplateEngine();
-		return $t->addSlotOption($slot, $option, $value);
-	}
-
-
-	// add block to cascade
-	final protected function cascadeAdd($id, $block, $force_exec = null, $connections = array(), $context = null)
-	{
-		$this->cascade_errors = array();
-		return $this->cascade_controller->addBlock($this, $id, $block, $force_exec, $connections,
-				$context === null ? $this->context : $context,
-				$this->cascade_errors);
-	}
-
-
-	// add blocks to cascade from parsed inifile
-	final protected function cascadeAddFromIni($parsed_ini_with_sections, $context = null)
-	{
-		$this->cascade_errors = array();
-		return $this->cascade_controller->addBlocksFromIni($this, $parsed_ini_with_sections,
-				$context === null ? $this->context : $context,
-				$this->cascade_errors);
-	}
-
-
-	// get errors from cascade controller (errors can occur when cascade_add or cascade_add_from_ini is called)
-	final public function cascadeGetErrors()
-	{
-		return $this->cascade_errors;
-	}
-
-
-	/****************************************************************************
-	 *	Authentication & Authorization
-	 */
-
-	/* Get auth object from cascade controller */
-	final public function auth()
-	{
-		return $this->cascade_controller->getAuth();
-	}
-
-
-	/* Security - Level 1: check if block is allowed before cascade controller loads it */
-	final public function authIsBlockAllowed($block_name, & $details = null)
-	{
-		$auth = $this->cascade_controller->getAuth();
-
-		// Return false if access should be denied and set $details to string with explanation.
-		if ($auth !== null) {
-			return $auth->isBlockAllowed($block_name, $details);
-		} else {
-			// If there is no Auth object, everything is allowed
-			return true;
-		}
-	}
-
-
-	/* Security - Level 2: check permissions to specified entity */
-	final public function authCheckItem(& $item, & $details = null)
-	{
-		$auth = $this->cascade_controller->getAuth();
-
-		if ($auth !== null) {
-			return $auth->checkItem($this->block_name, $item, $details);
-		} else {
-			// If there is no Auth object, everything is allowed
-			return true;
-		}
-	}
-
-
-	/* Security - Level 2: check permissions to specified entity */
-	final public function authAddCondition($block_name, & $query, $options = array())
-	{
-		$auth = $this->cascade_controller->getAuth();
-
-		if ($auth !== null) {
-			return $auth->addCondition($this->block_name, $query, $options = array());
-		} else {
-			// If there is no Auth object, do nothing
-			return true;
-		}
-	}
 }
 

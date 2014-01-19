@@ -18,6 +18,16 @@
 
 namespace Cascade\Core;
 
+/**
+ * CascadeController is container, where all blocks live. They are created by 
+ * CascadeController, then they wait for an execution, and after their 
+ * execution, they turn into a zombie to stay around and keep their outputs.
+ *
+ * All blocks are created by private method CascadeController::createBlockInstance(),
+ * which is usually called by CascadeController::addBlock(). The 
+ * createBlockInstance() walks thru registered block storages and ask them for 
+ * requested block.
+ */
 class CascadeController {
 
 	private $queue = array();	// waiting blocks
@@ -33,6 +43,16 @@ class CascadeController {
 	private $block_storages = array();
 
 
+	/**
+	 * Constructor.
+	 *
+	 * The $auth object is used to determine, whether or not is user 
+	 * allowed to add requested block into cascade. The authenticator 
+	 * object cannot be replaced.
+	 *
+	 * The $replacement_table maps requested block type to some other block 
+	 * type.
+	 */
 	public function __construct(IAuth $auth = null, $replacement_table)
 	{
 		$this->auth = $auth;
@@ -55,6 +75,11 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Start cascade evaluation.
+	 *
+	 * Can be called only once during CascadeController's lifetime.
+	 */
 	public function start()
 	{
 		$mem_usage_before = memory_get_usage();
@@ -68,30 +93,46 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Get authenticator object.
+	 */
 	public function getAuth()
 	{
 		return $this->auth;
 	}
 
 
+	/**
+	 * Get replacement table.
+	 */
 	public function getReplacementTable()
 	{
 		return $this->replacement;
 	}
 
 
+	/**
+	 * Register new block storage to cascade controller.
+	 */
 	public function addBlockStorage(IBlockStorage $storage, $storage_id)
 	{
 		$this->block_storages[$storage_id] = $storage;
 	}
 
 
+	/**
+	 * Get all registered block storages.
+	 */
 	public function getBlockStorages()
 	{
 		return $this->block_storages;
 	}
 
 
+	/**
+	 * Lookup block name in the root namespace to retrieve a Block 
+	 * instance.
+	 */
 	public function resolveBlockName($block_name)
 	{
 		if (($b = @$this->root_namespace[$block_name])) {
@@ -102,12 +143,21 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Get all block names in the root namespace.
+	 */
 	public function rootNamespaceBlockNames()
 	{
 		return array_keys($this->root_namespace);
 	}
 
 
+	/**
+	 * Get current step of cascade evaluation. The step is monotonous value 
+	 * increasing as cascade is evaluated. Used to ensure a stable ordering 
+	 * of objects inserted into template, and to record order of block 
+	 * execution, so the cascade snapshot can be converted to video.
+	 */
 	public function currentStep($increment = true)
 	{
 		if ($increment) {
@@ -118,6 +168,10 @@ class CascadeController {
 	}
 
 
+	/**
+	 * The block factory method. Asks all registered block storages for 
+	 * new Block instance.
+	 */
 	private function createBlockInstance($block, & $errors = null, & $storage_name = null)
 	{
 		/* check replacement table */
@@ -170,6 +224,9 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Create new block and add it into the cascade.
+	 */
 	public function addBlock($parent, $id, $block, $force_exec, array $connections, Context $context, & $errors = null, $real_block = null)
 	{
 		/* check malformed IDs */
@@ -240,10 +297,16 @@ class CascadeController {
 	}
 
 
+	/**
+	 * When addBlock() fails, it calls addFailedBlock() to create dummy 
+	 * block instesad. This dummy block represent the failure in teh 
+	 * cascade and aliminates secondary failures, which makes localization 
+	 * of the error much easier.
+	 */
 	private function addFailedBlock($parent, $id, $full_id, $real_block, array $connections, $message = null)
 	{
 		/* create dummy block */
-		$b = new B_core__dummy();
+		$b = new \B_core__dummy();
 		$b->cc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED, $message);
 		$b->cc_connect($connections, $this->blocks);
 
@@ -258,6 +321,11 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Add multiple blocks using addBlock(). This is helper method 
+	 * distilled from various proxy blocks to make their implementation 
+	 * easier and data structures more uniform.
+	 */
 	public function addBlocksFromIni($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
 	{
 		$all_good = true;
@@ -302,6 +370,9 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Debug method to display entire hierarchy of blocks.
+	 */
 	public function dumpNamespaces()
 	{
 		$str = '';
@@ -312,6 +383,9 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Retrieve profiler statistics from all blocks in the cascade.
+	 */
 	public function getExecutionTimes($old_stats = null)
 	{
 		$cnt = 0;
@@ -358,17 +432,27 @@ class CascadeController {
 	}
 
 
+	/**
+	 * Get total amount of memory used by cascade.
+	 */
 	public function getMemoryUsage()
 	{
 		return $this->memory_usage;
 	}
 
 
+	/**
+	 * Export entire cascade as Graphviz source code.
+	 *
+	 * If $step is set, generated code will describe cascade state as it 
+	 * was in given moment. By calling this method with all steps from 0 to 
+	 * currentStep(), a video can be created -- see `bin/animate-cascade.sh`.
+	 */
 	public function exportGraphvizDot($doc_link, $whitelist = array(), $step = null)
 	{
 		$colors = array(
 			Block::QUEUED   => '#eeeeee',	// grey
-			Block::RUNNING  => '#aaccff',	// blue -- never used
+			Block::RUNNING  => '#aaccff',	// blue (only when animating)
 			Block::ZOMBIE   => '#ccffaa',	// green
 			Block::DISABLED => '#cccccc',	// dark grey
 			Block::FAILED   => '#ffccaa',	// red
@@ -628,6 +712,12 @@ class CascadeController {
 		return array($subgraph, $gv);
 	}
 
+
+	/**
+	 * Helper method to execute dot.
+	 *
+	 * TODO: Move to standalone class.
+	 */
 	public function execDot($dot_source, $out_type, $out_file = null)
 	{
 		$descriptorspec = array(

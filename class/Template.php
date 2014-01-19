@@ -18,6 +18,22 @@
 
 namespace Cascade\Core;
 
+/**
+ * Templating engine which stores objects in the slots and then arranges them 
+ * on a page.
+ *
+ *   - Objects are sorted by their weight (light on top).
+ *   - Each object has a template name assigned. This template is used to 
+ *     render the object.
+ *   - Slots may be recursively nested.
+ *   - Each slot has set of options (key-value store) which are inherited from 
+ *     parent slots (inherited options do not override slot's own options).
+ *
+ * The slot is nothing more than function which renders all objects in named array.
+ *
+ * Templating engine also keeps track of all reverse routers -- the objects 
+ * which translate an object ID to URI. These are used to generate links.
+ */
 class Template {
 
 	private $objects = array();
@@ -27,6 +43,9 @@ class Template {
 	private $reverse_router = array();
 
 
+	/**
+	 * Add object to specified slot and set its weight.
+	 */
 	function addObject($id, $slot, $weight, $template, $data = array(), $context = null)
 	{
 		debug_msg('New object: id = "%s", slot = "%s", weight = %d, template = "%s"', $id, $slot, $weight, $template);
@@ -42,11 +61,14 @@ class Template {
 	}
 
 
-	// set slot option (no arrays allowed)
+	/**
+	 * Set slot option (no arrays allowed)
+	 */
 	function slotOptionSet($slot, $option, $value)
 	{
 		if (is_array($value)) {
 			error_msg('Slot option must not be array!');
+			// FIXME: Why not?
 		} else {
 			debug_msg('Setting slot option "%s" of slot "%s" = "%s"', $option, $slot, $value);
 			$this->slot_options[$slot][$option] = $value;
@@ -54,7 +76,9 @@ class Template {
 	}
 
 
-	// append slot option value to list
+	/**
+	 * Append slot option value to list
+	 */
 	function slotOptionAppend($slot, $option, $value)
 	{
 		if (!is_array(@$this->slot_options[$slot][$option])) {
@@ -68,7 +92,9 @@ class Template {
 	}
 
 
-	// Register reverse router for URL generator
+	/**
+	 * Register reverse router for URL generator
+	 */
 	function addReverseRouter($router)
 	{
 		if (is_callable($router)) {
@@ -81,7 +107,9 @@ class Template {
 	}
 
 
-	// Generate URL from route.
+	/**
+	 * Generate URL from route.
+	 */
 	function url($route_name, $values /* ... */)
 	{
 		// collect args
@@ -99,6 +127,9 @@ class Template {
 	}
 
 
+	/**
+	 * Load template of given type and name.
+	 */
 	function loadTemplate($output_type, $template_name, $function_name, $indent = '')
 	{
 		$f = get_template_filename($output_type, $template_name);
@@ -113,12 +144,19 @@ class Template {
 	}
 
 
+	/**
+	 * Returns true if there are no objects in given slot (or if slot does 
+	 * not exist at all).
+	 */
 	function isSlotEmpty($slot_name)
 	{
 		return empty($this->slot_content[$slot_name]);
 	}
 
 
+	/**
+	 * Render content of the slot to a page (stdout).
+	 */
 	function processSlot($slot_name)
 	{
 		static $options = array();
@@ -179,6 +217,19 @@ class Template {
 	}
 
 
+	/**
+	 * Start rendering. A 'root' slot will be rendered first, all other 
+	 * slots must be redered by objects in the 'root' slot.
+	 *
+	 * A redirect can be specified using slot options (`redirect_url`, 
+	 * `redirect_code` and `redirect_message`). Also a HTTP code of the 
+	 * response can be set (slot options `http_status_code` and 
+	 * `http_status_message`).
+	 *
+	 * Slot option `type` determines the set of templates used to render 
+	 * the objects. Note that this option can be changed in the nested 
+	 * slots.
+	 */
 	function start($return_output = false)
 	{
 		/*
@@ -252,6 +303,9 @@ class Template {
 	}
 
 
+	/**
+	 * Convert HTTP status code to textual description (as described in RFC2616).
+	 */
 	function getHttpStatusMessage($code)
 	{
 		switch ($code) {

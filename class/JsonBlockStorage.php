@@ -23,7 +23,10 @@ namespace Cascade\Core;
  */
 class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 
+	/// @copydoc ClassBlockStorage::$filename_match_regexp
 	protected $filename_match_regexp = '/^[\/a-zA-Z0-9_]+\.json\.php$/';
+
+	/// @copydoc ClassBlockStorage::$filename_match_regexp
 	protected $filename_to_block_regexp = '/^\/([\/a-zA-Z0-9_-]+)\.json\.php$/';
 
 	/**

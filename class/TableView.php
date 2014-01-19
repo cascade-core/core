@@ -18,6 +18,11 @@
 
 namespace Cascade\Core;
 
+/**
+ * Simple table view.
+ *
+ * Renders list of items into predefined table.
+ */
 class TableView {
 
 	private $class;
@@ -27,60 +32,126 @@ class TableView {
 	private $data_array;
 	private $data_iterator;
 
-	public  $show_header = true;	// bool
-	public  $show_footer = false;	// bool
-	public  $row_data;		// callable, returns array($k => $v) which will
-					// be added to <tr> element as data-$k="$v"
+	/**
+	 * Show table header?
+	 */
+	public  $show_header = true;
+
+	/**
+	 * Show table footer?
+	 */
+	public  $show_footer = false;
+
+	/**
+	 * Callable which returns array of data attributes of `<tr>` tag.
+	 *
+	 * Returns `array($k => $v)`, which will be added to `<tr>` element as 
+	 * `data-$k="$v"`.
+	 */
+	public  $row_data;
 
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct()
 	{
 	}
 
 
+	/**
+	 * Add column to table.
+	 *
+	 * $type sets template used to render the column, $opts are passed to 
+	 * the template.
+	 */
 	public function addColumn($type, $opts)
 	{
 		$this->columns[] = array($type, $opts);
 	}
 
 
+	/**
+	 * Get columns added by addColumn().
+	 *
+	 * TODO: Rename to `getColumns`.
+	 */
+	public function columns()
+	{
+		return $this->columns;
+	}
+
+
+	/**
+	 * Add action button.
+	 */
 	public function addAction($name, $opts)
 	{
 		$this->actions[$name] = $opts;
 	}
 
-	public function setTableClass($class)
-	{
-		$this->class = $class;
-	}
 
-	public function getTableClass()
-	{
-		return $this->class;
-	}
-
-	public function setRowClass($class)
-	{
-		$this->row_class = $class;
-	}
-
-	public function getRowClass()
-	{
-		return $this->row_class;
-	}
-
-
+	/**
+	 * Get all actions added with addAction().
+	 */
 	public function getActions()
 	{
 		return $this->actions;
 	}
 
 
+	/**
+	 * Set class attribute of the table.
+	 */
+	public function setTableClass($class)
+	{
+		$this->class = $class;
+	}
+
+
+	/**
+	 * Get class attribute of the table.
+	 */
+	public function getTableClass()
+	{
+		return $this->class;
+	}
+
+
+	/**
+	 * Set class attribute of each row.
+	 */
+	public function setRowClass($class)
+	{
+		$this->row_class = $class;
+	}
+
+
+	/**
+	 * Get class attribute of each row.
+	 */
+	public function getRowClass()
+	{
+		return $this->row_class;
+	}
+
+
+	/**
+	 * Set iterator object as data source.
+	 *
+	 * To retrieve next row the `$iterator_object->$iterator_func()` is called.
+	 */
 	public function setDataIteratorFunction($iterator_object, $iterator_func)
 	{
 		$this->data_iterator = array($iterator_object, $iterator_func);
 	}
 
+
+	/**
+	 * Set array as data source.
+	 *
+	 * One item in array is one row in table.
+	 */
 	public function setData($data)
 	{
 		$this->data_array = $data;
@@ -92,12 +163,9 @@ class TableView {
 	}
 
 
-	public function columns()
-	{
-		return $this->columns;
-	}
-
-
+	/**
+	 * Get next row from data source (used by template).
+	 */
 	public function getNextRowData()
 	{
 		$method = $this->data_iterator[1];

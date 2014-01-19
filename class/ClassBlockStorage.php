@@ -27,8 +27,14 @@ namespace Cascade\Core;
  */
 class ClassBlockStorage implements IBlockStorage {
 
-	// Regular expressions to match right files and get block name from their names
+	/**
+	 * Regular expression to match files containing block classes.
+	 */
 	protected $filename_match_regexp = '/^[\/a-zA-Z0-9_]+\.php$/';
+
+	/**
+	 * Regular expression to convert filename to block name.
+	 */
 	protected $filename_to_block_regexp ='/^\/([\/a-zA-Z0-9_-]+)\.php$/'; 
 
 

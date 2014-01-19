@@ -23,8 +23,12 @@ namespace Cascade\Core;
  */
 class IniBlockStorage extends ClassBlockStorage implements IBlockStorage {
 
+	/// @copydoc ClassBlockStorage::$filename_match_regexp
 	protected $filename_match_regexp = '/^[\/a-zA-Z0-9_]+\.ini\.php$/';
+
+	/// @copydoc ClassBlockStorage::$filename_match_regexp
 	protected $filename_to_block_regexp = '/^\/([\/a-zA-Z0-9_-]+)\.ini\.php$/';
+
 
 	/**
 	 * Returns true if there is no way that this storage can modify or 

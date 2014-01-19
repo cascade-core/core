@@ -30,7 +30,7 @@
 @define('DIR_TEMPLATE',		'template/');
 
 /* Configuration loader class name */
-@define('CLASS_CONFIG_LOADER',	'\Cascade\Core\JsonConfig');
+@define('CLASS_CONFIG_LOADER',	'Cascade\Core\JsonConfig');
 
 chdir(DIR_ROOT);
 
@@ -45,6 +45,8 @@ $plugin_list = array_flip(scandir(DIR_PLUGIN));		// FIXME: remove this
 
 /**
  * Get plugin list
+ *
+ * TODO: Move this into some nice class.
  */
 function get_plugin_list()
 {
@@ -62,6 +64,8 @@ function get_plugin_list()
 
 /**
  * Get block's file from it's name
+ *
+ * TODO: Move this into some nice class.
  */
 function get_block_filename($block, $extension = '.php')
 {
@@ -85,6 +89,8 @@ function get_block_filename($block, $extension = '.php')
 
 /**
  * Get block's class name
+ *
+ * TODO: Move this into some nice class.
  */
 function get_block_class_name($block)
 {
@@ -98,6 +104,8 @@ function get_block_class_name($block)
 
 /**
  * Get template's file from it's name
+ *
+ * TODO: Move this into some nice class.
  */
 function get_template_filename($output_type, $template_name, $extension = '.php')
 {

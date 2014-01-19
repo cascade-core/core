@@ -1,31 +1,19 @@
-all: pdf doc
+all: doc
 
-.PHONY: all clean doc png pdf
+.PHONY: all clean doc figures
 
-
-dia = $(wildcard *.dia)
-pdf = $(patsubst %.dia,%.pdf,$(wildcard *.dia))
-png = $(patsubst %.dia,%.png,$(wildcard *.dia))
-
-png: $(png)
-pdf: $(pdf)
-
-
-doc:
+doc: figures
 	( cat ./Doxyfile \
 		&& echo "PROJECT_NAME=\"`head -n 1 ../README.md`\"" \
 		&& echo "PROJECT_BRIEF=" \
 		&& echo "PROJECT_NUMBER=\"`git describe --tag --match "v[0-9]*"`\"" \
 		) | ( cd .. && doxygen - )
 
+figures:
+	make -C figures all
+
+
 clean:
-	rm -f $(pdf) $(png)
 	rm -rf doxygen/
-
-
-%.png: %.dia
-	dia -e $@ -t png $<
-
-%.pdf: %.dia
-	dia -e /dev/stdout -t pdf $< | pdfcrop - $@
+	make -C figures clean
 
