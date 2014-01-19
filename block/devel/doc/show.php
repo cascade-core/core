@@ -120,6 +120,32 @@ class B_core__devel__doc__show extends \Cascade\Core\Block
 			return;
 		}
 
+		// JSON file
+		$filename = get_block_filename($block, '.json.php');
+		debug_msg("%s: Loading block %s from file %s", $this->fullId(), $block, $filename);
+
+		if (is_readable($filename)) {
+			$this->templateAdd(null, 'core/doc/show', array(
+					'block' => $block,
+					'filename' => $filename,
+					'heading_level' => $this->in('heading_level'),
+					'description' => _('Block is composed of blocks as shown on following diagram. Note that diagram '
+							.'represents cascade before its execution, not contents of the INI file.'),
+					'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
+				));
+
+			$this->cascadeAdd('load', 'core/json/load', null, array(
+					'filename' => $filename,
+				));
+			$this->cascadeAdd('show_image', 'core/devel/preview', null, array(
+					'blocks' => array('load', 'data'),
+					'slot' => $this->in('slot'),
+					'slot_weight' => $this->in('slot_weight'),
+				));
+			$this->outForward('done', 'load', 'done');
+			return;
+		}
+
 		// Nothing found
 		error_msg("%s: Can't read file %s", $this->fullId(), $filename);
 		$this->out('done', false);
