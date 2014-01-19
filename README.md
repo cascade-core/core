@@ -33,6 +33,8 @@ Documentation is built by Doxygen. The generated documentation is located in
 To generate documentation run `make doc`. Do not use Doxyfile directly,
 otherwise links get broken. Doxygen 1.8.3 or newer and Graphviz are required.
 
+Take a look at the [plugin documentation](doc/plugins.md).
+
 
 License
 -------
