@@ -18,7 +18,9 @@
 
 function TPL_html5__core__doc__show($t, $id, $d, $so)
 {
+	extract($d['block_description']);
 	extract($d);
+
 
 	$h2 = 'h'.$heading_level;
 	$h3 = 'h'.($heading_level + 1);
@@ -111,6 +113,14 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 		highlight_string($code);
 		echo	"</pre>\n",
 			"</div>\n";
+	}
+
+	// Block composition
+	if (!$t->isSlotEmpty($composition_slot)) {
+		echo "<div class=\"block_composition\">\n",
+			"<$h3>", _('Block composition'), "</$h3>\n";
+		$t->processSlot($composition_slot);
+		echo "</div>\n";
 	}
 
 	echo "</div>\n";

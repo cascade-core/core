@@ -61,6 +61,62 @@ class IniBlockStorage extends ClassBlockStorage implements IBlockStorage {
 
 
 	/**
+	 * Describe block for documentation generator.
+	 */
+	public function describeBlock ($block)
+	{
+		$filename = get_block_filename($block, '.ini.php');
+		if (!file_exists($filename)) {
+			return null;
+		}
+
+		// Load file
+		$doc = parse_ini_file($filename, TRUE);
+
+		$doc['filename'] = $filename;
+		$doc['is_composed_block'] = true;
+		$inputs = array();
+		$outputs = array();
+
+		// Copied inputs
+		foreach ($doc['copy-inputs'] as $out => $in) {
+			$inputs[$in] = array(
+				'name' => $in,
+				'value' => null,
+				'comment' => sprintf(_('Copied to output "%s".'), $out),
+			);
+			$outputs[$out] = array(
+				'name' => $out,
+				'comment' => sprintf(_('Copied from input "%s".'), $in),
+			);
+		}
+
+
+		// Outputs
+		foreach ($doc['outputs'] as $out => $src) {
+			$outputs[$out] = array(
+				'name' => $out,
+				'comment' => null,
+			);
+		}
+
+		// Forwarded-outputs
+		foreach ($doc['forward-outputs'] as $out => $src) {
+			$outputs[$out] = array(
+				'name' => $out,
+				'comment' => null,
+			);
+		}
+
+		// Store converted data
+		$doc['inputs'] = $inputs;
+		$doc['outputs'] = $outputs;
+		
+		return $doc;
+	}
+
+
+	/**
 	 * Load block configuration. Returns false if block is not found.
 	 */
 	public function loadBlock ($block)

@@ -39,7 +39,7 @@ class ClassBlockStorage implements IBlockStorage {
 
 
 	/**
-	 * Constructor will get options from core.ini.php file.
+	 * Constructor will get options from core.json.php file.
 	 *
 	 * Arguments:
 	 * 	$storage_opts - Options loaded from config file
@@ -98,6 +98,26 @@ class ClassBlockStorage implements IBlockStorage {
 
 
 	/**
+	 * Describe block for documentation generator.
+	 *
+	 * Returns structure similar to JSON files in which composed blocks are 
+	 * stored. Inputs and outputs are completely different, rest is mostly 
+	 * the same.
+	 */
+	public function describeBlock ($block)
+	{
+		$expected_class = 'B_'.str_replace('/', '__', $block);
+		if (!class_exists($expected_class)) {
+			return false;
+		}
+
+		$filename = get_block_filename($block, '.php');
+		$documentator = new ClassBlockDocumentator($filename, $expected_class);
+		return $documentator->describe();
+	}
+
+
+	/**
 	 * Load block configuration. Returns false if block is not found.
 	 */
 	public function loadBlock ($block)
@@ -141,6 +161,9 @@ class ClassBlockStorage implements IBlockStorage {
 
 	/**
 	 * List all available blocks in this storage.
+	 *
+	 * TODO: Move file scanner to separate class and remove inheritance 
+	 * relation with JsonBlockStorage.
 	 */
 	public function getKnownBlocks (& $blocks = array())
 	{

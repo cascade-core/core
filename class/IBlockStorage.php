@@ -52,14 +52,41 @@ interface IBlockStorage {
 	 */
 	public function createBlockInstance ($block);
 
+
+	/**
+	 * Describe block for documentation generator.
+	 *
+	 * Returns structure similar to JSON files in which composed blocks are 
+	 * stored.
+	 *
+	 * In contrast to loadBlock() method, the describeBlock() may return 
+	 * significantly modified structure. Or completely artificial structure 
+	 * generated only for documentation purposes.
+	 *
+	 * @warning Never pass result of describeBlock() to storeBlock().
+	 *
+	 * TODO: Document the documentation structure.
+	 */
+	public function describeBlock ($block);
+
+
 	/**
 	 * Load block configuration. Returns false if block is not found.
+	 *
+	 * Structure returned by loadBlock() can be directly stored by 
+	 * storeBlock(). The block editors are expected to load a block using 
+	 * loadBlock(), modify the structure, and then store it back using 
+	 * storeBlock(). Therefore, loadBlock() and storeBlock() are 
+	 * complementary pair.
 	 */
 	public function loadBlock ($block);
 
 
 	/**
 	 * Store block configuration.
+	 *
+	 * Use loadBlock() to retrive block configuration, or create a new 
+	 * block.
 	 */
 	public function storeBlock ($block, $config);
 
