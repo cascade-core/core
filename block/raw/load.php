@@ -23,8 +23,12 @@
 class B_core__raw__load extends \Cascade\Core\Block {
 
 	protected $inputs = array(
-		'filename' => array(),	// Filename
+		'filename' => null,	// Filename
 		'name' => null,		// If set, sprintf(filename, name) is used.
+	);
+
+	protected $connections = array(
+		'filename' => array(),
 	);
 
 	protected $outputs = array(

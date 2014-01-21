@@ -23,8 +23,12 @@
 class B_core__value__apply extends \Cascade\Core\Block {
 
 	protected $inputs = array(
-		'function' => array(),	// Function to apply.
+		'function' => null,	// Function to apply.
 		'*' => null,
+	);
+
+	protected $connections = array(
+		'function' => array(),
 	);
 
 	protected $outputs = array(

@@ -27,7 +27,11 @@ class B_core__out__multi_slot extends \Cascade\Core\Block
 	protected $inputs = array(
 		'slot' => 'default',
 		'slot_weight' => 50,
-		'list' => array(),	// List of slots.
+		'list' => null,			// List of slots.
+	);
+
+	protected $connections = array(
+		'list' => array(),
 	);
 
 	protected $outputs = array(

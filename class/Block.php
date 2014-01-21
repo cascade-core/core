@@ -90,10 +90,11 @@ abstract class Block
 	);
 
 	/**
-	 * List of input connections (all inputs mentioned here must be present in $inputs array)
+	 * List of default input connections (all inputs mentioned here must be present in $inputs array too)
 	 */
 	protected $connections = array(
-		// 'input_name' => array('block', 'output'),
+		// 'input_name1' => array('block', 'output'),
+		// 'input_name2' => array(':input_function', 'block1', 'output_of_block1', 'block2', 'output_of_block2', ...),
 	);
 
 	/**
@@ -212,6 +213,7 @@ abstract class Block
 	 * \name	Part of Cascade Controller
 	 *
 	 * These methods should not be used by anything except the CascadeController.
+	 * Consider them private.
 	 * @{
 	 */
 
@@ -235,22 +237,27 @@ abstract class Block
 	}
 
 
-	final public function cc_connect(array $connections)
+	final public function cc_connect(array $in_connections, array $in_values)
 	{
 		$wildcard = array_key_exists('*', $this->inputs);
 
 		/* replace defaults */
-		$new_inputs = $connections + $this->inputs;
+		$new_connections = $in_connections + array_diff_key($this->connections, $in_values);
+		$new_inputs = $in_values + $this->inputs;
 
 		/* check connections */
-		if (!$wildcard && count($this->inputs) != count($new_inputs)) {
-			/* Connected non-existent inputs */
-			foreach(array_diff_key($connections, $this->inputs) as $in => $out) {
-				error_msg('Input "%s:%s" does not exist!', $this->id, $in);
+		if (!$wildcard) {
+			$new_all = $new_inputs + $new_connections;
+			if (count($new_all) != count($this->inputs)) {
+				/* Connected non-existent inputs */
+				foreach(array_diff_key($new_all, $this->inputs) as $in => $out) {
+					error_msg('Input "%s:%s" does not exist!', $this->id, $in);
+				}
+				return false;
 			}
-			return false;
 		}
 
+		$this->connections = $new_connections;
 		$this->inputs = $new_inputs;
 		return true;
 	}
@@ -329,7 +336,7 @@ abstract class Block
 
 		/* dereference block names and build dependency list */
 		$dependencies = array();
-		foreach($this->inputs as $in => & $out) {
+		foreach($this->connections as $in => & $out) {
 			if (is_array($out)) {
 				// connect to output(s)
 				$n = count($out);
@@ -474,9 +481,9 @@ abstract class Block
 	}
 
 
-	final public function cc_inputs()
+	final public function cc_connections()
 	{
-		return $this->inputs;
+		return $this->connections;
 	}
 
 
@@ -551,18 +558,19 @@ abstract class Block
 	 */
 	final protected function in($name)
 	{
-		/** @todo
-		 * Virtualni moduly -- Neexistujici moduly vzdy pritomne
-		 * v cascade, ktere maji zvlastni jmeno osetrene zde.
-		 * Umozni to velmi efektivne pristupovat k casto
-		 * pouzivanym hodnotam. Mozna by tak sel resit kontext.
-		 */
-
 		// get input
-		if (array_key_exists($name, $this->inputs)) {
-			$ref = & $this->inputs[$name];
+		if (array_key_exists($name, $this->connections)) {
+			// input is connected somewhere
+			$ref = & $this->connections[$name];
+		} else if (array_key_exists($name, $this->inputs)) {
+			// input is set to value
+			return $this->inputs[$name];
+		} else if (array_key_exists('*', $this->connections)) {
+			// unconnected wildcard, default is connection
+			$ref = & $this->connections['*'];
 		} else if (array_key_exists('*', $this->inputs)) {
-			$ref = & $this->inputs['*'];
+			// unconnected wildcard, default is value
+			return $this->inputs['*'];
 		} else {
 			// or fail
 			error_msg('%s: Input "%s" is not defined!', $this->blockName(), $name);
@@ -591,10 +599,10 @@ abstract class Block
 	 */
 	final protected function inputNames()
 	{
-		return array_diff(array_keys($this->inputs), array(
+		return array_keys(array_diff_key($this->inputs + $this->connections, array(
 				'*',
 				'enable',
-			));
+			)));
 	}
 
 
@@ -745,10 +753,10 @@ abstract class Block
 	/**
 	 * Add block to cascade
 	 */
-	final protected function cascadeAdd($id, $block, $force_exec = null, $connections = array(), $context = null)
+	final protected function cascadeAdd($id, $block, $force_exec = null, $in_connections = array(), $in_values = array(), $context = null)
 	{
 		$this->cascade_errors = array();
-		return $this->cascade_controller->addBlock($this, $id, $block, $force_exec, $connections,
+		return $this->cascade_controller->addBlock($this, $id, $block, $force_exec, $in_connections, $in_values,
 				$context === null ? $this->context : $context,
 				$this->cascade_errors);
 	}
@@ -756,11 +764,37 @@ abstract class Block
 
 	/**
 	 * Add blocks to cascade from parsed inifile
+	 *
+	 * @deprecated Use cascadeAddFromArray() instead.
 	 */
 	final protected function cascadeAddFromIni($parsed_ini_with_sections, $context = null)
 	{
 		$this->cascade_errors = array();
 		return $this->cascade_controller->addBlocksFromIni($this, $parsed_ini_with_sections,
+				$context === null ? $this->context : $context,
+				$this->cascade_errors);
+	}
+
+
+	/**
+	 * Add array of blocks to cascade (calls cascadeAdd() for each item).
+	 *
+	 * Items in $array_of_blocks look like this:
+	 *
+	 *     array(
+	 *         'block' => 'block/type',
+	 *         'force_exec' => true/false/null,
+	 *         'in_con' => array( ... like Block::$connections ... ),
+	 *         'in_val' => array( ... like Block::$inputs ... ),
+	 *     ),
+	 *
+	 * Unknown keys are ignored.
+	 *
+	 */
+	final protected function cascadeAddFromArray($array_of_blocks, $context = null)
+	{
+		$this->cascade_errors = array();
+		return $this->cascade_controller->addBlocksFromArray($this, $array_of_blocks,
 				$context === null ? $this->context : $context,
 				$this->cascade_errors);
 	}
@@ -924,8 +958,10 @@ abstract class Block
 				}
 			}
 		} else {
-			// ref is constant
-			return $ref;
+			// ref is constant, but it can't be!
+			error_msg('%s: Input "%s" is messed up! Connection definition must be an array, but %s given.',
+				$this->blockName(), $name, var_export($ref[0], true));
+			return null;
 		}
 	}
 

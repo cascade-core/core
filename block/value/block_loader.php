@@ -25,10 +25,14 @@ class B_core__value__block_loader extends \Cascade\Core\Block
 
 	protected $inputs = array(
 		'id' => null,			// ID of the block (basename of block if empty)
-		'block' => array(),		// Type of the block
+		'block' => null,		// Type of the block
 		'block_fmt' => null,		// Format (sprintf) applied to block name (when prefix/suffix is needed).
 		'connections' => null,		// Input connections
 		'output_forward' => 'done',	// List of outputs which will be forwarded back to this block.
+	);
+
+	protected $connections = array(
+		'block' => array(),
 	);
 
 	protected $outputs = array(

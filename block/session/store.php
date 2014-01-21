@@ -25,9 +25,13 @@ class B_core__session__store extends \Cascade\Core\Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'key' => array(),	// Session key.
+		'key' => null,		// Session key.
 		'value' => null,	// Value to store.
 		'unset' => false,	// Remove key from session?
+	);
+
+	protected $connections = array(
+		'key' => array(),
 	);
 
 	protected $outputs = array(

@@ -26,11 +26,16 @@ class B_core__devel__preview extends \Cascade\Core\Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'blocks' => array(),			// Blocks loaded from INI file.
-		'graphviz_cfg' => array('config', 'core.graphviz'),	// Cascade visualization config
+		'blocks' => null,			// Blocks loaded from INI file.
+		'graphviz_cfg' => null,			// Cascade visualization config
 		'graphviz_profile' => 'cascade',	// Cascade visualization profile
 		'slot' => 'default',
 		'slot_weight' => 50,
+	);
+
+	protected $connections = array(
+		'blocks' => array(),
+		'graphviz_cfg' => array('config', 'core.graphviz'),
 	);
 
 	protected $outputs = array(

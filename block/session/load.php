@@ -22,7 +22,11 @@
 class B_core__session__load extends \Cascade\Core\Block {
 
 	protected $inputs = array(
-		'key' => array(),	// Key to load.
+		'key' => null,		// Key to load.
+	);
+
+	protected $connections = array(
+		'key' => array(),
 	);
 
 	protected $outputs = array(

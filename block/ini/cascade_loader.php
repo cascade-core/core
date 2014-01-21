@@ -27,7 +27,11 @@ class B_core__ini__cascade_loader extends \Cascade\Core\Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'items' => array(),	// Blocks and their connections.
+		'items' => null,	// Blocks and their connections.
+	);
+
+	protected $connections = array(
+		'items' => array(),
 	);
 
 	protected $outputs = array(

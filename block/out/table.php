@@ -25,10 +25,15 @@ class B_core__out__table extends \Cascade\Core\Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'items' => array(),
-		'config' => array(),
+		'items' => null,
+		'config' => null,
 		'slot' => 'default',
 		'slot_weight' => 50,
+	);
+
+	protected $connections = array(
+		'items' => array(),
+		'config' => array(),
 	);
 
 	protected $outputs = array(

@@ -23,7 +23,11 @@
 class B_core__prefix__split extends \Cascade\Core\Block {
 
 	protected $inputs = array(
-		'in' => array(),	// Merged array.
+		'in' => null,		// Merged array.
+	);
+
+	protected $connections = array(
+		'in' => array(),
 	);
 
 	protected $outputs = array(

@@ -25,10 +25,14 @@ class B_core__router extends \Cascade\Core\Block
 {
 
 	protected $inputs = array(
-		'routes' => array('config', 'routes'),	// Routes
-		'protocol' => null,			// Current protocol ('http' or 'https')
-		'host' => null,				// Current hostname (full domain)
-		'path' => null,				// Current path (that part of URL after hostname)
+		'routes' => null,	// Routes
+		'protocol' => null,	// Current protocol ('http' or 'https')
+		'host' => null,		// Current hostname (full domain)
+		'path' => null,		// Current path (that part of URL after hostname)
+	);
+
+	protected $connections = array(
+		'routes' => array('config', 'routes'),
 	);
 
 	protected $outputs = array(

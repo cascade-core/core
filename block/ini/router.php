@@ -31,8 +31,12 @@ class B_core__ini__router extends \Cascade\Core\Block {
 
 	protected $inputs = array(
 		'path' => null,			// Path to match.
-		'config' => array(),		// Configuration or filename where configuration is.
+		'config' => null,		// Configuration or filename where configuration is.
 		'canonize_path' => true,	// Redirect to canonical form of path? (HTTP GET method only.)
+	);
+
+	protected $connections = array(
+		'config' => array(),
 	);
 
 	protected $outputs = array(

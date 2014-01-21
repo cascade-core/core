@@ -23,9 +23,13 @@
 class B_core__stream__walk extends \Cascade\Core\Block {
 
 	protected $inputs = array(
-		'array' => array(),
+		'array' => null,
 		'key_key' => false,
 		'done' => false,
+	);
+
+	protected $connections = array(
+		'array' => array(),
 	);
 
 	protected $outputs = array(

@@ -227,7 +227,7 @@ class CascadeController {
 	/**
 	 * Create new block and add it into the cascade.
 	 */
-	public function addBlock($parent, $id, $block, $force_exec, array $connections, Context $context, & $errors = null, $real_block = null)
+	public function addBlock($parent, $id, $block, $force_exec, array $in_connections, array $in_values, Context $context, & $errors = null, $real_block = null)
 	{
 		/* check malformed IDs */
 		if (!is_string($id) || $id == '' || !ctype_alpha($id[0]) || !ctype_graph($id)) {
@@ -259,7 +259,7 @@ class CascadeController {
 		$b = $this->createBlockInstance($block, $errors, $storage_name);
 		if (!$b) {
 			$last_error = end($errors);
-			$this->addFailedBlock($parent, $id, $full_id, $block, $connections, $last_error['error']);
+			$this->addFailedBlock($parent, $id, $full_id, $block, $in_connections, $in_values, $last_error['error']);
 			return false;
 		}
 
@@ -267,16 +267,17 @@ class CascadeController {
 
 		/* initialize and connect block */
 		$b->cc_init($parent, $id, $full_id, $this, $real_block !== null ? $real_block : $block, $context);
-		if (!$b->cc_connect($connections, $this->blocks)) {
+		if (!$b->cc_connect($in_connections, $in_values)) {
 			error_msg('Block "%s": Can\'t connect inputs!', $full_id);
 			$errors[] = array(
 				'error'   => 'Can\'t connect inputs.',
 				'id'      => $id,
 				'full_id' => $full_id,
 				'block'   => $block,
-				'inputs'  => $connections,
+				'in_con'  => $in_connections,
+				'in_val'  => $in_values,
 			);
-			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $connections, 'Bad inputs');
+			$this->addFailedBlock($parent, $id, $full_id, $real_block !== null ? $real_block : $block, $in_connections, $in_values, 'Bad inputs');
 			return false;
 		}
 
@@ -303,12 +304,12 @@ class CascadeController {
 	 * cascade and aliminates secondary failures, which makes localization 
 	 * of the error much easier.
 	 */
-	private function addFailedBlock($parent, $id, $full_id, $real_block, array $connections, $message = null)
+	private function addFailedBlock($parent, $id, $full_id, $real_block, array $in_connections, array $in_values, $message = null)
 	{
 		/* create dummy block */
 		$b = new \B_core__dummy();
 		$b->cc_init($parent, $id, $full_id, $this, $real_block, null, Block::FAILED, $message);
-		$b->cc_connect($connections, $this->blocks);
+		$b->cc_connect($in_connections, $in_values);
 
 		/* put block to parent's namespace */
 		if ($parent) {
@@ -325,6 +326,37 @@ class CascadeController {
 	 * Add multiple blocks using addBlock(). This is helper method 
 	 * distilled from various proxy blocks to make their implementation 
 	 * easier and data structures more uniform.
+	 *
+	 * Block configuration passed in $blocks is the same as `"blocks"` 
+	 * section in JSON files.
+	 */
+	public function addBlocksFromArray($parent, $blocks, Context $context, & $errors = null)
+	{
+		$all_good = true;
+
+		foreach ($blocks as $id => $opts) {
+			$block_type  = @ $opts['block'];
+			$force_exec  = @ $opts['force_exec'];
+			$in_con      = @ $opts['in_con'];
+			$in_val      = @ $opts['in_val'];
+
+			if ($block_type === null) {
+				throw new \InvalidArgumentException('Missing block type for block "'.$id.'".');
+			}
+
+			$all_good &= $this->addBlock($parent, $id, $block_type, $force_exec, $in_con, $in_val, $context, $errors);
+		}
+
+		return $all_good;
+	}
+
+
+	/**
+	 * Add multiple blocks using addBlock(). This is helper method 
+	 * distilled from various proxy blocks to make their implementation 
+	 * easier and data structures more uniform.
+	 *
+	 * @deprecated
 	 */
 	public function addBlocksFromIni($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
 	{
@@ -362,7 +394,10 @@ class CascadeController {
 					}
 				}
 
-				$all_good &= $this->addBlock($parent, $id, $block, $force_exec, $opts, $context, $errors);
+				$in_connections = array_filter($opts, 'is_array');
+				$in_values = array_diff_key($opts, $in_connections);
+
+				$all_good &= $this->addBlock($parent, $id, $block, $force_exec, $in_connections, $in_values, $context, $errors);
 			}
 		}
 
@@ -528,66 +563,64 @@ class CascadeController {
 
 
 			$gv_inputs = '';
-			$inputs  = $block->cc_inputs();
+			$connections  = $block->cc_connections();
 			$input_names = array();
 			$input_functions = array();
 			$output_functions = array();
 			$output_names = $block->cc_outputs();
 
 			/* connect inputs */
-			foreach ($inputs as $in => $out) {
-				if (is_array($out)) {
-					$input_names[] = $in;
-					if (!is_object($out[0]) && $out[0][0] == ':') {
-						$function = $out[0];
-						$input_functions[$in] = $function;
-					} else {
-						$function = null;
+			foreach ($connections as $in => $out) {
+				$input_names[] = $in;
+				if (!is_object($out[0]) && $out[0][0] == ':') {
+					$function = $out[0];
+					$input_functions[$in] = $function;
+				} else {
+					$function = null;
+				}
+				$n = count($out);
+				for ($i = $function !== null ? 1 : 0; $i < $n - 1; $i += 2) {
+					$out_mod = $out[$i];
+					$out_name = $out[$i + 1];
+
+					if (!is_object($out_mod) && ($resolved = $block->cc_resolveBlockName($out_mod))) {
+						$out_mod = $resolved;
 					}
-					$n = count($out);
-					for ($i = $function !== null ? 1 : 0; $i < $n - 1; $i += 2) {
-						$out_mod = $out[$i];
-						$out_name = $out[$i + 1];
 
-						if (!is_object($out_mod) && ($resolved = $block->cc_resolveBlockName($out_mod))) {
-							$out_mod = $resolved;
+					$out_block_id = is_object($out_mod) ? $out_mod->fullId() : $out_mod;
+
+					$missing = true;
+					$zero = true;
+					$big = false;
+
+					if (!is_object($out_mod)) {
+						$missing_blocks[$out_mod] = true;
+						$missing = !array_key_exists($out_mod, $whitelist);
+					} else if ($out_mod->cc_outputExists($out_name)) {
+						$missing = false;
+						if ($out_mod->cc_outputExists($out_name, false)) {
+							$v = $out_mod->cc_getOutput($out_name);
+							$exists = true;
+							$zero = empty($v);
+							$big = is_array($v) || is_object($v);
+						} else {
+							$exists = false;
+							$zero = true;
+							$big = false;
 						}
-
-						$out_block_id = is_object($out_mod) ? $out_mod->fullId() : $out_mod;
-
-						$missing = true;
-						$zero = true;
-						$big = false;
-
-						if (!is_object($out_mod)) {
-							$missing_blocks[$out_mod] = true;
-							$missing = !array_key_exists($out_mod, $whitelist);
-						} else if ($out_mod->cc_outputExists($out_name)) {
-							$missing = false;
-							if ($out_mod->cc_outputExists($out_name, false)) {
-								$v = $out_mod->cc_getOutput($out_name);
-								$exists = true;
-								$zero = empty($v);
-								$big = is_array($v) || is_object($v);
-							} else {
-								$exists = false;
-								$zero = true;
-								$big = false;
-							}
-						}
-
-						$gv_inputs .= "\tm_".get_ident($out_block_id).($exists ? ':o_'.get_ident($out_name).':e' : '')
-							.' -> m_'.get_ident($id).':i_'.get_ident($in).':w'
-							.($is_created
-								? ($missing
-									? " [color=red]"
-									: ($zero
-										? ' [color=dimgrey,penwidth=0.8]'
-										: ($big ? ' [penwidth=2]':''))
-									)
-								: '[color="#eeeeee"]'
-							).";\n";
 					}
+
+					$gv_inputs .= "\tm_".get_ident($out_block_id).($exists ? ':o_'.get_ident($out_name).':e' : '')
+						.' -> m_'.get_ident($id).':i_'.get_ident($in).':w'
+						.($is_created
+							? ($missing
+								? " [color=red]"
+								: ($zero
+									? ' [color=dimgrey,penwidth=0.8]'
+									: ($big ? ' [penwidth=2]':''))
+								)
+							: '[color="#eeeeee"]'
+						).";\n";
 				}
 			}
 

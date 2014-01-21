@@ -23,11 +23,15 @@
 class B_core__ini__load extends \Cascade\Core\Block {
 
 	protected $inputs = array(
-		'filename' => array(),		// Name of the file to load.
+		'filename' => null,		// Name of the file to load.
 		'name' => null,			// If specified, sprintf(filename, name) is used to compose filename.
 		'process_sections' => true,	// Second argument to parse_ini_file().
 		'multi_output' => false,	// Use top-level keys of loaded file as output names.
 		'scan_plugins' => false,	// Search for specified file in all plugin directories.
+	);
+
+	protected $connections = array(
+		'filename' => array(),
 	);
 
 	protected $outputs = array(

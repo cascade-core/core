@@ -29,11 +29,15 @@ class B_core__out__output extends \Cascade\Core\Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'template' => array(),	// Template to use.
+		'template' => null,	// Template to use.
 		'data' => false,	// If false, all inputs are forwarded, otherwise only content of this one.
 		'*' => null,		// All inputs are forwarded to template if input 'data' is false.
 		'slot' => 'default',
 		'slot_weight' => 50,
+	);
+
+	protected $connections = array(
+		'template' => array(),
 	);
 
 	protected $outputs = array(

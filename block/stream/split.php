@@ -25,8 +25,12 @@
 class B_core__stream__split extends \Cascade\Core\Block {
 
 	protected $inputs = array(
-		'iter' => array(),
+		'iter' => null,
 		'*' => null,
+	);
+
+	protected $connections = array(
+		'iter' => array(),
 	);
 
 	protected $outputs = array(
