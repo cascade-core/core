@@ -20,6 +20,8 @@ namespace Cascade\Core;
 
 /**
  * Load block composition from INI file.
+ *
+ * @deprecated Use JsonBlockStorage instead.
  */
 class IniBlockStorage extends ClassBlockStorage implements IBlockStorage {
 
