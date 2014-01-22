@@ -337,8 +337,8 @@ class CascadeController {
 		foreach ($blocks as $id => $opts) {
 			$block_type  = @ $opts['block'];
 			$force_exec  = @ $opts['force_exec'];
-			$in_con      = @ $opts['in_con'];
-			$in_val      = @ $opts['in_val'];
+			$in_con      = (array) @ $opts['in_con'];
+			$in_val      = (array) @ $opts['in_val'];
 
 			if ($block_type === null) {
 				throw new \InvalidArgumentException('Missing block type for block "'.$id.'".');

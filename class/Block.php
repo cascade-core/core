@@ -344,7 +344,7 @@ abstract class Block
 					error_msg('%s: Can\'t connect inputs -- connection for input "%s" of block "%s" is not defined!',
 							$this->blockName(), $in, $this->fullId());
 					$this->status = self::FAILED;
-					$this->status_message = 'In: No source';
+					$this->status_message = 'In: No source specified';
 				} else {
 					for ($i = $out[0][0] == ':' ? 1 : 0; $i < $n - 1; $i += 2) {
 						$block_name = $out[$i];

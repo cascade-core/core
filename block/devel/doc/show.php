@@ -42,6 +42,7 @@ class B_core__devel__doc__show extends \Cascade\Core\Block
 	protected $outputs = array(
 		'title' => true,			// Page title
 		'desc' => true,
+		'blocks' => true,
 		'composition_slot' => true,
 		'graphviz_cfg' => true,
 		'done' => true,
@@ -72,13 +73,15 @@ class B_core__devel__doc__show extends \Cascade\Core\Block
 					));
 				if (!empty($desc['is_composed_block'])) {
 					$this->cascadeAdd('cascade_diagram', 'core/devel/preview', null, array(
-							'blocks' => array('parent', 'desc'),
+							'blocks' => array('parent', 'blocks'),
 							'slot' => array('parent', 'composition_slot'),
+						), array(
 							'slot_weight' => 50,
 						));
 				}
 				$this->out('title', $block);
 				$this->out('desc', $desc);
+				$this->out('blocks', @ $desc['blocks']);
 				$this->out('composition_slot', $composition_slot);
 				$this->out('done', true);
 				break;

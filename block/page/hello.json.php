@@ -4,9 +4,13 @@
         "done": 1,
         "title": "Cascade"
     },
-    "block:hello": {
-        ".block": "core/out/raw",
-        ".force_exec": 1,
-        "data": "<p>Hello world!</p><p>Look at <a href='/documentation'>documentation</a>!</p>"
+    "blocks": {
+        "hello": {
+            "block": "core/out/raw",
+            "force_exec": 1,
+            "in_val": {
+                "data": "<p>Hello world!</p><p>Look at <a href='/documentation'>documentation</a>!</p>"
+            }
+        }
     }
 }

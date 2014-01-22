@@ -6,8 +6,10 @@
         ],
         "title": "Profiler statistics"
     },
-    "block:profiler": {
-        ".block": "core/devel/profiler_stats",
-        ".force_exec": 1
+    "blocks": {
+        "profiler": {
+            "block": "core/devel/profiler_stats",
+            "force_exec": 1
+        }
     }
 }

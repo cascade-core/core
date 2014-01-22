@@ -52,7 +52,7 @@ class B_core__devel__preview extends \Cascade\Core\Block
 
 		/* Prepare starting blocks */
 		$errors = array();
-		$done = $cascade->addBlocksFromIni(null, $this->in('blocks'), $this->context, $errors);
+		$done = $cascade->addBlocksFromArray(null, $this->in('blocks'), $this->context, $errors);
 
 		// export dot file
 		$dot = $cascade->exportGraphvizDot($gv_cfg[$gv_profile]['doc_link'], $this->visibleBlockNames());

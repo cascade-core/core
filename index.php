@@ -65,7 +65,7 @@ foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
 }
 
 /* Prepare starting blocks */
-$cascade->addBlocksFromIni(null, $core_cfg, $default_context);
+$cascade->addBlocksFromArray(null, $core_cfg['blocks'], $default_context);
 
 /* Execute cascade */
 $cascade->start();

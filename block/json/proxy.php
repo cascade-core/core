@@ -86,7 +86,7 @@ class B_core__json__proxy extends \Cascade\Core\Block {
 		}
 
 		// Fill cascade
-		$done = $this->cascadeAddFromIni($conf);
+		$done = $this->cascadeAddFromArray($conf['blocks']);
 
 		// Copy inputs
 		if (isset($conf['copy-inputs'])) {

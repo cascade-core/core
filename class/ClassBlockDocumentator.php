@@ -65,6 +65,12 @@ class ClassBlockDocumentator
 			}
 		}
 
+		// Add default connections to input description
+		foreach ((array) @ $this->data['connections'] as $conn) {
+			$this->data['inputs'][$conn['name']]['connection'] = $conn['value'];
+		}
+
+		//debug_dump($this->data);
 		return $this->data;
 	}
 
@@ -161,6 +167,8 @@ class ClassBlockDocumentator
 						$var = $t[1];
 						if ($var == '$inputs') {
 							$this->readArray('inputs');
+						} else if ($var == '$connections') {
+							$this->readArray('connections');
 						} else if ($var == '$outputs') {
 							$this->readArray('outputs');
 						}
@@ -238,7 +246,7 @@ class ClassBlockDocumentator
 				} else if (preg_match('/^"[^"]*"$/', $input_name)) {
 					$input_name = trim($input_name, '"');
 				}
-				$this->data[$array_name][] = array(
+				$this->data[$array_name][$input_name] = array(
 					'name' => $input_name,
 					'value' => $input_value,
 					'comment' => $input_comments,
