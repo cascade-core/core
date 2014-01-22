@@ -85,6 +85,7 @@ function tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth = PHP_I
 		}
 
 		$classes = (array) @ $item['classes'];
+		$classes[] = 'mni-'.str_replace(' ', '_', $i);
 
 		/* are there children nodes? */
 		if (!empty($item['children']) && $max_depth > 0) {
@@ -94,15 +95,8 @@ function tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth = PHP_I
 			$has_children = false;
 		}
 
-		/* build class attribute */
-		$class = empty($classes) ? '' : ' class="'.join($classes, ' ').'"';
-
-		/* show non-numeric id */
-		if (is_numeric($i)) {
-			echo "<li$class>";
-		} else {
-			echo "<li id=\"", htmlspecialchars($id.'_'.$i), "\"$class>";
-		}
+		/* build open tag with class attribute */
+		echo '<li class="', htmlspecialchars(join($classes, ' ')), '">';
 
 		/* show label */
 		tpl_html5__core__menu__label($id, $item, $title_fmt);
@@ -128,9 +122,7 @@ function tpl_html5__core__menu__row($id, $items, $title_fmt, $max_depth = PHP_IN
 		}
 
 		$classes = (array) @ $item['classes'];
-
-		/* build class attribute */
-		$class = empty($classes) ? '' : ' class="'.join($classes, ' ').'"';
+		$classes[] = 'mni-'.str_replace(' ', '_', $i);
 
 		/* separator */
 		if ($first) {
@@ -139,12 +131,8 @@ function tpl_html5__core__menu__row($id, $items, $title_fmt, $max_depth = PHP_IN
 			echo "\n<span class=\"separator\">|</span> ";
 		}
 
-		/* show non-numeric id */
-		if (is_numeric($i)) {
-			echo "<span$class>";
-		} else {
-			echo "<span id=\"", htmlspecialchars($id.'_'.$i), "\"$class>";
-		}
+		/* build open tag with class attribute */
+		echo '<span class="', htmlspecialchars(join($classes, ' ')), '">';
 
 		/* show label */
 		tpl_html5__core__menu__label($id, $item, $title_fmt);
