@@ -76,9 +76,9 @@ foreach ($argv as $src) {
 						$new_v['in_val'][$vk] = $vv;
 					}
 				}
-				$data[$keyword][$id] = $new_v;
+				$data[$keyword.'s'][$id] = $new_v;
 			} else {
-				$data[$keyword][$id] = $v;
+				$data[$keyword.'s'][$id] = $v;
 			}
 			unset($data[$k]);
 		}
