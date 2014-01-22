@@ -165,7 +165,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 			}
 		}
 
-		$saved = write_json_file($filename, $config, TRUE);
+		$saved = write_json_file($filename, $config);
 		if (!$saved) {
 			error_msg('Failed to write JSON file "%s" while storing block "%s".', $filename, $block);
 			return false;

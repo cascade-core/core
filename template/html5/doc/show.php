@@ -77,9 +77,9 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 			echo "<tr>",
 				"<td>", htmlspecialchars($input['name']), "</td>",
 				"<td>", htmlspecialchars($input['value']), "</td>",
-				"<td>", $input['connections'] == 'array()' || $input['connections'] == 'array( )'
+				"<td>", isset($input['connections']) ? ($input['connections'] == 'array()' || $input['connections'] == 'array( )'
 						? '<i>'._('not connected').'</i>'
-						: htmlspecialchars($input['connection']), "</td>",
+						: htmlspecialchars($input['connections'])) : '', "</td>",
 				"<td>", join("\n", array_map('htmlspecialchars', $input['comment'])), "</td>",
 				"</tr>";
 		}

@@ -412,9 +412,9 @@ abstract class Block
 		catch (\Exception $ex) {
 			$this->status = self::FAILED;
 			$this->status_message = 'Exception: '.get_class($ex);
-			error_msg('%s: Uncaught exception %s in block "%s": "%s" in file %s on line %d.',
+			error_msg("%s: Uncaught exception %s in block \"%s\": \"%s\" in file %s on line %d.\n%s",
 				$this->blockName(), get_class($ex), $this->fullId(), $ex->getMessage(),
-				$ex->getFile(), $ex->getLine());
+				$ex->getFile(), $ex->getLine(), $ex->getTraceAsString());
 		}
 		$this->execution_time = (microtime(TRUE) - $t) * 1000;
 		$this->timestamp_finish = $this->cascade_controller->currentStep();
@@ -541,6 +541,7 @@ abstract class Block
 			'block' => str_replace('__', '/', preg_replace('/^B_/', '', __CLASS__)),
 			'force_exec' => self::force_exec,
 			'inputs' => $this->inputs,
+			'connections' => $this->connections,
 			'outputs' => $this->outputs,
 		);
 	}
@@ -599,10 +600,10 @@ abstract class Block
 	 */
 	final protected function inputNames()
 	{
-		return array_keys(array_diff_key($this->inputs + $this->connections, array(
+		return array_diff(array_keys($this->inputs + $this->connections), array(
 				'*',
 				'enable',
-			)));
+			));
 	}
 
 

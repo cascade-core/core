@@ -177,6 +177,9 @@ class ClassBlockStorage implements IBlockStorage {
 		}
 
 		foreach ($prefixes as $prefix => $dir) {
+			if (!isset($blocks[$prefix])) {
+				$blocks[$prefix] = array();
+			}
 			if (file_exists($dir)) {
 				$this->getKnownBlocks_scanDirectory($blocks[$prefix], $dir, $prefix);
 			}

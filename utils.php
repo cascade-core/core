@@ -474,7 +474,7 @@ function write_ini_file($filename, $array, $sections = FALSE,
  * Options JSON_HEX_TAG and JSON_HEX_APOS are disabled, becouse they break 
  * PHP snippet.
  */
-function write_json_file($filename, $json_array, $whitelist = null, $json_options = null)
+function write_json_file($filename, $json_array, array $whitelist = null, $json_options = null)
 {
         $stop_snippet = "<?php printf('_%c%c}%c',34,10,10);__halt_compiler();?>";
 

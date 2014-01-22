@@ -26,7 +26,7 @@ class B_core__devel__doc__index extends \Cascade\Core\Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'link' => DEBUG_CASCADE_GRAPH_DOC_LINK,	// Link to documentation.
+		'link' => null,				// Link to documentation.
 		'writable_only' => false,		// Show only blocks from writable storages. It does 
 							// not mean that listed blocks are writable, only
 							// that storage is capable of writing.
