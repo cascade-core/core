@@ -764,20 +764,6 @@ abstract class Block
 
 
 	/**
-	 * Add blocks to cascade from parsed inifile
-	 *
-	 * @deprecated Use cascadeAddFromArray() instead.
-	 */
-	final protected function cascadeAddFromIni($parsed_ini_with_sections, $context = null)
-	{
-		$this->cascade_errors = array();
-		return $this->cascade_controller->addBlocksFromIni($this, $parsed_ini_with_sections,
-				$context === null ? $this->context : $context,
-				$this->cascade_errors);
-	}
-
-
-	/**
 	 * Add array of blocks to cascade (calls cascadeAdd() for each item).
 	 *
 	 * Items in $array_of_blocks look like this:

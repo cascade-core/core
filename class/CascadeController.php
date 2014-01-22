@@ -352,60 +352,6 @@ class CascadeController {
 
 
 	/**
-	 * Add multiple blocks using addBlock(). This is helper method 
-	 * distilled from various proxy blocks to make their implementation 
-	 * easier and data structures more uniform.
-	 *
-	 * @deprecated
-	 */
-	public function addBlocksFromIni($parent, $parsed_ini_with_sections, Context $context, & $errors = null)
-	{
-		$all_good = true;
-
-		/* walk thru ini and take 'block:*' sections */
-		foreach ($parsed_ini_with_sections as $section => $opts) {
-			@list($keyword, $id) = explode(':', $section, 2);
-			if ($keyword == 'block' && isset($id) && @($block = $opts['.block']) !== null) {
-				$force_exec = @ $opts['.force_exec'];
-
-				/* parse connections */
-				foreach($opts as $in => & $out) {
-					if ($in[0] == '.') {
-						/* drop block options and keep only connections */
-						unset($opts[$in]);
-					} else if (is_array($out)) {
-						if (count($out) == 1) {
-							/* single connection */
-							$out = explode(':', $out[0], 2);
-						} else {
-							/* multiple connections */
-							$outs = array(null);
-							foreach ($out as $o) {
-								if ($o[0] == ':') {
-									$outs[0] = $o;
-								} else {
-									list($o_mod, $o_out) = explode(':', $o, 2);
-									$outs[] = $o_mod;
-									$outs[] = $o_out;
-								}
-							}
-							$out = $outs;
-						}
-					}
-				}
-
-				$in_connections = array_filter($opts, 'is_array');
-				$in_values = array_diff_key($opts, $in_connections);
-
-				$all_good &= $this->addBlock($parent, $id, $block, $force_exec, $in_connections, $in_values, $context, $errors);
-			}
-		}
-
-		return $all_good;
-	}
-
-
-	/**
 	 * Debug method to display entire hierarchy of blocks.
 	 */
 	public function dumpNamespaces()
