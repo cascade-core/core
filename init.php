@@ -156,6 +156,15 @@ if ($core_cfg['debug']['error_log'] !== null) {
 	ini_set('error_log', filename_format($core_cfg['debug']['error_log'], $_SERVER));
 }
 
+/* Use exceptions instead of errors */
+if ($core_cfg['debug']['throw_errors']) {
+	set_error_handler(function ($errno, $errstr, $errfile, $errline ) {
+		if (error_reporting()) {
+			throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+		}
+	});
+}
+
 /* Show banner in log */
 if (CASCADE_MAIN && !empty($core_cfg['debug']['always_log_banner'])) {
 	first_msg();
