@@ -36,10 +36,6 @@ class B_core__out__output extends \Cascade\Core\Block
 		'slot_weight' => 50,
 	);
 
-	protected $connections = array(
-		'template' => array(),
-	);
-
 	protected $outputs = array(
 		'done' => true,
 	);
