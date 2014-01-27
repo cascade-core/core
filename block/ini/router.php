@@ -153,12 +153,10 @@ class B_core__ini__router extends \Cascade\Core\Block {
 			foreach ($plugin_blocks as $block) {
 				foreach ($storages as $storage_id => $src_storage) {		// ... in each storage ...
 					$b = $src_storage->loadBlock($block);
-					if (is_array($b)) {
-						foreach ($b as $k => $v) {			// ... and each part of block configuration ...
-							if (strncmp('route:', $k, 6) == 0) {
-								$v[$block_var] = $block;
-								$conf[substr($k, 6)] = $v;	// ... get route description.
-							}
+					if (is_array($b['routes'])) {
+						foreach ($b['routes'] as $k => $v) {		// ... and each part of block configuration ...
+							$v[$block_var] = $block;
+							$conf[$k] = $v;				// ... get route description.
 						}
 					}
 				}
