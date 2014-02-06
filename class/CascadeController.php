@@ -456,7 +456,7 @@ class CascadeController {
 			."	bgcolor = transparent;\n"
 			."	edge [ arrowtail=none, arrowhead=normal, arrowsize=0.6 ];\n"
 			."	node [ shape=none, fontsize=7, fontname=\"sans\" ];\n"
-			."	graph [ shape=none, color=blueviolet, fontcolor=blueviolet, fontsize=9, fontname=\"sans\" ];\n"
+			."	graph [ shape=none, style=dashed, color=blueviolet, fontcolor=blueviolet, fontsize=9, fontname=\"sans\" ];\n"
 			."\n";
 
 		list($clusters, $specs) = $this->exportGraphvizDotNamespace($this->root_namespace, $colors, $doc_link, array_flip($whitelist), $step);
