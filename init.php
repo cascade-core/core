@@ -202,6 +202,13 @@ if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER
 	parse_str($_SERVER['QUERY_STRING'], $_GET);
 }
 
+/* Retrieve $_POST if received Content-Type is text/json */
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)
+	&& @ ($_SERVER['CONTENT_TYPE'] == 'text/json' || $_SERVER['CONTENT_TYPE'] == 'application/json;charset=UTF-8'))
+{
+	$_POST = (array) json_decode(file_get_contents('php://input'), TRUE, 512, JSON_BIGINT_AS_STRING);
+}
+
 /* Call app's init file(s) */
 if (!empty($core_cfg['core']['app_init_file'])) {
 	foreach((array) $core_cfg['core']['app_init_file'] as $f) {
