@@ -60,7 +60,7 @@ foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
 	}
 	$storage_class = $storage_opts['storage_class'];
 	debug_msg('Initializing block storage "%s" (class %s) ...', $storage_name, $storage_class);
-	$s = new $storage_class($storage_opts, $default_context);
+	$s = new $storage_class($storage_opts, $auth, $default_context);
 	$cascade->addBlockStorage($s, $storage_name);
 }
 
