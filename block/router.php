@@ -29,6 +29,7 @@ class B_core__router extends \Cascade\Core\Block
 		'protocol' => null,	// Current protocol ('http' or 'https')
 		'host' => null,		// Current hostname (full domain)
 		'path' => null,		// Current path (that part of URL after hostname)
+		'*' => null,		// Postprocessors
 	);
 
 	protected $connections = array(
@@ -62,7 +63,7 @@ class B_core__router extends \Cascade\Core\Block
 
 		// Get default path
 		if ($path === null) {
-			$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+			$path = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 		}
 
 		// Convert current path to array
@@ -83,7 +84,7 @@ class B_core__router extends \Cascade\Core\Block
 				continue;
 			}
 			// Find route
-			$route = $this->route($group['routes'], $path, $group_name);
+			$route = $this->route($group['routes'], $path, $group_name, $group);
 			if ($route !== false) {
 				// Route found
 				if (!empty($routes['defaults'])) {
@@ -175,7 +176,7 @@ class B_core__router extends \Cascade\Core\Block
 	}
 
 
-	protected function route($routes, $path, $group_name)
+	protected function route($routes, $path, $group_name, $group)
 	{
 		$path_len = count($path);
 
@@ -217,7 +218,23 @@ class B_core__router extends \Cascade\Core\Block
 				continue;
 			}
 
-			// match found
+			// postprocess found match
+			$postprocessor_input = @ $group['postprocessor'];
+			if ($postprocessor_input) {
+				if (!is_string($postprocessor_input)) {
+					throw new \InvalidArgumentException(sprintf(
+						'Postprocessor must be a string in rule [%s], group %s.', $mask, $group_name));
+				}
+				$postprocessor = $this->in($postprocessor_input);
+				if (!is_callable($postprocessor)) {
+					throw new \InvalidArgumentException(sprintf(
+						'Postprocessor at input \"%s\" is not a callable.', $postprocessor_input));
+				}
+				return $postprocessor($outputs);
+			}
+
+
+			// match found and processed
 			debug_msg("Matched rule [%s] in group %s", $mask, $group_name);
 			return $outputs;
 		}

@@ -37,6 +37,21 @@ Typical block connected to router is `core/value/block_loader`, which takes
 block name from the router and inserts it into the cascade.
 
 
+Route postprocessor
+-------------------
+
+The postprocessor is callable which receives matched rule and returns output
+values. If postprocessor returns false, the current group is not matched and
+router continues with the next group in configuration.
+
+The postprocessor is specified by `postprocessor` option in group definition.
+This option defines input from which is postprocessor loaded.
+
+This mechanism allows injecting custom functionality to common router. The
+postprocessors are expected to load data from database or scan filesystem, to
+verify `/**` rule or something similar.
+
+
 Reverse router -- URL generator
 -------------------------------
 
