@@ -47,7 +47,7 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_iframe\" style=\"clear: both;\">\n";
 			echo	"\t<hr>\n",
 				"\t<h2><a target=\"_blank\" href=\"", htmlspecialchars($url), "\">Cascade</a></h2>\n",
-				"\t<iframe src=\"", htmlspecialchars($url), "\" seamless frameborder=\"0\"></iframe>\n",
+				"\t<iframe src=\"", htmlspecialchars($url), "\" seamless frameborder=\"0\" width=\"100%\" height=\"85%\"></iframe>\n",
 				"</div>";
 			break;
 

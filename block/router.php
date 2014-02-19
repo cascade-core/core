@@ -230,7 +230,7 @@ class B_core__router extends \Cascade\Core\Block
 					throw new \InvalidArgumentException(sprintf(
 						'Postprocessor at input \"%s\" is not a callable.', $postprocessor_input));
 				}
-				return $postprocessor($outputs);
+				return $postprocessor($outputs, $group);
 			}
 
 
