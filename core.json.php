@@ -27,6 +27,7 @@
         "always_log_banner": true,
         "log_memory_usage": true,
         "add_cascade_graph": true,
+	"cascade_graph_slot": "default",
         "animate_cascade": false,
         "profiler_stats_file": "var/profiler.stats",
         "error_log": null

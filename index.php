@@ -95,7 +95,7 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	}
 
 	/* Template object will render & cache image */
-	$template->addObject('_cascade_graph', 'root', 95, 'core/cascade_graph', array(
+	$template->addObject('_cascade_graph', $core_cfg['debug']['cascade_graph_slot'], 95, 'core/cascade_graph', array(
 			'hash' => $hash,
 			'link' => $core_cfg['graphviz']['renderer']['link'],
 			'profile' => 'cascade',

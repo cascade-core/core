@@ -36,15 +36,12 @@ function TPL_html5__core__main($t, $id, $d, $so)
 	
 	echo "<body id=\"", htmlspecialchars($id), "\" class=\"slot_html_body\">\n";
 
-	echo "<!-- HTML Body -->\n";
 	$t->processSlot('html_body');
 
 	if (!$t->isSlotEmpty('default')) {
-		echo "<!-- Default slot fallback -->\n";
 		$t->processSlot('default');	// fallback
 	}
 
-	echo "<!-- End of HTML Body -->\n";
 	echo "</body>\n";
 	echo "</html>\n";
 }
