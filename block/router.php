@@ -49,7 +49,7 @@ class B_core__router extends \Cascade\Core\Block
 		$routes = $this->in('routes');
 		$protocol = $this->in('protocol');
 		$host = $this->in('host');
-		$path = $this->in('path');
+		$path_str = $this->in('path');
 
 		// Get default protocol
 		if ($protocol === null) {
@@ -62,15 +62,21 @@ class B_core__router extends \Cascade\Core\Block
 		}
 
 		// Get default path
-		if ($path === null) {
-			$path = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+		if ($path_str === null) {
+			$path_str = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 		}
 
-		// Convert current path to array
-		if (!is_array($path)) {
-			$path = trim($path, '/');
+		// Convert current path to array and to string (result: $path is array, $path_str is string)
+		if (is_array($path_str)) {
+			$path = $path_orig;
+			$path_str = '/'.join('/', $path);
+		} else {
+			$path = trim($path_str, '/');
 			$path = ($path == '' ? array() : explode('/', $path));
 		}
+
+		// Does path end with slash?
+		$path_slash = (substr($path_str, -1) == '/');
 
 		// Prepare reverse router
 		$this->reverse_routes = $routes['reverse_routes'];
@@ -93,6 +99,21 @@ class B_core__router extends \Cascade\Core\Block
 					$group_defaults = (array) @ $group['defaults'];
 					$route = array_replace($defaults, $group_defaults, $route);
 				}
+
+				// Redirect to canonical path
+				if (isset($route['path_canon']) && $route['path_canon'] != $path_str) {
+					$this->templateOptionSet('root', 'redirect_code', 302);
+					$this->templateOptionSet('root', 'redirect_url', $route['path_canon']);
+					return; // no outputs set
+				}
+
+				// Add slash to end of the path if requested (redirect)
+				if (isset($route['path_slash']) && $path_str != '/' && (!!$route['path_slash']) != $path_slash) {
+					$this->templateOptionSet('root', 'redirect_code', 302);
+					$this->templateOptionSet('root', 'redirect_url', $route['path_slash'] ? $path_str.'/' : rtrim($path_str, '/'));
+					return; // no outputs set
+				}
+
 				$this->outAll($route);
 				$done = true;
 				break;
@@ -109,7 +130,7 @@ class B_core__router extends \Cascade\Core\Block
 
 		$this->out('protocol', $protocol);
 		$this->out('host', $host);
-		$this->out('path', '/'.join('/', $path));
+		$this->out('path', $path_str);
 		$this->out('done', $done);
 
 	}
