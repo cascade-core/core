@@ -44,7 +44,19 @@ function TPL_raw__core__send_file($t, $id, $d, $so)
 		throw new \Exception('File not found: '.$filename);
 	}
 
+	$full_filename = ($filename[0] == '/' ? $filename : getcwd().'/'.$filename);
+
+	// Expire header
+	if (!empty($expires)) {
+		// FIXME: Make this better
+		$mtime = filemtime($full_filename);
+		header('Expires: '.gmdate('D, d M Y H:i:s', strtotime($expires)).' GMT');
+		header('Last-Modified: '.gmdate('D, d M Y H:i:s', $mtime).' GMT');
+		header('Cache-Control: public');
+		header('Pragma: cache');
+	}
+
 	// TODO: Resumable downloads, check mtime
-	header("X-Sendfile: ".($filename[0] == '/' ? $filename : getcwd().'/'.$filename));
+	header("X-Sendfile: ".$full_filename);
 }
 
