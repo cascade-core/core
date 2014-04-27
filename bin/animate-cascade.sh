@@ -37,7 +37,7 @@ avi="$dir/cascade-$hash.avi"
 
 if ! [ -f "$last" ]
 then
-	cd ../../data/graphviz
+	cd ../../var/graphviz
 	echo -n 'Current working directory: '
 	pwd
 fi
