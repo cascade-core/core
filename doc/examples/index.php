@@ -33,7 +33,7 @@
 
 
 /* Configuration loader class name
- * This constanst will be defined (but not overwritten) in core/index.php.
+ * This constants will be defined (but not overwritten) in core/index.php.
  */
 //define('CLASS_CONFIG_LOADER',		'\Cascade\Core\JsonConfig');
 

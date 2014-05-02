@@ -1,5 +1,5 @@
 #!/usr/bin/env php
-<?
+<?php
 /*
  * Copyright (c) 2010, Josef Kufner  <jk@frozen-doe.net>
  *
@@ -52,11 +52,11 @@ if ($err) {
 	echo "Do not forget to allow read-write access to 'data/' and 'var/'.\n";
 }
 
-if (!file_exists('./index.php') && copy('./core/examples/index.php', './index.php')) {
+if (!file_exists('./index.php') && copy('./core/doc/examples/index.php', './index.php')) {
 	echo "Bootstrap index.php created.\n";
 }
 
-if (!file_exists('./composer.json') && copy('./core/examples/composer.app.json', './composer.json')) {
+if (!file_exists('./composer.json') && copy('./core/doc/examples/composer.app.json', './composer.json')) {
 	echo "Initial composer.json created.\n";
 }
 
