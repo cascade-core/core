@@ -23,6 +23,7 @@
 @define('DIR_CORE',		DIR_ROOT.'core/');
 @define('DIR_APP',		DIR_ROOT.'app/');
 @define('DIR_PLUGIN',		DIR_ROOT.'plugin/');
+@define('DIR_VAR',		DIR_ROOT.'var/');
 
 /* Use with get_block_filename() */
 @define('DIR_CLASS',		'class/');

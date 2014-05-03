@@ -22,9 +22,28 @@ if (isset($_SERVER['REMOTE_ADDR'])) {
 	die('Please execute this from your command line!');
 }
 
+
+// Thanks to http://www.php.net/manual/en/function.copy.php
+function recursive_copy($src, $dst) {
+	$dir = opendir($src);
+	@mkdir($dst);
+	while (false !== ($file = readdir($dir))) {
+		if (($file != '.') && ($file != '..')) {
+			if (is_dir($src.'/'.$file)) {
+				recursive_copy($src.'/'.$file, $dst.'/'.$file);
+			} else {
+				copy($src.'/'.$file, $dst.'/'.$file);
+			}
+		}
+	}
+	closedir($dir);
+}
+
+
 $dirs = array(
 	'app',
 	'app/block',
+	'app/block/page',
 	'app/style',
 	'app/template',
 	'app/class',
@@ -61,7 +80,12 @@ if (!file_exists('./composer.json') && copy('./core/doc/examples/composer.app.js
 }
 
 if (!file_exists('./.gitignore')) {
-	file_put_contents('./.gitignore', "./data\n./lib\n./var\n./*.local.json.php\n");
+	file_put_contents('./.gitignore', "core/\ndata/\nlib/\nplugin/\nvar/\n*.local.json.php\n");
+}
+
+if (!file_exists('./app/core.json.php')) {
+	echo "Copying initial configuration.\n";
+	recursive_copy('./core/doc/examples/app', './app');
 }
 
 if (!file_exists('./favicon.ico')) {
