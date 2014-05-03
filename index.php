@@ -65,7 +65,11 @@ foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
 }
 
 /* Prepare starting blocks */
-$cascade->addBlocksFromArray(null, $core_cfg['blocks'], $default_context);
+if (empty($core_cfg['blocks'])) {
+	die('Please configure initial set of blocks (app/core.json.php, "blocks" section).');
+} else {
+	$cascade->addBlocksFromArray(null, $core_cfg['blocks'], $default_context);
+}
 
 /* Execute cascade */
 $cascade->start();
@@ -83,6 +87,7 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	$movie_file = filename_format($link, array('hash' => $hash, 'ext' => '%06d.dot.gz'));
 
 	/* Store dot file, it will be rendered later */
+	@ mkdir(dirname($dot_file), 0777, true);
 	file_put_contents($dot_file, $dot);
 
 	/* Prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do */

@@ -330,7 +330,7 @@ class CascadeController {
 	 * Block configuration passed in $blocks is the same as `"blocks"` 
 	 * section in JSON files.
 	 */
-	public function addBlocksFromArray($parent, $blocks, Context $context, & $errors = null)
+	public function addBlocksFromArray($parent, array $blocks, Context $context, & $errors = null)
 	{
 		$all_good = true;
 
