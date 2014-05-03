@@ -19,6 +19,8 @@
 /**
  * Set output type using root slot option. It is useful to connect 'type' input
  * to multiple blocks using :or function.
+ *
+ * @deprecated Use core/out/page_options instead.
  */
 
 class B_core__out__set_type extends \Cascade\Core\Block

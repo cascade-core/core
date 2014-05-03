@@ -17,39 +17,37 @@
  */
 
 /**
- * Set page title using root slot option. It is useful to connect 'title' input
- * to multiple blocks using :or function.
- *
- * @deprecated Use core/out/page_options instead.
+ * Set page title and type using root slot option. It is useful to connect 
+ * inputs to multiple blocks using ':or' input function.
  */
 
-class B_core__out__set_page_title extends \Cascade\Core\Block
+class B_core__out__page_options extends \Cascade\Core\Block
 {
 	const force_exec = true;
 
 	protected $inputs = array(
-		'title' => null,		// Title.
-		'title_fallback' => null,	// Alternative title when 'title' input is empty.
-		'format' => null,		// sprintf() format string, useful for adding extra suffix.
+		'title' => null,		// Page title.
+		'title_fmt' => null,		// sprintf() format string, useful for adding extra suffix.
+		'type' => null,			// Output type.
 	);
 
 	protected $outputs = array(
 		'title' => true,
+		'type' => true,
 		'done' => true,
 	);
 
 	public function main()
 	{
-		$t = $this->in('title');
-		$fmt = $this->in('format');
+		$title = $this->in('title');
+		$title_fmt = $this->in('title_fmt');
+		$this->templateSetPageTitle($title, $title_fmt);
+		$this->out('title', $title);
 
-		if ($t == '') {
-			$t = $this->in('title_fallback');
-		}
+		$type = $this->in('type');
+		$this->templateSetType($type);
+		$this->out('type', $type);
 
-		$this->templateSetPageTitle($t, $fmt);
-
-		$this->out('title', $t);
 		$this->out('done', true);
 	}
 }
