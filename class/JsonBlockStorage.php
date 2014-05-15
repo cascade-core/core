@@ -21,6 +21,9 @@ namespace Cascade\Core;
 /**
  * Load block composition from JSON file.
  *
+ * Hashbang is alias for a class. Instance of this class is then used to 
+ * interpret loaded block configuration.
+ *
  * TODO: Remove extending ClassBlockStorage (see getKnownBlocks()).
  */
 class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
