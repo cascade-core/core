@@ -19,6 +19,12 @@ When translating URL to a route, groups are checked and if group requirements
 are fulfilled, routes within group are scanned. Scanning is done in the same
 order as groups and routes are specified in config file. The first match is used.
 
+Typical block connected to router is `core/value/block_loader`, which takes
+block name from the router and inserts it into the cascade.
+
+
+### Route matching
+
 URL path is split on slashes into tokens. Each token is compared with route path. Route path can contain:
 
   - Literal token, which must be same as in matched URI. 
@@ -32,9 +38,6 @@ router's outputs. Any further processing is up to blocks connected to the
 router.
 
 The path tail is available on `path_tail` output.
-
-Typical block connected to router is `core/value/block_loader`, which takes
-block name from the router and inserts it into the cascade.
 
 
 Route postprocessor
