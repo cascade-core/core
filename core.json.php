@@ -57,7 +57,12 @@
         },
         "json": {
             "storage_class": "\\Cascade\\Core\\JsonBlockStorage",
-            "storage_weight": 50
+            "storage_weight": 50,
+	    "default_block_class": "\\Cascade\\Core\\ProxyBlock",
+	    "hashbang_classes": {
+		    "plain": "\\Cascade\\Core\\ProxyBlock",
+		    "template": "\\Cascade\\Core\\TemplatingProxyBlock"
+	    }
         }
     }
 }

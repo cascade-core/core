@@ -37,13 +37,19 @@ function TPL_html5__core__header($t, $id, $d, $so)
 		echo	'<a',
 				$anchor != '' ? ' name="'.htmlspecialchars($anchor).'"' : '',
 				$link != '' ? ' href="'.htmlspecialchars($link).'"' : '',
-			'>',
-			htmlspecialchars($str),
-			'</a>';
+			'>';
+	}
+
+	if ($img_src) {
+		echo "<img src=\"", htmlspecialchars($img_src), "\" alt=\"", htmlspecialchars($str), "\">";
 	} else {
 		echo htmlspecialchars($str);
 	}
-
+	
+	if ($anchor != '' || $link != '') {
+		echo '</a>';
+	}
+	
 	echo "</$tag>\n";
 }
 

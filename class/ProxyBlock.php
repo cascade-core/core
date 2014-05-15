@@ -16,7 +16,11 @@
  *
  */
 
+namespace Cascade\Core;
+
 /**
+ * Block class for proxy blocks created by JsonBlockStorage.
+ *
  * Load JSON file and insert its content to cascade. Used filename is determined
  * from block name, becouse cascade controller uses this block when block
  * specified by JSON file should be inserted.
@@ -39,8 +43,7 @@
  * Policy "skip_if_denied" says, that denied blocks are silently skipped.
  *
  */
-
-class B_core__json__proxy extends \Cascade\Core\Block {
+class ProxyBlock extends Block {
 
 	protected $inputs = array(
 		'*' => null,
@@ -56,9 +59,9 @@ class B_core__json__proxy extends \Cascade\Core\Block {
 
 
 	/**
-	 * Set configuration loaded by IniBlockStorage when creating instance.
+	 * Set configuration loaded by JsonBlockStorage when creating instance.
 	 */
-	public function setConfiguration($conf)
+	public function __construct($conf)
 	{
 		$this->conf = $conf;
 	}
@@ -67,7 +70,7 @@ class B_core__json__proxy extends \Cascade\Core\Block {
 	public function main()
 	{
 		// Get configuration
-		$conf = $this->conf;
+		$conf = $this->preprocessConfiguration($this->conf);
 		unset($this->conf);	// no need for this anymore
 
 		// Policy checks
@@ -119,6 +122,17 @@ class B_core__json__proxy extends \Cascade\Core\Block {
 	}
 
 
+	/**
+	 * Preprocess configuration before it is interpreted by proxy itself.
+	 *
+	 * Receives original configuration and returns modified version.
+	 */
+	protected function preprocessConfiguration($conf)
+	{
+		return $conf;
+	}
+
+
 	final protected function policy__require_block($arg, & $conf)
 	{
 		// Check required blocks
@@ -136,7 +150,7 @@ class B_core__json__proxy extends \Cascade\Core\Block {
 	{
 		// Silently replace denied blocks with dummy. Useful when other blocksare connected to these.
 		foreach ((array) $arg as $id) {
-			$m = @ $conf['block:'.$id]['.block'];
+			$m = @ $conf['block:'.$id]['.block'];	// FIXME
 			if ($m !== null && !$this->authIsBlockAllowed($m)) {
 				debug_msg('Replacing block "%s" (%s) with dummy.', $id, $m);
 				$conf['block:'.$id]['.block'] = 'core/dummy';
@@ -145,11 +159,12 @@ class B_core__json__proxy extends \Cascade\Core\Block {
 		return true;
 	}
 
+
 	final protected function policy__skip_if_denied($arg, & $conf)
 	{
 		// Silently skip denied blocks. When nothing needs these.
 		foreach ((array) $arg as $id) {
-			$m = @ $conf['block:'.$id]['.block'];
+			$m = @ $conf['block:'.$id]['.block'];	// FIXME
 			if ($m !== null && !$this->authIsBlockAllowed($m)) {
 				debug_msg('Skipping block "%s" (%s).', $id, $m);
 				unset($conf['block:'.$id]);

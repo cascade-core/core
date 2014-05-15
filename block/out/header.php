@@ -26,6 +26,7 @@ class B_core__out__header extends \Cascade\Core\Block
 	protected $inputs = array(
 		'level' => 2,		// Heading level. (1 is page title, 2 is chapter, ...)
 		'text' => null,		// Text of heading.
+		'img_src' => null,	// URL of image.
 		'link' => null,		// Make heading link to this URL (href attribute).
 		'anchor' => null,	// Name of heading (name attribute).
 		'option' => null,	// Load text from slot option.
@@ -42,11 +43,12 @@ class B_core__out__header extends \Cascade\Core\Block
 		$in = $this->inAll();
 
 		$this->templateAdd(null, 'core/header', array(
-				'option' => $in['option'],
-				'text'   => template_format($in['text'], $in),
-				'link'   => $in['link'],
-				'anchor' => $in['anchor'],
-				'level'  => $in['level'],
+				'option'  => $in['option'],
+				'text'    => template_format($in['text'], $in),
+				'img_src' => $in['img_src'],
+				'link'    => $in['link'],
+				'anchor'  => $in['anchor'],
+				'level'   => $in['level'],
 			));
 	}
 }

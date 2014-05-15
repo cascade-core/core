@@ -31,6 +31,9 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	/// @copydoc ClassBlockStorage::$filename_match_regexp
 	protected $filename_to_block_regexp = '/^\/([\/a-zA-Z0-9_-]+)\.json\.php$/';
 
+	protected $default_block_class = "\\Cascade\\Core\\ProxyBlock";
+
+	protected $hashbang_classes = array();
 
 	/**
 	 * Constructor will get options from core.json.php file.
@@ -44,6 +47,13 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function __construct($storage_opts, $auth, $context)
 	{
+		if (!empty($storage_opts['default_block_class'])) {
+			$this->default_block_class = $storage_opts['default_block_class'];
+		}
+
+		if (!empty($storage_opts['hashbang_classes'])) {
+			$this->hashbang_classes = $storage_opts['hashbang_classes'];
+		}
 	}
 
 
@@ -65,15 +75,25 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function createBlockInstance ($block)
 	{
+		// Get block configuration
 		$conf = $this->loadBlock($block);
-
-		if ($conf) {
-			$b = new \B_core__json__proxy();
-			$b->setConfiguration($conf);
-			return $b;
-		} else {
+		if (!$conf) {
 			return false;
 		}
+
+		// Resolve hashbang if present
+		$hashbang = @ $conf['hashbang'];
+		if ($hashbang === null) {
+			$block_class = $this->default_block_class;
+		} else {
+			$block_class = @ $this->hashbang_classes[$hashbang];
+			if ($block_class === null) {
+				throw new \RuntimeException('Invalid hashbang "'.$hashbang.'" while creating block "'.$block.'".');
+			}
+		}
+
+		// Instantiate block
+		return new $block_class($conf);
 	}
 
 
@@ -83,6 +103,9 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 * Documentation structure is mostly the same as JSON file where block 
 	 * is stored. Only few fileds must be filled before it is complete.
 	 * And inputs and outputs are completely different.
+	 *
+	 * FIXME: Is this method required? What if we just create requested 
+	 *        block and inspect it?
 	 */
 	public function describeBlock ($block)
 	{
