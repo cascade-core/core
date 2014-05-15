@@ -9,17 +9,15 @@
         "ignore_repeated_errors": true
     },
     "core": {
-        "default_locale": "cs_CZ",
+	"cascade_controller_class": "\\Cascade\\Core\\CascadeController",
         "auth_class": "",
-        "context_class": "\\Cascade\\Core\\Context",
         "app_init_file": [
-
         ],
         "umask": null
     },
-    "define": [
+    "define": {
 
-    ],
+    },
     "debug": {
         "development_environment": true,
 	"throw_errors": false,
@@ -32,9 +30,16 @@
         "profiler_stats_file": "var/profiler.stats",
         "error_log": null
     },
-    "output": {
-        "template_engine_class": "\\Cascade\\Core\\Template",
-        "default_type": "html5"
+    "context": {
+        "class": "\\Cascade\\Core\\Context",
+        "default_locale": "cs_CZ",
+        "resources": {
+    	    "config_loader": null,
+    	    "template_engine": {
+                "class": "\\Cascade\\Core\\Template",
+                "default_type": "html5"
+    	    }
+        }
     },
     "graphviz": {
         "renderer": {
@@ -47,9 +52,9 @@
             "doc_link": null
         }
     },
-    "block_map": [
+    "block_map": {
 
-    ],
+    },
     "block_storage": {
         "class": {
             "storage_class": "\\Cascade\\Core\\ClassBlockStorage",

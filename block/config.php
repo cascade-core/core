@@ -37,7 +37,7 @@ class B_core__config extends \Cascade\Core\Block {
 
 	public function main()
 	{
-		$this->config = $this->context->getConfigLoader();
+		$this->config = $this->context->config_loader;
 		$this->out('done', true);
 	}
 

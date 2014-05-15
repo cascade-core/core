@@ -171,10 +171,6 @@ if (CASCADE_MAIN && !empty($core_cfg['debug']['always_log_banner'])) {
 	first_msg();
 }
 
-/* Default locale */
-$lc = $core_cfg['core']['default_locale'];
-define('DEFAULT_LOCALE', setlocale(LC_ALL, $lc.'.UTF8', $lc));
-
 /* Define constants */
 foreach($core_cfg['define'] as $k => $v) {
 	define(strtoupper($k), $v);
@@ -197,6 +193,15 @@ if (function_exists('mb_internal_encoding')) {
 	mb_internal_encoding('UTF-8');
 }
 
+/* Initialize default context */
+$context_cfg = $core_cfg['context'];
+$context_class = $context_cfg['class'];
+$default_context = new $context_class($context_cfg['resources']);
+$default_context->config_loader = $config_loader;
+$default_context->setDefaultLocale($context_cfg['default_locale']);
+$default_context->setLocale($context_cfg['default_locale']);
+$default_context->updateEnviroment();
+
 /* fix $_GET from lighttpd */
 if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER['REQUEST_URI'],'?')) {
 	$_SERVER['QUERY_STRING'] = preg_replace('#^.*?\?#','',$_SERVER['REQUEST_URI']);
@@ -217,5 +222,5 @@ if (!empty($core_cfg['core']['app_init_file'])) {
 	}
 }
 
-return array($config_loader, $core_cfg);
+return array($default_context, $core_cfg);
 

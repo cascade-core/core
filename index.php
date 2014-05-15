@@ -19,29 +19,14 @@
 define('CASCADE_MAIN', true);
 
 /* Call core's init file */
-list($config_loader, $core_cfg) = require(dirname(__FILE__).'/init.php');
-
-/* initialize template engine */
-$template = new $core_cfg['output']['template_engine_class']();
-
-/* set default output type */
-if (!empty($core_cfg['output']['default_type'])) {
-	$template->slotOptionSet('root', 'type', $core_cfg['output']['default_type']);
-}
+list($default_context, $core_cfg) = require(dirname(__FILE__).'/init.php');
 
 /* Start session if not started yet */
 if (!isset($_SESSION)) {
 	session_start();
 }
 
-/* Initialize default context */
-$context_class = $core_cfg['core']['context_class'];
-$default_context = new $context_class();
-$default_context->setConfigLoader($config_loader);
-$default_context->setLocale(DEFAULT_LOCALE);
-$default_context->setTemplateEngine($template);
-
-/* Initialize auth object (if set) */
+/* Initialize auth object (if set), intentionaly not in context */
 if (!empty($core_cfg['core']['auth_class'])) {
 	$auth_class = $core_cfg['core']['auth_class'];
 	$auth = new $auth_class();
@@ -50,7 +35,8 @@ if (!empty($core_cfg['core']['auth_class'])) {
 }
 
 /* Initialize cascade controller */
-$cascade = new \Cascade\Core\CascadeController($auth, @$core_cfg['block_map']);
+$cascade_controller_class = $core_cfg['core']['cascade_controller_class'];
+$cascade = new $cascade_controller_class($auth, @$core_cfg['block_map']);
 
 /* Initialize block storages */
 uasort($core_cfg['block_storage'], function($a, $b) { return $a['storage_weight'] - $b['storage_weight']; });
@@ -100,7 +86,7 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	}
 
 	/* Template object will render & cache image */
-	$template->addObject('_cascade_graph', $core_cfg['debug']['cascade_graph_slot'], 95, 'core/cascade_graph', array(
+	$default_context->template_engine->addObject('_cascade_graph', $core_cfg['debug']['cascade_graph_slot'], 95, 'core/cascade_graph', array(
 			'hash' => $hash,
 			'link' => $core_cfg['graphviz']['renderer']['link'],
 			'profile' => 'cascade',
@@ -128,5 +114,5 @@ if (DEBUG_PROFILER_STATS_FILE) {
 }
 
 /* Generate output */
-$template->start();
+$default_context->template_engine->start();
 

@@ -80,7 +80,7 @@ class B_core__router extends \Cascade\Core\Block
 
 		// Prepare reverse router
 		$this->reverse_routes = $routes['reverse_routes'];
-		$this->context->getTemplateEngine()->addReverseRouter(array($this, 'getUrl'));
+		$this->context->template_engine->addReverseRouter(array($this, 'getUrl'));
 
 		// Find current route in all groups
 		$route = false;

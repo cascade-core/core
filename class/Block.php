@@ -691,7 +691,7 @@ abstract class Block
 	final protected function templateAddToSlot($id_suffix, $slot, $weight, $template, $data = array())
 	{
 		$id = $id_suffix === null ? $this->fullId() : $this->fullId().'_'.$id_suffix;
-		$t = $this->context->getTemplateEngine();
+		$t = $this->context->template_engine;
 		$t->addObject($id, $slot === null ? $this->in('slot') : $slot,
 				($weight === null ? $this->in('slot_weight') : $weight) + $this->slot_weight_penalty,
 				$template, $data, $this->context);
@@ -704,7 +704,7 @@ abstract class Block
 	 */
 	final protected function templateSetPageTitle($title, $format = null)
 	{
-		$t = $this->context->getTemplateEngine();
+		$t = $this->context->template_engine;
 		if ($title !== null) {
 			$t->slotOptionSet('root', 'page_title', $title);
 		}
@@ -719,7 +719,7 @@ abstract class Block
 	 */
 	final protected function templateSetType($type)
 	{
-		$t = $this->context->getTemplateEngine();
+		$t = $this->context->template_engine;
 		$t->slotOptionSet('root', 'type', $type);
 	}
 
@@ -729,7 +729,7 @@ abstract class Block
 	 */
 	final protected function templateOptionSet($slot, $option, $value)
 	{
-		$t = $this->context->getTemplateEngine();
+		$t = $this->context->template_engine;
 		return $t->slotOptionSet($slot, $option, $value);
 	}
 
@@ -739,7 +739,7 @@ abstract class Block
 	 */
 	final protected function templateOptionAppend($slot, $option, $value)
 	{
-		$t = $this->context->getTemplateEngine();
+		$t = $this->context->template_engine;
 		return $t->addSlotOption($slot, $option, $value);
 	}
 

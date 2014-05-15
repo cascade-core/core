@@ -43,6 +43,15 @@ class Template {
 	private $reverse_router = array();
 
 
+	function __construct($cfg)
+	{
+		$default_type = @ $cfg['default_type'];
+		if ($default_type) {
+			$this->slotOptionSet('root', 'type', $default_type);
+		}
+	}
+
+
 	/**
 	 * Add object to specified slot and set its weight.
 	 */
