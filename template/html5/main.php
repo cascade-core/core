@@ -18,6 +18,8 @@
 
 function TPL_html5__core__main($t, $id, $d, $so)
 {
+	header('Content-Type: text/html; charset=utf-8');
+
 	echo "<!DOCTYPE html>\n";
 	echo "<html>\n";
 
