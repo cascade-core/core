@@ -102,7 +102,7 @@ class Context {
 	 */
 	public function setLocale($locale)
 	{
-		$this->_locale = $locale !== null ? preg_replace('/[^.]*$/', '', $locale).'UTF8' : null;
+		$this->_locale = $locale;
 	}
 
 
@@ -127,7 +127,7 @@ class Context {
 			debug_msg('Updating enviroment: locale = "%s"', $this->_locale);
 
 			if ($this->_locale !== null) {
-				$this->_locale = setlocale(LC_ALL, $this->_locale, $this->_default_locale, 'C');
+				$this->_locale = setlocale(LC_ALL, $this->_locale.'.UTF-8', $this->_locale, $this->_default_locale, 'C');
 				putenv('LANG='.$this->_locale);
 			}
 			return true;
