@@ -124,7 +124,7 @@ class Context {
 		} else {
 			static::$_last_context_enviroment = $this;
 
-			debug_msg('Updating enviroment: locale = "%s"', $this->_locale);
+			//debug_msg('Updating enviroment: locale = "%s"', $this->_locale);
 
 			if ($this->_locale !== null) {
 				$this->_locale = setlocale(LC_ALL, $this->_locale.'.UTF-8', $this->_locale, $this->_default_locale, 'C');
