@@ -26,17 +26,9 @@ if (!isset($_SESSION)) {
 	session_start();
 }
 
-/* Initialize auth object (if set), intentionaly not in context */
-if (!empty($core_cfg['core']['auth_class'])) {
-	$auth_class = $core_cfg['core']['auth_class'];
-	$auth = new $auth_class();
-} else {
-	$auth = null;
-}
-
 /* Initialize cascade controller */
 $cascade_controller_class = $core_cfg['core']['cascade_controller_class'];
-$cascade = new $cascade_controller_class($auth, @$core_cfg['block_map']);
+$cascade = new $cascade_controller_class($default_context->auth, @$core_cfg['block_map']);
 
 /* Initialize block storages */
 uasort($core_cfg['block_storage'], function($a, $b) { return $a['storage_weight'] - $b['storage_weight']; });
@@ -46,7 +38,7 @@ foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
 	}
 	$storage_class = $storage_opts['storage_class'];
 	debug_msg('Initializing block storage "%s" (class %s) ...', $storage_name, $storage_class);
-	$s = new $storage_class($storage_opts, $auth, $default_context);
+	$s = new $storage_class($storage_opts, $default_context, $storage_name);
 	$cascade->addBlockStorage($s, $storage_name);
 }
 

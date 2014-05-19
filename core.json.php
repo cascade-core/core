@@ -9,8 +9,7 @@
         "ignore_repeated_errors": true
     },
     "core": {
-	"cascade_controller_class": "\\Cascade\\Core\\CascadeController",
-        "auth_class": "",
+        "cascade_controller_class": "\\Cascade\\Core\\CascadeController",
         "app_init_file": [
         ],
         "umask": null
@@ -20,12 +19,12 @@
     },
     "debug": {
         "development_environment": true,
-	"throw_errors": false,
+        "throw_errors": false,
         "debug_logging_enabled": true,
         "always_log_banner": true,
         "log_memory_usage": true,
         "add_cascade_graph": true,
-	"cascade_graph_slot": "default",
+        "cascade_graph_slot": "default",
         "animate_cascade": false,
         "profiler_stats_file": "var/profiler.stats",
         "error_log": null
@@ -34,11 +33,13 @@
         "class": "\\Cascade\\Core\\Context",
         "default_locale": "cs_CZ",
         "resources": {
-    	    "config_loader": null,
-    	    "template_engine": {
+            "config_loader": null,
+            "auth": {
+            },
+            "template_engine": {
                 "class": "\\Cascade\\Core\\Template",
                 "default_type": "html5"
-    	    }
+            }
         }
     },
     "graphviz": {
@@ -63,11 +64,11 @@
         "json": {
             "storage_class": "\\Cascade\\Core\\JsonBlockStorage",
             "storage_weight": 50,
-	    "default_block_class": "\\Cascade\\Core\\ProxyBlock",
-	    "hashbang_classes": {
-		    "plain": "\\Cascade\\Core\\ProxyBlock",
-		    "template": "\\Cascade\\Core\\TemplatingProxyBlock"
-	    }
+            "default_block_class": "\\Cascade\\Core\\ProxyBlock",
+            "hashbang_classes": {
+                    "plain": "\\Cascade\\Core\\ProxyBlock",
+                    "template": "\\Cascade\\Core\\TemplatingProxyBlock"
+            }
         }
     }
 }

@@ -41,7 +41,7 @@ class Context {
 	private static $_last_context_enviroment = false;
 	private $_locale = null;
 	private $_default_locale = 'C';
-	private $_resource_facotries_config;
+	private $_resource_factories_config;
 
 
 	/**
@@ -73,15 +73,20 @@ class Context {
 		// Try to create resource using class name
 		$class = @ $cfg['class'];
 		if ($class) {
-			$resource = new $class($cfg, $this);
+			$resource = new $class($cfg, $this, $resource_name);
 			return ($this->$resource_name = $resource);
 		}
 
 		// Try to call factory method
 		$factory = @ $cfg['factory'];
 		if ($factory) {
-			$resource = $factory($cfg, $this);
+			$resource = $factory($cfg, $this, $resource_name);
 			return ($this->$resource_name = $resource);
+		}
+
+		// Intentionaly empty resource
+		if (empty($cfg)) {
+			return null;
 		}
 
 		// No other way to create resource

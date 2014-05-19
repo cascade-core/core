@@ -31,12 +31,12 @@ interface IBlockStorage {
 	 *
 	 * Arguments:
 	 * 	$storage_opts - Options loaded from config file
-	 * 	$auth - Auth object.
 	 * 	$context - Common default context (dependency injection 
 	 *		container) passed to all storages, and later also to 
 	 *		all blocks.
+	 *	$alias - Name of the storage (use it in error messages)
 	 */
-	public function __construct($storage_opts, $auth, $context);
+	public function __construct($storage_opts, $context, $alias);
 
 	/**
 	 * Returns true if there is no way that this storage can modify or 

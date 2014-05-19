@@ -43,12 +43,11 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 *
 	 * Arguments:
 	 * 	$storage_opts - Options loaded from config file
-	 * 	$auth - Auth object
 	 * 	$context - Common default context (dependency injection 
 	 *		container) passed to all storages, and later also to 
 	 *		all blocks.
 	 */
-	public function __construct($storage_opts, $auth, $context)
+	public function __construct($storage_opts, $context, $alias)
 	{
 		if (!empty($storage_opts['default_block_class'])) {
 			$this->default_block_class = $storage_opts['default_block_class'];
