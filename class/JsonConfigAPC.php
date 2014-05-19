@@ -30,7 +30,7 @@ class JsonConfigAPC extends JsonConfig
 	protected function fetchFromCache($key, & $hit)
 	{
 		// TODO: Use global caching mechanism
-		return apc_fetch($key, $hit);
+		return \apc_fetch($key, $hit);
 	}
 
 
@@ -40,7 +40,7 @@ class JsonConfigAPC extends JsonConfig
 	protected function addToCache($key, $value)
 	{
 		// TODO: Use global caching mechanism
-		return apc_add($key, $value, 0);
+		return \apc_add($key, $value, 0);
 	}
 
 
@@ -51,7 +51,7 @@ class JsonConfigAPC extends JsonConfig
 	 */
 	public function clearCache()
 	{
-		return apc_clear_cache('user');
+		return \apc_clear_cache('user');
 	}
 
 }
