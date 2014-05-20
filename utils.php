@@ -228,13 +228,14 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 		'floatval'	=> 'sprintf',
 	);
 
-	$tokens = preg_split('/({)'
+	$tokens = preg_split('/(?:({)'
 				."(\\/?[a-zA-Z0-9_.-]+)"			// symbol name
 				.'(?:'
-					.'([:%])([^:}\s]*)'		// function name
+					.'([:%])([^:}\s]*)'			// function name
 					."(?:([:])((?:[^}\\\\]|\\\\.)*))?"	// format string
 				.')?'
-				.'(})/',
+				.'(})'
+				.'|(\\\\[{}\\\\]))/',
 			$template, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
 	$status = 0;		// Current status of parser
@@ -252,6 +253,8 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 					$process_function = null;
 					$format_function  = null;
 					$fmt = null;
+				} else if ($token[0] === '\\') {
+					$result[] = substr($token, 1);
 				} else {
 					$result[] = $token;
 				}
