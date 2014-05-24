@@ -415,6 +415,7 @@ abstract class Block
 			error_msg("%s: Uncaught exception %s in block \"%s\": \"%s\" in file %s on line %d.\n%s",
 				$this->blockName(), get_class($ex), $this->fullId(), $ex->getMessage(),
 				$ex->getFile(), $ex->getLine(), $ex->getTraceAsString());
+			return false;
 		}
 		$this->execution_time = (microtime(TRUE) - $t) * 1000;
 		$this->timestamp_finish = $this->cascade_controller->currentStep();
