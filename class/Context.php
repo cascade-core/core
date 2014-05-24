@@ -53,6 +53,9 @@ class Context {
 	}
 
 
+	/**
+	 * Set locale which will be used as fallback when setting new locale.
+	 */
 	public function setDefaultLocale($locale)
 	{
 		$this->_default_locale = $locale;

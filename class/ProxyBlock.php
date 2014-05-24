@@ -33,15 +33,7 @@ namespace Cascade\Core;
  *
  * There are three policies which specify behaviour when block is denied. They
  * are specified in "policy" section in form: policy[] = list of blocks.
- *
- * Policy "require_block" says, that all specified blocks must be accessible,
- * or else no block is inserted to cascade.
- *
- * Policy "dummy_if_denied" says, that denied blocks are silently replaced
- * by core/dummy.
- *
- * Policy "skip_if_denied" says, that denied blocks are silently skipped.
- *
+ * See policy handlers section for description of policies.
  */
 class ProxyBlock extends Block {
 
@@ -67,6 +59,7 @@ class ProxyBlock extends Block {
 	}
 
 
+	/// @copydoc Block::main
 	public function main()
 	{
 		// Get configuration
@@ -133,9 +126,17 @@ class ProxyBlock extends Block {
 	}
 
 
+	/******************************************************************//**
+	 * @}
+	 * \name	Policy handlers
+	 * @{
+	 */
+
+	/**
+	 * Deny entire block if specified block is not available.
+	 */
 	final protected function policy__require_block($arg, & $conf)
 	{
-		// Check required blocks
 		foreach ((array) $arg as $rq_block) {
 			if (!$this->authIsBlockAllowed($rq_block)) {
 				debug_msg('Required block "%s" is not allowed. Aborting.', $rq_block);
@@ -146,9 +147,11 @@ class ProxyBlock extends Block {
 	}
 
 
+	/**
+	 * Silently replace denied blocks with dummy. Useful when other blocksare connected to these.
+	 */
 	final protected function policy__dummy_if_denied($arg, & $conf)
 	{
-		// Silently replace denied blocks with dummy. Useful when other blocksare connected to these.
 		foreach ((array) $arg as $id) {
 			$m = @ $conf['block:'.$id]['.block'];	// FIXME
 			if ($m !== null && !$this->authIsBlockAllowed($m)) {
@@ -160,9 +163,11 @@ class ProxyBlock extends Block {
 	}
 
 
+	/**
+	 * Silently skip denied blocks. When nothing needs these.
+	 */
 	final protected function policy__skip_if_denied($arg, & $conf)
 	{
-		// Silently skip denied blocks. When nothing needs these.
 		foreach ((array) $arg as $id) {
 			$m = @ $conf['block:'.$id]['.block'];	// FIXME
 			if ($m !== null && !$this->authIsBlockAllowed($m)) {

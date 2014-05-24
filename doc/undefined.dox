@@ -1,0 +1,7 @@
+<?php
+namespace Cascade\Core;
+class Block {
+	function getOutput($name) {
+	}
+}
+

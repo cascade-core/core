@@ -668,6 +668,17 @@ abstract class Block
 		}
 	}
 
+	/**
+	 * Calculate output value on demand. If some output is not always used 
+	 * and is hard to compute, do not set output value in main(). Implement 
+	 * this method instead.
+	 *
+	 * @fn public function getOutput($name)
+	 */
+	// public function getOutput($name)
+	// {
+	// }
+
 
 	/******************************************************************//**
 	 * @}

@@ -34,8 +34,16 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	/// @copydoc ClassBlockStorage::$filename_match_regexp
 	protected $filename_to_block_regexp = '/^\/([\/a-zA-Z0-9_-]+)\.json\.php$/';
 
+	/**
+	 * Default class used to process a block, when no hashbang is not 
+	 * specified.
+	 */
 	protected $default_block_class = "\\Cascade\\Core\\ProxyBlock";
 
+	/**
+	 * List of interpreters. Block can specify this alias and change how it 
+	 * will be interpreted.
+	 */
 	protected $hashbang_classes = array();
 
 	/**
