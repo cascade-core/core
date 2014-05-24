@@ -83,7 +83,7 @@ class Context {
 		// Try to call factory method
 		$factory = @ $cfg['factory'];
 		if ($factory) {
-			$resource = $factory($cfg, $this, $resource_name);
+			$resource = call_user_func($factory, $cfg, $this, $resource_name);
 			return ($this->$resource_name = $resource);
 		}
 
