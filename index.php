@@ -28,7 +28,7 @@ if (!isset($_SESSION)) {
 
 /* Initialize cascade controller */
 $cascade_controller_class = $core_cfg['core']['cascade_controller_class'];
-$cascade = new $cascade_controller_class($default_context->auth, @$core_cfg['block_map']);
+$cascade = new $cascade_controller_class($default_context->auth, @$core_cfg['block_map'], @$core_cfg['hashbangs']);
 
 /* Initialize block storages */
 uasort($core_cfg['block_storage'], function($a, $b) { return $a['storage_weight'] - $b['storage_weight']; });

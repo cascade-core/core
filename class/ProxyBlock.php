@@ -35,7 +35,7 @@ namespace Cascade\Core;
  * are specified in "policy" section in form: policy[] = list of blocks.
  * See policy handlers section for description of policies.
  */
-class ProxyBlock extends Block {
+class ProxyBlock extends Block implements IHashbangHandler {
 
 	protected $inputs = array(
 		'*' => null,
@@ -51,11 +51,13 @@ class ProxyBlock extends Block {
 
 
 	/**
-	 * Set configuration loaded by JsonBlockStorage when creating instance.
+	 * Create block proxy.
 	 */
-	public function __construct($conf)
+	public static function createFromHashbang($block_config, $hashbang_config, Context $context, $block_type)
 	{
-		$this->conf = $conf;
+		$block = new self();
+		$block->conf = $block_config;
+		return $block;
 	}
 
 
@@ -65,6 +67,12 @@ class ProxyBlock extends Block {
 		// Get configuration
 		$conf = $this->preprocessConfiguration($this->conf);
 		unset($this->conf);	// no need for this anymore
+
+		// Check if there is block definition
+		if (!isset($conf['blocks'])) {
+			error_msg('%s: Missing "blocks" section in block configuration.', $this->blockName());
+			return false;
+		}
 
 		// Policy checks
 		if (isset($conf['policy'])) {

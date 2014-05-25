@@ -47,6 +47,11 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	protected $hashbang_classes = array();
 
 	/**
+	 * Default context from cascade.
+	 */
+	protected $context = null;
+
+	/**
 	 * Constructor will get options from core.json.php file.
 	 *
 	 * Arguments:
@@ -57,6 +62,8 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function __construct($storage_opts, $context, $alias)
 	{
+		$this->context = $context;
+
 		if (!empty($storage_opts['default_block_class'])) {
 			$this->default_block_class = $storage_opts['default_block_class'];
 		}
@@ -91,19 +98,9 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 			return false;
 		}
 
-		// Resolve hashbang if present
-		$hashbang = @ $conf['hashbang'];
-		if ($hashbang === null) {
-			$block_class = $this->default_block_class;
-		} else {
-			$block_class = @ $this->hashbang_classes[$hashbang];
-			if ($block_class === null) {
-				throw new \RuntimeException('Invalid hashbang "'.$hashbang.'" while creating block "'.$block.'".');
-			}
-		}
-
-		// Instantiate block
-		return new $block_class($conf);
+		// Instantiate block... ee... not yet. Hashbang mechanism will 
+		// take over from here.
+		return $conf;
 	}
 
 

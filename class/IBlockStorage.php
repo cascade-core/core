@@ -49,7 +49,11 @@ interface IBlockStorage {
 	/**
 	 * Create instance of requested block and give it loaded configuration. 
 	 * No further initialisation here, that is job for cascade controller. 
-	 * Returns created instance or false.
+	 * Returns created instance, block configuration (array) or false.
+	 *
+	 * If block configuration is returned, CascadeController will execute 
+	 * hashbang handler to create instance of the Block using this 
+	 * configuration.
 	 */
 	public function createBlockInstance ($block);
 
@@ -67,6 +71,9 @@ interface IBlockStorage {
 	 * @warning Never pass result of describeBlock() to storeBlock().
 	 *
 	 * TODO: Document the documentation structure.
+	 *
+	 * @deprecated Blocks should describe themself. It is bad idea to have 
+	 * this here.
 	 */
 	public function describeBlock ($block);
 

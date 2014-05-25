@@ -53,6 +53,14 @@
             "doc_link": null
         }
     },
+    "hashbangs": {
+        "proxy": {
+            "class": "\\Cascade\\Core\\ProxyBlock"
+        },
+        "template": {
+            "class": "\\Cascade\\Core\\TemplatingProxyBlock"
+        }
+    },
     "block_map": {
 
     },
@@ -64,11 +72,7 @@
         "json": {
             "storage_class": "\\Cascade\\Core\\JsonBlockStorage",
             "storage_weight": 50,
-            "default_block_class": "\\Cascade\\Core\\ProxyBlock",
-            "hashbang_classes": {
-                    "plain": "\\Cascade\\Core\\ProxyBlock",
-                    "template": "\\Cascade\\Core\\TemplatingProxyBlock"
-            }
+            "default_block_class": "\\Cascade\\Core\\ProxyBlock"
         }
     }
 }

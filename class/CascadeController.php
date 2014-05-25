@@ -34,6 +34,7 @@ class CascadeController {
 	private $blocks = array();	// all existing blocks
 	private $evaluation_step = 0;	// step counter - time for cascade animations and slot weight penalty
 	private $replacement = array();	// block replacement table (aliases)
+	private $hashbangs = array();	// hashbangs - if block storages returns array instead of object, these will interpret it.
 	private $root_namespace = array();
 
 	private $execution_time = null;	// time [ms] spent in start()
@@ -53,12 +54,16 @@ class CascadeController {
 	 * The $replacement_table maps requested block type to some other block 
 	 * type.
 	 */
-	public function __construct(IAuth $auth = null, $replacement_table)
+	public function __construct(IAuth $auth = null, $replacement_table, $hashbangs)
 	{
 		$this->auth = $auth;
 
 		if ($replacement_table != null) {
 			$this->replacement = $replacement_table;
+		}
+
+		if ($hashbangs != null) {
+			$this->hashbangs = $hashbangs;
 		}
 	}
 
@@ -172,7 +177,7 @@ class CascadeController {
 	 * The block factory method. Asks all registered block storages for 
 	 * new Block instance.
 	 */
-	private function createBlockInstance($block, & $errors = null, & $storage_name = null)
+	private function createBlockInstance($block, Context $context, & $errors = null, & $storage_name = null)
 	{
 		/* check replacement table */
 		for ($step = 32; is_string($block) && isset($this->replacement[$block]) && $step > 0; $step--) {
@@ -210,7 +215,35 @@ class CascadeController {
 			$b = $s->createBlockInstance($block);
 			if ($b) {
 				$storage_name = $s_name;
-				return $b;
+				if (is_object($b)) {
+					// Storage has created a block. Work is done.
+					return $b;
+				} else {
+					// Interpret hasbang.
+					$hashbang = @ $b['hashbang'];
+					if ($hashbang === null) {
+						$hashbang = 'proxy';
+					}
+					$hashbang_class = @ $this->hashbangs[$hashbang]['class'];
+					if ($hashbang_class === null) {
+						error_msg('Undefined hashbang "%s" in block "%s".', $hashbang, $block);
+						$errors[] = array(
+							'error'   => 'Undefined hashbang.',
+							'block'   => $block,
+						);
+						return false;
+					}
+					$factory_method = array($hashbang_class, 'createFromHashbang');
+					if (!is_callable($factory_method)) {
+						error_msg('Invalid hashbang handler "%s" for block "%s".', $hashbang_class, $block);
+						$errors[] = array(
+							'error'   => 'Invalid hashbang handler.',
+							'block'   => $block,
+						);
+						return false;
+					}
+					return call_user_func($factory_method, $b, $hashbang, $context, $block);
+				}
 			}
 		}
 
@@ -256,7 +289,7 @@ class CascadeController {
 		}
 
 		/* create block instance */
-		$b = $this->createBlockInstance($block, $errors, $storage_name);
+		$b = $this->createBlockInstance($block, $context, $errors, $storage_name);
 		if (!$b) {
 			$last_error = end($errors);
 			$this->addFailedBlock($parent, $id, $full_id, $block, $in_connections, $in_values, $last_error['error']);
@@ -757,10 +790,10 @@ class CascadeController {
 	 * Description contains inputs and outputs with their default values,
 	 * force_exec flag and real block type.
 	 */
-	public function describeBlock($block)
+	public function describeBlock($block, Context $context)
 	{
 		/* create instance of the block */
-		$b = $this->createBlockInstance($block);
+		$b = $this->createBlockInstance($block, $context);
 		if (!$b) {
 			return false;
 		}
