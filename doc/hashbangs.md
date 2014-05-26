@@ -5,9 +5,9 @@ In unix a hashbang is the first line of executable file starting with `#!`.
 This line says which interpreter should be used to execute the file. In cascade
 hashbang is the same, but there are little technical differences.
 
-The hashbang is a top-level key in block configuration. When
+The hashbang is a top-level key `#!` in a block configuration. When
 BlockStorage::createBlockInstance() returns such configuration instead of block
-instace, the CascadeController looks up specified hashbang in its configuration
+instance, the CascadeController looks up specified hashbang in its configuration
 and uses specified class as factory of the new block.
 
 Hashbangs in a block configuration are refered by name. Details, like which

@@ -220,7 +220,7 @@ class CascadeController {
 					return $b;
 				} else {
 					// Interpret hasbang.
-					$hashbang = @ $b['hashbang'];
+					$hashbang = @ $b['#!'];
 					if ($hashbang === null) {
 						$hashbang = 'proxy';
 					}
