@@ -40,7 +40,7 @@ interface IHashbangHandler
 	 * @param $context is Context of creating block -- not the context in which will be block executed.
 	 * @param $block_type is type of the block (ID is not known yet).
 	 *
-	 * @example Typical implementation: `return new self();`
+	 * Example: Typical implementation: `return new self();`
 	 */
 	public static function createFromHashbang($block_config, $hashbang_config, Context $context, $block_type);
 

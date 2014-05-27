@@ -1,5 +1,5 @@
 
-all: doc
+all: doc test
 
 
 clean:
@@ -8,9 +8,9 @@ clean:
 doc:
 	make -C doc/
 
-tests:
+test:
 	pear run-tests ./test  ../plugin/*/test ../app/test
 
 
-.PHONY: all clean doc tests
+.PHONY: all clean doc test
 
