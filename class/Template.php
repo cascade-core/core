@@ -43,6 +43,9 @@ class Template {
 	private $reverse_router = array();
 
 
+	/**
+	 * Constructor compatible with Context resources.
+	 */
 	function __construct($cfg)
 	{
 		$default_type = @ $cfg['default_type'];

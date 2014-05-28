@@ -37,15 +37,25 @@ namespace Cascade\Core;
  */
 class ProxyBlock extends Block implements IHashbangHandler {
 
+	/**
+	 * Block inputs.
+	 */
 	protected $inputs = array(
 		'*' => null,
 	);
 
+	/**
+	 * Block outputs.
+	 */
 	protected $outputs = array(
 		'*' => true,
 	);
 
+	/**
+	 * Block must be always executed.
+	 */
 	const force_exec = true;
+
 
 	private $conf = null;
 
@@ -61,7 +71,9 @@ class ProxyBlock extends Block implements IHashbangHandler {
 	}
 
 
-	/// @copydoc Block::main
+	/**
+	 * @copydoc Block::main
+	 */
 	public function main()
 	{
 		// Get configuration
