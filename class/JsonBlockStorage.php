@@ -21,7 +21,7 @@ namespace Cascade\Core;
 /**
  * Load block composition from JSON file.
  *
- * Hashbang is alias for a class. Instance of this class is then used to 
+ * Shebang is alias for a class. Instance of this class is then used to 
  * interpret loaded block configuration.
  *
  * TODO: Remove extending ClassBlockStorage (see getKnownBlocks()).
@@ -35,7 +35,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	protected $filename_to_block_regexp = '/^\/([\/a-zA-Z0-9_-]+)\.json\.php$/';
 
 	/**
-	 * Default class used to process a block, when no hashbang is not 
+	 * Default class used to process a block, when no shebang is not 
 	 * specified.
 	 */
 	protected $default_block_class = "\\Cascade\\Core\\ProxyBlock";
@@ -44,7 +44,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 * List of interpreters. Block can specify this alias and change how it 
 	 * will be interpreted.
 	 */
-	protected $hashbang_classes = array();
+	protected $shebang_classes = array();
 
 	/**
 	 * Default context from cascade.
@@ -68,8 +68,8 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 			$this->default_block_class = $storage_opts['default_block_class'];
 		}
 
-		if (!empty($storage_opts['hashbang_classes'])) {
-			$this->hashbang_classes = $storage_opts['hashbang_classes'];
+		if (!empty($storage_opts['shebang_classes'])) {
+			$this->shebang_classes = $storage_opts['shebang_classes'];
 		}
 	}
 
@@ -98,7 +98,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 			return false;
 		}
 
-		// Instantiate block... ee... not yet. Hashbang mechanism will 
+		// Instantiate block... ee... not yet. Shebang mechanism will 
 		// take over from here.
 		return $conf;
 	}

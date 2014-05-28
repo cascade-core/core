@@ -19,15 +19,15 @@
 namespace Cascade\Core;
 
 /**
- * Interface required by hashbang handlers. Hashbang handler is usualy 
+ * Interface required by shebang handlers. Shebang handler is usualy 
  * proxy block itself, it only needs few extra methods. 
  *
- * If block storage returns something without hashbang specified, default 
- * hashbang 'proxy' is assumed. This is for compatibility with old blocks.
+ * If block storage returns something without shebang specified, default 
+ * shebang 'proxy' is assumed. This is for compatibility with old blocks.
  *
  * TODO: Add some helpers for block editor.
  */
-interface IHashbangHandler
+interface IShebangHandler
 {
 
 	/**
@@ -36,13 +36,13 @@ interface IHashbangHandler
 	 * configuration instead of block.
 	 *
 	 * @param $block_config is configuration of the new block.
-	 * @param $hashbang_config is configuration of the hashbang (from core.json.php).
+	 * @param $shebang_config is configuration of the shebang (from core.json.php).
 	 * @param $context is Context of creating block -- not the context in which will be block executed.
 	 * @param $block_type is type of the block (ID is not known yet).
 	 *
 	 * Example: Typical implementation: `return new self();`
 	 */
-	public static function createFromHashbang($block_config, $hashbang_config, Context $context, $block_type);
+	public static function createFromShebang($block_config, $shebang_config, Context $context, $block_type);
 
 }
 

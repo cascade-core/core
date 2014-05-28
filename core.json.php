@@ -53,7 +53,7 @@
             "doc_link": null
         }
     },
-    "hashbangs": {
+    "shebangs": {
         "proxy": {
             "class": "\\Cascade\\Core\\ProxyBlock"
         },

@@ -52,7 +52,7 @@ interface IBlockStorage {
 	 * Returns created instance, block configuration (array) or false.
 	 *
 	 * If block configuration is returned, CascadeController will execute 
-	 * hashbang handler to create instance of the Block using this 
+	 * shebang handler to create instance of the Block using this 
 	 * configuration.
 	 */
 	public function createBlockInstance ($block);

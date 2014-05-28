@@ -19,9 +19,9 @@
 namespace Cascade\Core;
 
 /**
- * Something went wrong when interpreting hashbang.
+ * Something went wrong when interpreting shebang.
  */
-class HashbangException extends \RuntimeException
+class ShebangException extends \RuntimeException
 {
 	// Nothing interesting here.
 }

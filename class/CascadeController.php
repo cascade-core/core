@@ -34,7 +34,7 @@ class CascadeController {
 	private $blocks = array();	// all existing blocks
 	private $evaluation_step = 0;	// step counter - time for cascade animations and slot weight penalty
 	private $replacement = array();	// block replacement table (aliases)
-	private $hashbangs = array();	// hashbangs - if block storages returns array instead of object, these will interpret it.
+	private $shebangs = array();	// shebangs - if block storages returns array instead of object, these will interpret it.
 	private $root_namespace = array();
 
 	private $execution_time = null;	// time [ms] spent in start()
@@ -54,7 +54,7 @@ class CascadeController {
 	 * The $replacement_table maps requested block type to some other block 
 	 * type.
 	 */
-	public function __construct(IAuth $auth = null, $replacement_table, $hashbangs)
+	public function __construct(IAuth $auth = null, $replacement_table, $shebangs)
 	{
 		$this->auth = $auth;
 
@@ -62,8 +62,8 @@ class CascadeController {
 			$this->replacement = $replacement_table;
 		}
 
-		if ($hashbangs != null) {
-			$this->hashbangs = $hashbangs;
+		if ($shebangs != null) {
+			$this->shebangs = $shebangs;
 		}
 	}
 
@@ -220,29 +220,29 @@ class CascadeController {
 					return $b;
 				} else {
 					// Interpret hasbang.
-					$hashbang = @ $b['#!'];
-					if ($hashbang === null) {
-						$hashbang = 'proxy';
+					$shebang = @ $b['#!'];
+					if ($shebang === null) {
+						$shebang = 'proxy';
 					}
-					$hashbang_class = @ $this->hashbangs[$hashbang]['class'];
-					if ($hashbang_class === null) {
-						error_msg('Undefined hashbang "%s" in block "%s".', $hashbang, $block);
+					$shebang_class = @ $this->shebangs[$shebang]['class'];
+					if ($shebang_class === null) {
+						error_msg('Undefined shebang "%s" in block "%s".', $shebang, $block);
 						$errors[] = array(
-							'error'   => 'Undefined hashbang.',
+							'error'   => 'Undefined shebang.',
 							'block'   => $block,
 						);
 						return false;
 					}
-					$factory_method = array($hashbang_class, 'createFromHashbang');
+					$factory_method = array($shebang_class, 'createFromShebang');
 					if (!is_callable($factory_method)) {
-						error_msg('Invalid hashbang handler "%s" for block "%s".', $hashbang_class, $block);
+						error_msg('Invalid shebang handler "%s" for block "%s".', $shebang_class, $block);
 						$errors[] = array(
-							'error'   => 'Invalid hashbang handler.',
+							'error'   => 'Invalid shebang handler.',
 							'block'   => $block,
 						);
 						return false;
 					}
-					return call_user_func($factory_method, $b, $hashbang, $context, $block);
+					return call_user_func($factory_method, $b, $shebang, $context, $block);
 				}
 			}
 		}

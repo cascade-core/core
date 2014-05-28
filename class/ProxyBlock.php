@@ -35,7 +35,7 @@ namespace Cascade\Core;
  * are specified in "policy" section in form: policy[] = list of blocks.
  * See policy handlers section for description of policies.
  */
-class ProxyBlock extends Block implements IHashbangHandler {
+class ProxyBlock extends Block implements IShebangHandler {
 
 	/**
 	 * Block inputs.
@@ -63,7 +63,7 @@ class ProxyBlock extends Block implements IHashbangHandler {
 	/**
 	 * Create block proxy.
 	 */
-	public static function createFromHashbang($block_config, $hashbang_config, Context $context, $block_type)
+	public static function createFromShebang($block_config, $shebang_config, Context $context, $block_type)
 	{
 		$block = new self();
 		$block->conf = $block_config;
