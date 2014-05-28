@@ -1,5 +1,29 @@
+Creating Blocks
+===============
+
+When a block is inserted into cascade, a factory method Core::CascadeController
+Cascade::Core::CascadeController::createBlockInstance() is called to create requested block.
+This factory asks all registered block storages for the block and if the block
+storage returns the block, search is over. However, block storage may return
+only a block configuration instead of instance of Block class. In this case the
+CascadeController looks for a hashbang in the block configuration and calls
+specified hashbang handler to create Block instance.
+
+
+Block Storages
+--------------
+
+Block storages are objects implementing IBlockStorage interface. All
+blockstorages are instantiated during initialization, and their configuration
+is loaded from `block_storage` section of `core.json.php` file.
+
+Block storage may be used to both load and store blocks. However, many block
+storages are read-only. Additionaly, block storages can provide a list of all
+known blocks with some elementary informations, like time of last modification.
+
+
 Hashbangs
-=========
+---------
 
 In unix a hashbang is the first line of executable file starting with `#!`.
 This line says which interpreter should be used to execute the file. In cascade
@@ -25,8 +49,8 @@ possible to create block storage which generates configuration interpreted by
 hashbang handlers. Hashbang handler cannot create block -- it only interprets it.
 
 
-Use-cases
----------
+Hashbang Use-Cases
+------------------
 
 The most important hashbang is 'proxy'. This hashbang represents default
 interpreter of composed blocks.
@@ -37,4 +61,6 @@ and uses hashbang handler to create blocks from this configuration.
 More advanced use-case can be content management system, where hashbangs can be
 used to interpret very minimalistic description of what should be on the page
 (one page is represented by one block).
+
+
 

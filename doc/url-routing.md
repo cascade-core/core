@@ -52,7 +52,7 @@ This option defines input from which is postprocessor loaded.
 
 This mechanism allows injecting custom functionality to common router. The
 postprocessors are expected to load data from database or scan filesystem, to
-verify `/**` rule or something similar.
+verify `/**` rule or something similar. <!--- */ -->
 
 
 Reverse router -- URL generator

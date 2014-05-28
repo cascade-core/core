@@ -1,4 +1,5 @@
-/*! \namespace Cascade
+/*!
+	@namespace Cascade
 
 %Cascade namespace contains the [Core](@ref Cascade::Core) of the framework and
 various general plugins.
@@ -6,8 +7,8 @@ various general plugins.
 */
 
 
-/*! @namespace Cascade::Core
-
+/*!
+	@namespace Cascade::Core
 
 %Cascade %Core -- the hearth of the framework.
 
