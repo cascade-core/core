@@ -21,7 +21,7 @@ namespace Cascade\Core;
 /**
  * Something went wrong while parsing JSON file.
  */
-class JsonException extends \RuntimeException
+class JsonException extends \InvalidArgumentException
 {
 	// Nothing interesting here.
 }
