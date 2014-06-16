@@ -97,14 +97,31 @@ if (!empty($core_cfg['debug']['log_memory_usage'])) {
 	extra_msg('Cascade memory usage: %s', format_bytes($cascade->getMemoryUsage()));
 }
 
-/* Store profiler statistics */
-if (DEBUG_PROFILER_STATS_FILE) {
-	$fn = filename_format(DEBUG_PROFILER_STATS_FILE);
-	$old_stats = file_exists($fn) ? unserialize(gzuncompress(file_get_contents($fn))) : array();
-	file_put_contents($fn, gzcompress(serialize($cascade->getExecutionTimes($old_stats)), 2));
-	unset($fn, $old_stats);
-}
-
 /* Generate output */
 $default_context->template_engine->start();
+
+/* Store profiler statistics */
+if (DEBUG_PROFILER_STATS_FILE) {
+	// don't let client wait
+	ob_flush();
+	flush();
+
+	// open & lock, then update content
+	$fn = filename_format(DEBUG_PROFILER_STATS_FILE);
+	$f = fopen($fn, "r+");
+	if ($f) {
+		flock($f, LOCK_EX);
+		$old_stats = unserialize(gzuncompress(stream_get_contents($f)));
+		if (!$old_stats) {
+			// if missing or corrupted, just start over
+			$old_stats = array();
+		}
+		ftruncate($f, 0);
+		rewind($f);
+		fwrite($f, gzcompress(serialize($cascade->getExecutionTimes($old_stats)), 2));
+		fflush($f);
+		flock($f, LOCK_UN);
+		fclose($f);
+	}
+}
 
