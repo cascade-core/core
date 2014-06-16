@@ -467,7 +467,7 @@ abstract class Block
 		if (array_key_exists($name, $this->output_cache)) {
 			// cached output
 			return $this->output_cache[$name];
-		} else if ($this->status == self::DISABLED) {
+		} else if ($this->status == self::DISABLED || $this->status == self::FAILED) {
 			return null;
 		} else {
 			// create output and cache it
