@@ -22,6 +22,7 @@ define('CASCADE_MAIN', true);
 list($default_context, $core_cfg) = require(dirname(__FILE__).'/init.php');
 
 /* Start session if not started yet */
+// TODO: Remove PHP session (required by message queue)
 if (!isset($_SESSION)) {
 	session_start();
 }
@@ -36,6 +37,17 @@ foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
 	if ($storage_opts == null) {
 		continue;
 	}
+
+	// Resolve resources from context
+	$resources = @ $storage_opts['_resources'];
+	if ($resources) {
+		unset($storage_opts['_resources']);
+		foreach ($resources as $k => $v) {
+			$storage_opts[$k] = $default_context->$v;
+		}
+	}
+
+	// Create storage
 	$storage_class = $storage_opts['storage_class'];
 	debug_msg('Initializing block storage "%s" (class %s) ...', $storage_name, $storage_class);
 	$s = new $storage_class($storage_opts, $default_context, $storage_name);
