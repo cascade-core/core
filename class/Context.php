@@ -34,6 +34,9 @@ namespace Cascade\Core;
  *
  * Resources are created lazily, when they are requested for the first time.
  *
+ * Resources specified in 'resources' option are dereferenced and passed as 
+ * regular (top-level) options within the rest of factory configuration.
+ *
  * @warning Context SHOULD be treated as read-only structure.
  */
 class Context {
@@ -71,6 +74,19 @@ class Context {
 		$cfg = @ $this->_resource_factories_config[$resource_name];
 		if ($cfg === null) {
 			throw new ResourceException('Unknown resource: '.$resource);
+		}
+
+		// Preallocate cache slot (to avoid cycles)
+		// TODO: implement lazy loading
+		$this->$resource_name = null;
+
+		// Resolve resources
+		$resources = @ $cfg['_resources'];
+		if ($resources) {
+			unset($cfg['_resources']);
+			foreach ($resources as $k => $v) {
+				$cfg[$k] = $this->$v;
+			}
 		}
 
 		// Try to create resource using class name
