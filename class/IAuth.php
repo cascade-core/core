@@ -31,6 +31,8 @@ namespace Cascade\Core;
  * The second level permissions are be checked by each block, therefore, there 
  * is a lot of space for errors. User must pass both levels to perform the 
  * action.
+ *
+ * Only the first level is in scope of this interface.
  */
 interface IAuth
 {
@@ -39,21 +41,6 @@ interface IAuth
 	 * Level 1: Check if block is allowed to current user.
 	 */
 	public function isBlockAllowed($block_name, & $details = null);
-
-
-	/**
-	 * Level 2: Check permissions to specified item.
-	 */
-	public function checkItem($block_name, & $item, & $details = null);
-
-
-	/**
-	 * Level 2: Add permission conditions to query object (like adding 
-	 * where clause to sql query).
-	 *
-	 * The effect is same as scheckItem(), only interface is different.
-	 */
-	public function addCondition($block_name, & $query, $options = array());
 
 };
 
