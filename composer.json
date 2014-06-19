@@ -1,22 +1,25 @@
 {
-	"name": "cascade/core",
-	"type": "cascade-core",
-	"description": "Core of the framework",
-	"license": "Apache-2.0",
-	"authors": [
-		{
-			"name": "Josef Kufner",
-			"email": "jk@frozen-doe.net"
-		}
-	],
-	"extra": {
-	},
-	"require": {
-		"php": ">=5.3.3",
-		"cascade/composer-plugin": ">=1.1"
-	},
-	"autoload": {
-		"psr-4": { "Cascade\\Core\\": "class/" }
-	}
+    "name": "cascade/core",
+    "type": "cascade-core",
+    "description": "Core of the framework",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Josef Kufner",
+            "email": "jk@frozen-doe.net"
+        }
+    ],
+    "extra": {
+    },
+    "require": {
+        "php": ">=5.3.3",
+        "ext-apcu": "*",
+        "ext-gettext": "*",
+        "ext-json": "*",
+        "cascade/composer-plugin": ">=1.1"
+    },
+    "autoload": {
+        "psr-4": { "Cascade\\Core\\": "class/" }
+    }
 }
 
