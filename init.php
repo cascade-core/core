@@ -209,7 +209,7 @@ if (strncmp(@$_SERVER["SERVER_SOFTWARE"], 'lighttpd', 8) == 0 && strstr($_SERVER
 }
 
 /* Retrieve $_POST if received Content-Type is text/json */
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)
+if (@$_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)
 	&& @ ($_SERVER['CONTENT_TYPE'] == 'text/json' || $_SERVER['CONTENT_TYPE'] == 'application/json;charset=UTF-8'))
 {
 	$_POST = (array) json_decode(file_get_contents('php://input'), TRUE, 512, JSON_BIGINT_AS_STRING);
