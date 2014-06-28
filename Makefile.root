@@ -1,0 +1,21 @@
+#
+# Common makefile to execute everything in the project. Any target will be
+# forwarded to application, core and all plugins.
+#
+# Usage: Create `Makefile` file in the project root directory containing
+# following line.
+#
+#	include ./core/Makefile.root
+#
+#
+MAKEFLAGS = --no-print-directory --keep-going
+
+all:
+%:
+	@echo "\n#\n# Application\n#\n"
+	@make $@ -C app || true
+	@echo "\n#\n# Core\n#\n"
+	@make $@ -C core || true
+	@for d in plugin/* ; do echo "\n#\n# Plugin $$d\n#\n"; make $@ -C "$$d" ; done
+
+
