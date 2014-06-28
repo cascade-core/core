@@ -71,35 +71,42 @@ class Context {
 	 */
 	public function __get($resource_name)
 	{
-		$cfg = @ $this->_resource_factories_config[$resource_name];
-		if ($cfg === null) {
+		if (!isset($this->_resource_factories_config[$resource_name])) {
 			throw new ResourceException('Unknown resource: '.$resource);
 		}
+		$cfg = $this->_resource_factories_config[$resource_name];
 
 		// Preallocate cache slot (to avoid cycles)
 		// TODO: implement lazy loading
 		$this->$resource_name = null;
 
 		// Resolve resources
-		$resources = @ $cfg['_resources'];
-		if ($resources) {
+		if (!empty($cfg['_resources'])) {
+			$resources = $cfg['_resources'];
 			unset($cfg['_resources']);
 			foreach ($resources as $k => $v) {
 				$cfg[$k] = $this->$v;
 			}
 		}
 
+		// Use config loader ---- $cfg must not be modified after this ----
+		if (!empty($cfg['_load_config'])) {
+			$resource_cfg = $this->config_loader->load($cfg['_load_config']);
+		} else {
+			$resource_cfg = $cfg;
+		}
+
 		// Try to create resource using class name
-		$class = @ $cfg['class'];
-		if ($class) {
-			$resource = new $class($cfg, $this, $resource_name);
+		if (isset($cfg['class'])) {
+			$class = $cfg['class'];
+			$resource = new $class($resource_cfg, $this, $resource_name);
 			return ($this->$resource_name = $resource);
 		}
 
 		// Try to call factory method
-		$factory = @ $cfg['factory'];
-		if ($factory) {
-			$resource = call_user_func($factory, $cfg, $this, $resource_name);
+		if (isset($cfg['factory'])) {
+			$factory = $cfg['factory'];
+			$resource = call_user_func($factory, $resource_cfg, $this, $resource_name);
 			return ($this->$resource_name = $resource);
 		}
 
