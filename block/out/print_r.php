@@ -28,6 +28,7 @@ class B_core__out__print_r extends \Cascade\Core\Block
 		'data' => null,
 		'title' => null,
 		'header_level' => 2,
+		'pretty' => false,
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -37,6 +38,7 @@ class B_core__out__print_r extends \Cascade\Core\Block
 		$this->templateAdd(null, 'core/print_r', array(
 				'title' => $this->in('title'),
 				'header_level' => $this->in('header_level'),
+				'pretty' => $this->in('pretty'),
 				'data' => $this->in('data'),
 			));
 	}

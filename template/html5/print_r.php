@@ -20,16 +20,20 @@ function TPL_html5__core__print_r($t, $id, $d, $so)
 {
 	extract($d);
 
-	ob_start();
-	print_r($data);
-	$str = ob_get_clean();
-
 	echo "<div id=\"", htmlspecialchars($id), "\" class=\"print_r\">\n";
 	if ($title != '') {
 		$h = 'h'.intval($header_level);
 		echo "<$h>", htmlspecialchars($title), "</$h>\n";
 	}
-	echo "<pre>", htmlspecialchars($str), "</pre>\n",
-		"</div>\n";
+
+	if ($pretty) {
+		debug_dump($data);
+	} else {
+		ob_start();
+		print_r($data);
+		$str = ob_get_clean();
+		echo "<pre>", htmlspecialchars($str), "</pre>\n";
+	}
+	echo "</div>\n";
 }
 
