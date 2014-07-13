@@ -166,6 +166,8 @@ function debug_dump($var, $label = '', $use_print_r = false)
 	}
 
 	echo "</$div>";
+
+	return $var;
 }
 
 
