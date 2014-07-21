@@ -336,10 +336,10 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 			$append = false;
 
 			// get value
-			if (array_key_exists($key, $raw_values)) {
+			if (isset($raw_values[$key])) {
 				$v = $raw_values[$key];
 				$raw = true;
-			} else if (array_key_exists($key, $values)) {
+			} else if (isset($values[$key])) {
 				$v = $values[$key];
 				$raw = false;
 			} else {
