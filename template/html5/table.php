@@ -219,7 +219,7 @@ class tpl_html5__core__table__text {
 					}
 				}
 			} else {
-				return $row_data[$this->opts['key']];
+				return isset($row_data[$this->opts['key']]) ? $row_data[$this->opts['key']] : null;
 			}
 		} else {
 			return null;
