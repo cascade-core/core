@@ -75,6 +75,17 @@ class B_core__router extends \Cascade\Core\Block
 			$path = ($path == '' ? array() : explode('/', $path));
 		}
 
+		// Get '!action'
+		$path_tail = end($path);
+		if (strpos($path_tail, '!') !== FALSE) {
+			list($path_tail, $action, ) = explode('!', $path_tail, 3); // drop extra '!'
+			if ($path_tail != '') {
+				$path[key($path)] = $path_tail;
+			}
+		} else {
+			$action = null;
+		}
+
 		// Does path end with slash?
 		$path_slash = (substr($path_str, -1) == '/');
 
@@ -90,7 +101,7 @@ class B_core__router extends \Cascade\Core\Block
 				continue;
 			}
 			// Find route
-			$route = $this->route($group['routes'], $path, $group_name, $group);
+			$route = $this->route($group['routes'], $path, $action, $group_name, $group);
 			if ($route !== false) {
 				// Route found
 				if (!empty($routes['defaults'])) {
@@ -197,7 +208,7 @@ class B_core__router extends \Cascade\Core\Block
 	}
 
 
-	protected function route($routes, $path, $group_name, $group)
+	protected function route($routes, $path, $action, $group_name, $group)
 	{
 		$path_len = count($path);
 
@@ -239,6 +250,11 @@ class B_core__router extends \Cascade\Core\Block
 				continue;
 			}
 
+			// good enough, add '!action'
+			if (isset($action)) {
+				$outputs['path_action'] = $action;
+			}
+
 			// postprocess found match
 			$postprocessor_input = @ $group['postprocessor'];
 			if ($postprocessor_input) {
@@ -253,7 +269,6 @@ class B_core__router extends \Cascade\Core\Block
 				}
 				return $postprocessor($outputs, $group);
 			}
-
 
 			// match found and processed
 			debug_msg("Matched rule [%s] in group %s", $mask, $group_name);
