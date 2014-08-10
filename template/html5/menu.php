@@ -65,12 +65,14 @@ function tpl_html5__core__menu__label($id, $item, $title_fmt)
 		$arg['/a'] = $close;
 		echo template_format($title_fmt, $item, 'htmlspecialchars', $arg);
 	} else {
-		$label = isset($item['label']) ? $item['label'] : @$item['title'];
-		if (isset($item['link'])) {
-			echo "<a href=\"", str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($item['link'])),
-					"\">", htmlspecialchars($label), "</a>";
-		} else {
-			echo "<span>", htmlspecialchars($label), "</span>";
+		$label = isset($item['label']) ? $item['label'] : (isset($item['title']) ? $item['title'] : null);
+		if ($label !== null) {
+			if (isset($item['link'])) {
+				echo "<a href=\"", str_replace(array('@', '.'), array('&#64;', '&#46;'), htmlspecialchars($item['link'])),
+						"\">", htmlspecialchars($label), "</a>";
+			} else {
+				echo "<span>", htmlspecialchars($label), "</span>";
+			}
 		}
 	}
 }
