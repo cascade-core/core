@@ -454,7 +454,7 @@ abstract class Block
 						$this->status_message = 'OutFwd: Bad connection';
 					}
 				}
-				$this->output_cache[$name] = $this->collectOutputs($src);
+				$this->output_cache[$name] = $this->collectOutputs($src, $name);
 			}
 		}
 
@@ -579,7 +579,7 @@ abstract class Block
 			return null;
 		}
 
-		return $this->collectOutputs($ref);
+		return $this->collectOutputs($ref, $name);
 	}
 
 
@@ -876,7 +876,7 @@ abstract class Block
 	/** @} */
 
 
-	private function collectOutputs(& $ref)
+	private function collectOutputs(& $ref, $name)
 	{
 		// read input
 		if (is_array($ref)) {
@@ -951,14 +951,14 @@ abstract class Block
 						}
 
 					default:
-						error_msg('%s: Input "%s" requires unknown operator "%s"!', $this->blockName(), $name, $ref[0]);
+						error_msg('%s: The "%s" requires unknown operator "%s"!', $this->blockName(), $name, $ref[0]);
 						$this->status = self::FAILED;
 						return null;
 				}
 			}
 		} else {
 			// ref is constant, but it can't be!
-			error_msg('%s: Input "%s" is messed up! Connection definition must be an array, but %s given.',
+			error_msg('%s: The "%s" is messed up! Connection definition must be an array, but %s given.',
 				$this->blockName(), $name, var_export($ref[0], true));
 			return null;
 		}

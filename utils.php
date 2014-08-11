@@ -127,7 +127,7 @@ function extra_msg($msg)
  * Simple function for quick and dirty debugging. This prints variable in nice 
  * and readable way. Do not forget calls of this anywhere in final code.
  */
-function debug_dump($var, $label = '', $use_print_r = false)
+function debug_dump($var, $label = '', $use_print_r = false, $top_level_only = false)
 {
 	if (php_sapi_name() == "cli") {
 		if ($label != '') {
@@ -157,12 +157,28 @@ function debug_dump($var, $label = '', $use_print_r = false)
 		echo "<big><b>", htmlspecialchars($label), "</b></big> = ";
 	}
 
-	if ($use_print_r) {
-		ob_start();
-		print_r($var);
-		echo htmlspecialchars(ob_get_clean());
+	if ($top_level_only && (is_object($var) || is_array($var))) {
+		echo "<pre>";
+		foreach ($var as $k => $v) {
+			echo "    ", htmlspecialchars(var_export($k, true)), " => ";
+			if (is_object($v)) {
+				echo htmlspecialchars(get_class($v));
+			} else if (is_array($v)) {
+				echo 'array(', count($v), ' items)';
+			} else {
+				echo htmlspecialchars(var_export($v, true));
+			}
+			echo ",\n";
+		}
+		echo "</pre>\n";
 	} else {
-		echo preg_replace('|^([^/]*)&lt;\?php<br />|Um', '\1', highlight_string("<?php\n".preg_replace('/=> \n\s*/', "=> ", var_export($var, true)), true));
+		if ($use_print_r) {
+			ob_start();
+			print_r($var);
+			echo htmlspecialchars(ob_get_clean());
+		} else {
+			echo preg_replace('|^([^/]*)&lt;\?php<br />|Um', '\1', highlight_string("<?php\n".preg_replace('/=> \n\s*/', "=> ", var_export($var, true)), true));
+		}
 	}
 
 	echo "</$div>";
