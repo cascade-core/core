@@ -210,6 +210,43 @@ class B_core__router extends \Cascade\Core\Block
 
 	protected function route($routes, $path, $action, $group_name, $group)
 	{
+		// find matching route
+		$outputs = static::findMatchingRoute($routes, $path, $mask);
+		if ($outputs === false) {
+			return false;
+		}
+
+		// good enough, add '!action'
+		if (isset($action)) {
+			$outputs['path_action'] = $action;
+		}
+
+		// postprocess found match
+		$postprocessor_input = @ $group['postprocessor'];
+		if ($postprocessor_input) {
+			if (!is_string($postprocessor_input)) {
+				throw new \InvalidArgumentException(sprintf(
+					'Postprocessor must be a string in rule [%s], group %s.', $mask, $group_name));
+			}
+			$postprocessor = $this->in($postprocessor_input);
+			if (!is_callable($postprocessor)) {
+				throw new \InvalidArgumentException(sprintf(
+					'Postprocessor at input \"%s\" is not a callable.', $postprocessor_input));
+			}
+			return $postprocessor($outputs, $group);
+		}
+
+		// match found and processed
+		debug_msg("Matched rule [%s] in group %s", $mask, $group_name);
+		return $outputs;
+
+		// no match
+		return false;
+	}
+
+
+	public static function findMatchingRoute($routes, $path, & $mask = null)
+	{
 		$path_len = count($path);
 
 		// match rules one by one
@@ -245,37 +282,11 @@ class B_core__router extends \Cascade\Core\Block
 					break;
 				}
 			}
-			if ($i < $m_len) {
-				// match failed
-				continue;
+			if ($i >= $m_len) {
+				// match found
+				return $outputs;
 			}
-
-			// good enough, add '!action'
-			if (isset($action)) {
-				$outputs['path_action'] = $action;
-			}
-
-			// postprocess found match
-			$postprocessor_input = @ $group['postprocessor'];
-			if ($postprocessor_input) {
-				if (!is_string($postprocessor_input)) {
-					throw new \InvalidArgumentException(sprintf(
-						'Postprocessor must be a string in rule [%s], group %s.', $mask, $group_name));
-				}
-				$postprocessor = $this->in($postprocessor_input);
-				if (!is_callable($postprocessor)) {
-					throw new \InvalidArgumentException(sprintf(
-						'Postprocessor at input \"%s\" is not a callable.', $postprocessor_input));
-				}
-				return $postprocessor($outputs, $group);
-			}
-
-			// match found and processed
-			debug_msg("Matched rule [%s] in group %s", $mask, $group_name);
-			return $outputs;
 		}
-
-		// no match
 		return false;
 	}
 
