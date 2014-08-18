@@ -53,6 +53,18 @@ class Context {
 	public function __construct(array $resource_factories_config)
 	{
 		$this->_resource_factories_config = $resource_factories_config;
+		$this->setupTranslator();
+	}
+
+
+	/**
+	 * Setup translator: Bind gettext domain.
+	 */
+	protected function setupTranslator()
+	{
+		bindtextdomain('messages', DIR_APP.'locale/');
+		bind_textdomain_codeset('messages', 'UTF-8');
+		textdomain('messages');
 	}
 
 
@@ -150,10 +162,10 @@ class Context {
 	public function updateEnviroment()
 	{
 		/* do not update if not changed */
-		if (static::$_last_context_enviroment === $this) {
+		if (self::$_last_context_enviroment === $this) {
 			return false;
 		} else {
-			static::$_last_context_enviroment = $this;
+			self::$_last_context_enviroment = $this;
 
 			//debug_msg('Updating enviroment: locale = "%s"', $this->_locale);
 
