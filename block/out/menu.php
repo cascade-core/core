@@ -60,7 +60,7 @@ class B_core__out__menu extends \Cascade\Core\Block
 
 
 	/**
-	 * Find the best match for active url and mark that item adn it's parents with classes.
+	 * Find the best match for active url and mark that item and its parents with classes.
 	 */
 	protected function findBestMatch(& $items, $active_uri)
 	{
