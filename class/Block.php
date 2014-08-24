@@ -825,7 +825,7 @@ abstract class Block
 
 
 	/**
-	 * Security - Level 1: check if block is allowed before cascade controller loads it
+	 * Check if block is allowed before cascade controller loads it
 	 */
 	final protected function authIsBlockAllowed($block_name, & $details = null)
 	{
@@ -839,39 +839,6 @@ abstract class Block
 			return true;
 		}
 	}
-
-
-	/**
-	 * Security - Level 2: check permissions to specified entity
-	 */
-	final protected function authCheckItem(& $item, & $details = null)
-	{
-		$auth = $this->cascade_controller->getAuth();
-
-		if ($auth !== null) {
-			return $auth->checkItem($this->block_name, $item, $details);
-		} else {
-			// If there is no Auth object, everything is allowed
-			return true;
-		}
-	}
-
-
-	/**
-	 * Security - Level 2: check permissions to specified entity
-	 */
-	final protected function authAddCondition($block_name, & $query, $options = array())
-	{
-		$auth = $this->cascade_controller->getAuth();
-
-		if ($auth !== null) {
-			return $auth->addCondition($this->block_name, $query, $options = array());
-		} else {
-			// If there is no Auth object, do nothing
-			return true;
-		}
-	}
-
 
 	/** @} */
 

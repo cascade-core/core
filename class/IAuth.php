@@ -32,7 +32,7 @@ namespace Cascade\Core;
  * is a lot of space for errors. User must pass both levels to perform the 
  * action.
  *
- * Only the first level is in scope of this interface.
+ * Only the first level is in scope of this interface and the CascadeController.
  */
 interface IAuth
 {
