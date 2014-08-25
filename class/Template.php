@@ -41,6 +41,7 @@ class Template {
 	private $slot_options = array();
 	private $current_slot_depth = 0;
 	private $reverse_router = array();
+	private $redirect_enabled = true;
 
 
 	/**
@@ -51,6 +52,11 @@ class Template {
 		$default_type = @ $cfg['default_type'];
 		if ($default_type) {
 			$this->slotOptionSet('root', 'type', $default_type);
+		}
+
+		// Debug option to disable all redirects
+		if (isset($cfg['redirect_enabled'])) {
+			$this->redirect_enabled = $cfg['redirect_enabled'];
 		}
 	}
 
@@ -250,7 +256,11 @@ class Template {
 		return;
 		// */
 
-		$redirect_url = @$this->slot_options['root']['redirect_url'];
+		if (isset($this->slot_options['root']['redirect_url']) && $this->redirect_enabled) {
+			$redirect_url = $this->slot_options['root']['redirect_url'];
+		} else {
+			$redirect_url = null;
+		}
 
 		/* Show core's name in header */
 		header('X-Powered-By: Dynamic Cascade', TRUE);		// FIXME
