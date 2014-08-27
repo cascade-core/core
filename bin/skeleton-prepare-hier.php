@@ -83,6 +83,10 @@ if (!file_exists('./.gitignore')) {
 	file_put_contents('./.gitignore', "core/\ndata/\nlib/\nplugin/\nvar/\n*.local.json.php\n");
 }
 
+if (!file_exists('./Makefile')) {
+	file_put_contents('./Makefile', "include ./core/Makefile.root\n");
+}
+
 if (!file_exists('./app/core.json.php')) {
 	echo "Copying initial configuration.\n";
 	recursive_copy('./core/doc/examples/app', './app');
