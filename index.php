@@ -120,7 +120,7 @@ if (DEBUG_PROFILER_STATS_FILE) {
 
 	// open & lock, then update content
 	$fn = filename_format(DEBUG_PROFILER_STATS_FILE);
-	$f = fopen($fn, "r+");
+	$f = fopen($fn, "c+");
 	if ($f) {
 		flock($f, LOCK_EX);
 		$old_stats = unserialize(gzuncompress(stream_get_contents($f)));
