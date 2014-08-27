@@ -10,6 +10,7 @@ doc: figures
 		&& echo "INPUT += init.php" \
 		&& echo "INPUT += utils.php" \
 		) | ( cd .. && doxygen - )
+	ln -sf ../../examples/ ./doxygen/html/
 
 figures:
 	make -C figures all

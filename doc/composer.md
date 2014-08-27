@@ -18,6 +18,8 @@ Everything else is as usual.
 
 @include doc/examples/composer.app.json
 
+See [examples/composer.app.json](examples/composer.app.json).
+
 
 Plugins
 -------
@@ -35,4 +37,5 @@ its `class/` directory.
 
 @include doc/examples/composer.plugin.json
 
+See [examples/composer.plugin.json](examples/composer.plugin.json).
 
