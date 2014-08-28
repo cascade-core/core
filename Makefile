@@ -9,7 +9,7 @@ doc:
 	make -C doc/
 
 test:
-	pear run-tests ./test  ../plugin/*/test ../app/test
+	pear run-tests ./test
 
 
 .PHONY: all clean doc test
