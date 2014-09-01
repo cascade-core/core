@@ -181,16 +181,21 @@ if ($core_cfg['core']['umask'] !== null) {
 	umask($core_cfg['core']['umask']);
 }
 
-/* Initialize iconv */
-if (function_exists('iconv_set_encoding')) {
-	iconv_set_encoding('input_encoding',    'UTF-8');
-	iconv_set_encoding('output_encoding',   'UTF-8');
-	iconv_set_encoding('internal_encoding', 'UTF-8');
-}
+/* UTF-8 initializations for PHP older than 5.6 */
+if (PHP_VERSION_ID < 50600) {
 
-/* Initialize mb */
-if (function_exists('mb_internal_encoding')) {
-	mb_internal_encoding('UTF-8');
+	/* Initialize iconv */
+	if (function_exists('iconv_set_encoding')) {
+		iconv_set_encoding('input_encoding',    'UTF-8');
+		iconv_set_encoding('output_encoding',   'UTF-8');
+		iconv_set_encoding('internal_encoding', 'UTF-8');
+	}
+
+	/* Initialize mb */
+	if (function_exists('mb_internal_encoding')) {
+		mb_internal_encoding('UTF-8');
+	}
+
 }
 
 /* Initialize default context */
