@@ -21,6 +21,11 @@ code {
 	border-radius: 3px;
 }
 
+#titlearea {
+	border: none;
+	border-bottom: 1px solid #5373B4;
+}
+
 .title {
 	font-size: 2em;
 }
@@ -37,6 +42,67 @@ h1, h2, h3, h4, h5, h6 {
 	-o-transition: none;
 	transition: none;
 }
+
+
+#projectname,
+#projectbrief,
+#projectnumber {
+	font-family: inherit;
+	font-weight: normal;
+}
+
+
+.navpath ul,
+.navpath li,
+.tabs, .tabs2, .tabs3 {
+	font-family: inherit;
+	background: #C4CFE5;
+	text-shadow: none;
+	text-decoration: none;
+	outline: none;
+	height: auto;
+}
+
+.navpath ul,
+.navpath li,
+.tablist li {
+	background: #C4CFE5;
+	line-height: 240%;
+	list-style: none;
+	height: auto;
+}
+
+.navpath li.navelem a,
+.tablist a {
+	text-shadow: none;
+	background: transparent;
+	border-right: 1px solid #5373B4;
+	height: auto;
+}
+
+.navpath li.navelem a:hover,
+.navpath li.navelem a:focus,
+.tablist a:hover,
+.tablist a:focus {
+	background: transparent;
+	color: #6884BD;
+	text-shadow: none;
+}
+
+.navpath {
+	border-top: 1px solid #5373B4;
+}
+
+.navpath li.navelem {
+	background-image:url('bc_s.png');
+	background-repeat:no-repeat;
+	background-position:right;
+}
+
+.navpath li.navelem a {
+	border: none;
+}
+
 
 .memberdecls {
 	width: 100%;
@@ -91,5 +157,37 @@ span.mlabel {
         background-color: #728DC1;
 	border-color: #728DC1;
 	border-radius: 5px;
+}
+
+#MSearchBox .left,
+#MSearchBox #MSearchField,
+#MSearchBox .right {
+	display: inline;
+	float: none;
+	position: static;
+	background: #fff;
+	outline: none;
+	height: auto;
+}
+
+#MSearchBox,
+#MSearchBox * {
+	font-family: inherit;
+}
+
+#MSearchBox {
+	background: #fff;
+	border: 1px solid #90A5CE;
+	border-radius: 5px;
+	height: auto;
+	width: auto;
+	right: 1em;
+	margin: 0.4em 0em;
+	padding: 0px;
+}
+
+#MSearchBox #MSearchField {
+	width: 10em;
+	padding: 0px 22px 0px 4px;
 }
 
