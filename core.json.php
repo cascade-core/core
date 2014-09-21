@@ -19,7 +19,7 @@
     },
     "debug": {
         "development_environment": true,
-        "throw_errors": false,
+        "throw_errors": true,
         "debug_logging_enabled": true,
         "always_log_banner": true,
         "log_memory_usage": true,
