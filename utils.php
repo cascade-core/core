@@ -127,7 +127,7 @@ function extra_msg($msg)
  * Simple function for quick and dirty debugging. This prints variable in nice 
  * and readable way. Do not forget calls of this anywhere in final code.
  */
-function debug_dump($var, $label = '', $use_print_r = false, $top_level_only = false)
+function debug_dump($var, $label = null, $use_print_r = false, $top_level_only = false)
 {
 	if (php_sapi_name() == "cli") {
 		if ($label != '') {
@@ -153,7 +153,7 @@ function debug_dump($var, $label = '', $use_print_r = false, $top_level_only = f
 		"background: #fff; color: #000;",
 		"'>";
 
-	if ($label != '') {
+	if ($label !== null) {
 		echo "<big><b>", htmlspecialchars($label), "</b></big> = ";
 	}
 
