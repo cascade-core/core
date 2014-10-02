@@ -47,7 +47,7 @@ class ClassBlockStorage implements IBlockStorage {
 	 *		container) passed to all storages, and later also to 
 	 *		all blocks.
 	 */
-	public function __construct($storage_opts, $context, $alias)
+	public function __construct($storage_opts, $context, $alias, $is_write_allowed)
 	{
 		spl_autoload_register(function ($class)
 		{

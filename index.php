@@ -33,6 +33,7 @@ $cascade = new $cascade_controller_class($default_context->auth, @$core_cfg['blo
 
 /* Initialize block storages */
 uasort($core_cfg['block_storage'], function($a, $b) { return $a['storage_weight'] - $b['storage_weight']; });
+$block_storage_write_allowed = !empty($core_cfg['block_storage_write_allowed']);
 foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
 	if ($storage_opts == null) {
 		continue;
@@ -50,7 +51,7 @@ foreach ($core_cfg['block_storage'] as $storage_name => $storage_opts) {
 	// Create storage
 	$storage_class = $storage_opts['storage_class'];
 	debug_msg('Initializing block storage "%s" (class %s) ...', $storage_name, $storage_class);
-	$s = new $storage_class($storage_opts, $default_context, $storage_name);
+	$s = new $storage_class($storage_opts, $default_context, $storage_name, $block_storage_write_allowed);
 	$cascade->addBlockStorage($s, $storage_name);
 }
 

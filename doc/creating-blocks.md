@@ -29,6 +29,11 @@ known blocks with some elementary informations, like time of last modification.
 There is no limitation on how blocks should be stored. They may not be stored
 at all, but generated from some metadata instead.
 
+All block storages must respect `block_storage_write_allowed` option (located
+at the same level as `block_storage` section in `core.json.php`), which
+globally disables any modifications to all blocks by default. Set this option
+to true in `core.local.json.php` at your local development installation.
+
 [IBlockStorage]: @ref Cascade::Core::IBlockStorage
 
 

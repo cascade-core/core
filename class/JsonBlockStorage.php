@@ -28,6 +28,9 @@ namespace Cascade\Core;
  */
 class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 
+	/// Is block storage allowed to store blocks?
+	protected $is_write_allowed;
+
 	/// @copydoc ClassBlockStorage::$filename_match_regexp
 	protected $filename_match_regexp = '/^[\/a-zA-Z0-9_]+\.json\.php$/';
 
@@ -60,9 +63,10 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 *		container) passed to all storages, and later also to 
 	 *		all blocks.
 	 */
-	public function __construct($storage_opts, $context, $alias)
+	public function __construct($storage_opts, $context, $alias, $is_write_allowed)
 	{
 		$this->context = $context;
+		$this->is_write_allowed = $is_write_allowed;
 
 		if (!empty($storage_opts['default_block_class'])) {
 			$this->default_block_class = $storage_opts['default_block_class'];
@@ -187,6 +191,11 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function storeBlock ($block, $config)
 	{
+		if (!$this->is_write_allowed) {
+			error_msg('Write is not allowed while trying to store block "%s".', $block);
+			return false;
+		}
+
 		$filename = get_block_filename($block, '.json.php');
 		$dir = dirname($filename);
 
@@ -211,6 +220,11 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function deleteBlock ($block)
 	{
+		if (!$this->is_write_allowed) {
+			error_msg('Write is not allowed while trying to delete block "%s".', $block);
+			return false;
+		}
+
 		$filename = get_block_filename($block, '.json.php');
 
 		return file_exists($filename) && unlink($filename);
