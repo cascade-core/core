@@ -64,6 +64,7 @@
     "block_map": {
 
     },
+    "block_storage_write_allowed": false,
     "block_storage": {
         "class": {
             "storage_class": "\\Cascade\\Core\\ClassBlockStorage",
