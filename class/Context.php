@@ -149,6 +149,16 @@ class Context {
 	}
 
 
+	/**
+	 * Get current locale. It is automaticaly updated to reflect real
+	 * locale after updateEnviroment().
+	 */
+	public function getLocale()
+	{
+		return $this->_locale;
+	}
+
+
 	/************************************************************************//**
 	 * @}
 	 * \name	For Cascade controller
