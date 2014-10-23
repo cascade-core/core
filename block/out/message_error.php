@@ -46,7 +46,7 @@ class B_core__out__message_error extends \Cascade\Core\Block
 		$inputs = $this->inAll();
 
 		// Get title
-		$title = filename_format((string) $this->in('title'));
+		$title = filename_format((string) $this->in('title'), $inputs);
 		$quiet_redirect = ($title == '');
 
 		// Get text

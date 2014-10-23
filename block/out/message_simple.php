@@ -69,7 +69,7 @@ class B_core__out__message_simple extends \Cascade\Core\Block
 		}
 
 		// Get title
-		$title = filename_format((string) $this->in($type.'_title'));
+		$title = filename_format((string) $this->in($type.'_title'), $inputs);
 		$quiet_redirect = ($title == '');
 
 		// Get text
