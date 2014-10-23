@@ -30,14 +30,14 @@ class B_core__out__raw extends \Cascade\Core\Block
 		'slot_weight' => 50,
 	);
 
-	protected $connections = array(
-		'data' => array(),
-	);
-
 
 	function main()
 	{
-		$this->templateAdd(null, 'core/raw', array('data' => $this->in('data')));
+		$data = $this->in('data');
+
+		if ($data !== null) {
+			$this->templateAdd(null, 'core/raw', array('data' => $data));
+		}
 	}
 
 }
