@@ -124,8 +124,11 @@ if (DEBUG_PROFILER_STATS_FILE) {
 	$f = fopen($fn, "c+");
 	if ($f) {
 		flock($f, LOCK_EX);
-		$old_stats = unserialize(gzuncompress(stream_get_contents($f)));
-		if (!$old_stats) {
+		$old_data = stream_get_contents($f);
+		if ($old_data) {
+			$old_stats = unserialize(gzuncompress($old_data));
+		} 
+		if (empty($old_stats)) {
 			// if missing or corrupted, just start over
 			$old_stats = array();
 		}
