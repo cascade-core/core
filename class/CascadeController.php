@@ -405,7 +405,7 @@ class CascadeController {
 		$cnt = 0;
 		$sum = 0.0;
 
-		if (is_array($old_stats)) {
+		if (is_array($old_stats) && !empty($old_stats['blocks'])) {
 			$by_block = $old_stats['blocks'];
 		} else {
 			$by_block = array();
@@ -426,11 +426,11 @@ class CascadeController {
 
 		if (is_array($old_stats)) {
 			return array(
-				'total_time' => $this->execution_time + $old_stats['total_time'],
-				'cascade_time' => ($this->execution_time - $sum) + $old_stats['cascade_time'],
-				'cascade_count' => 1 + $old_stats['cascade_count'],
-				'blocks_time' => $sum + $old_stats['blocks_time'],
-				'blocks_count' => $cnt + $old_stats['blocks_count'],
+				'total_time' => $this->execution_time + @ $old_stats['total_time'],
+				'cascade_time' => ($this->execution_time - $sum) + @ $old_stats['cascade_time'],
+				'cascade_count' => 1 + @ $old_stats['cascade_count'],
+				'blocks_time' => $sum + @ $old_stats['blocks_time'],
+				'blocks_count' => $cnt + @ $old_stats['blocks_count'],
 				'blocks' => $by_block
 			);
 		} else {
