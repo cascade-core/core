@@ -80,7 +80,13 @@ if (!file_exists('./composer.json') && copy('./core/doc/examples/composer.app.js
 }
 
 if (!file_exists('./.gitignore')) {
-	file_put_contents('./.gitignore', "core/\ndata/\nlib/\nplugin/\nvar/\n*.local.json.php\n");
+	file_put_contents('./.gitignore',
+		"/core/\n".
+		"/data/\n".
+		"/lib/\n".
+		"/plugin/\n".
+		"/var/\n".
+		"/*.local.json.php\n");
 }
 
 if (!file_exists('./Makefile')) {
