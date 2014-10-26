@@ -31,6 +31,7 @@ class B_core__out__message_success extends \Cascade\Core\Block
 		// redirect
 		'redirect_url' => null,			// Redirect to this URI, when type is 'success'.
 		'redirect_anchor' => null,		// Anchor part of the redirect_url.
+		'redirect_enabled' => true,		// Redirect is enabled.
 
 		'slot' => 'default',
 		'slot_weight' => 20,
@@ -51,7 +52,7 @@ class B_core__out__message_success extends \Cascade\Core\Block
 		$quiet_redirect = ($title == '');
 
 		// Get text
-		$text = (string) $this->in('text');
+		$text = $this->in('text');
 		if (is_array($text)) {
 			$text = array_map(function($text) use ($inputs) { return filename_format($text, $inputs); }, $text);
 		} else {
@@ -68,7 +69,7 @@ class B_core__out__message_success extends \Cascade\Core\Block
 
 		// Redirect after post
 		$redirect_url = filename_format($this->in('redirect_url'), $inputs);
-		if ($redirect_url != '') {
+		if ($this->in('redirect_enabled') && $redirect_url != '') {
 			$redirect_anchor = filename_format($this->in('redirect_anchor'), $inputs);
 			$this->templateOptionSet('root', 'redirect_url',
 				$redirect_anchor ? $redirect_url.'#'.$redirect_anchor : $redirect_url);

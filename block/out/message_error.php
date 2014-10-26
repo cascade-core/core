@@ -50,7 +50,7 @@ class B_core__out__message_error extends \Cascade\Core\Block
 		$quiet_redirect = ($title == '');
 
 		// Get text
-		$text = (string) $this->in('text');
+		$text = $this->in('text');
 		if (is_array($text)) {
 			$text = array_map(function($text) use ($inputs) { return filename_format($text, $inputs); }, $text);
 		} else {
