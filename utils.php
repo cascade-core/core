@@ -233,7 +233,7 @@ function frac_str($number)
 }
 
 
-function template_format($template, $values, $escaping_function = 'htmlspecialchars', array $raw_values = array())
+function template_format($template, $values, $escaping_function = 'htmlspecialchars')
 {
 	$available_functions = array(
 		'sprintf'	=> 'sprintf',
@@ -261,6 +261,8 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 	$result = array();
 	$process_function = null;
 	$format_function = null;
+
+	$raw_values = array_slice(func_get_args(), 3);
 
 	foreach($tokens as $token) {
 		switch ($status) {
@@ -350,18 +352,25 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 
 		if ($append) {
 			$append = false;
+			$raw = null;
 
 			// get value
-			if (isset($raw_values[$key])) {
-				$v = $raw_values[$key];
-				$raw = true;
-			} else if (isset($values[$key])) {
-				$v = $values[$key];
-				$raw = false;
-			} else {
-				// key not found, do not append it
-				$result[] = '{?'.$key.'?}';
-				continue;
+			foreach ($raw_values as $rv) {
+				if (isset($rv[$key])) {
+					$v = $rv[$key];
+					$raw = true;
+					break;
+				}
+			}
+			if ($raw === null) {
+				if (isset($values[$key])) {
+					$v = $values[$key];
+					$raw = false;
+				} else {
+					// key not found, do not append it
+					$result[] = '{?'.$key.'?}';
+					continue;
+				}
 			}
 
 			// apply $process_function
@@ -386,13 +395,18 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 }
 
 
-function filename_format($template, $values = array()) {
+function filename_format($template, $values) {
 	static $constants = false;
 	if ($constants === false) {
 		// Fixme: How to invalidate this cache?
 		$constants = get_defined_constants();
 	}
-	return template_format($template, $values, null, $constants);
+
+	$args = func_get_args();
+	array_splice($args, 2, 0, array(null, $constants));
+
+	//return template_format($template, $values, null, $constants);
+	return call_user_func_array('template_format', $args);
 }
 
 

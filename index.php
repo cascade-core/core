@@ -120,7 +120,7 @@ if (DEBUG_PROFILER_STATS_FILE) {
 	flush();
 
 	// open & lock, then update content
-	$fn = filename_format(DEBUG_PROFILER_STATS_FILE);
+	$fn = filename_format(DEBUG_PROFILER_STATS_FILE, array());
 	$f = fopen($fn, "c+");
 	if ($f) {
 		flock($f, LOCK_EX);
