@@ -98,7 +98,7 @@ class B_core__out__menu extends \Cascade\Core\Block
 				continue;
 			}
 			if (!empty($item['link'])) {
-				$link  = rtrim($item['link'], '/');
+				$link  = $item['link'][0] == '/' ? rtrim(parse_url($item['link'], PHP_URL_PATH), '/') : $item['link'];
 				$len   = strlen($link);
 				$match = (strncmp($link, $active_uri, $len) == 0);
 
