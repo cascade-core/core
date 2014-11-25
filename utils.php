@@ -181,6 +181,34 @@ function debug_dump($var, $label = null, $use_print_r = false, $top_level_only =
 		}
 	}
 
+	// Location line
+	echo "<div style='",
+		"display: block;",
+		"margin: 1ex -1em -1ex -1em;",
+		"padding: 0.5ex 1em;",
+		"background: #eee;",
+		"color: #666;",
+		"border-top: 1px solid #aaa;",
+		"'>";
+	list ($callee, $caller, ) = debug_backtrace();
+	if (isset($caller['class'])) {
+		echo @htmlspecialchars($caller['class']), "::";
+	}
+	echo htmlspecialchars($caller['function']);
+	echo "(", join(', ', array_map(function($a) {
+			if (is_object($a)) {
+				return get_class($a);
+			} else if (is_array($a)) {
+				return 'array['.count($a).']';
+			} else {
+				return var_export($a, true);
+			}
+		}, $caller['args'])), "), ";
+	echo "<span style=\"white-space: nowrap;\">",
+		htmlspecialchars(defined('DIR_ROOT') ? str_replace(DIR_ROOT, '', $callee['file']) : $callee['file']),
+		", line ", htmlspecialchars($callee['line']),
+		"</span>";
+	echo "</div>";
 	echo "</$div>";
 
 	return $var;
