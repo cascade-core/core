@@ -39,7 +39,7 @@ class B_core__devel__profiler_stats extends \Cascade\Core\Block
 
 	public function main()
 	{
-		$data = file_get_contents(filename_format($this->in('filename')));
+		$data = file_get_contents(filename_format($this->in('filename'), array()));
 		if ($data === FALSE) {
 			return;
 		}
