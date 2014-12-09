@@ -18,7 +18,9 @@
 
 function TPL_html5__core__doc__show($t, $id, $d, $so)
 {
-	extract($d['block_description']);
+	if (isset($d['block_description'])) {
+		extract($d['block_description']);
+	}
 	extract($d);
 
 
@@ -49,6 +51,12 @@ function TPL_html5__core__doc__show($t, $id, $d, $so)
 				strncmp($prefix, $html_filename, $prefix_len) == 0 ? '&hellip;/'.substr($html_filename, $prefix_len) : $html_filename);
 		echo "</small></div>\n";
 	}
+
+	// Edit button
+	if (isset($is_editable)) {
+		echo "<div class=\"toolbar\"><a href=\"/admin/block-editor/", htmlspecialchars($block), "\" class=\"edit\">", _('Edit'), "</a></div>\n";
+	}
+
 
 	// Description
 	echo "<div class=\"description\">\n",

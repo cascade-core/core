@@ -57,6 +57,9 @@ class B_core__devel__doc__show extends \Cascade\Core\Block
 		}
 		$block = str_replace('-', '_', $block);
 
+		$is_local = in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost'));
+		$is_editable = $is_local; // FIXME
+
 		// Scan block storages
 		foreach ($this->getCascadeController()->getBlockStorages() as $storage) {
 			$desc = $storage->describeBlock($block);
@@ -66,10 +69,11 @@ class B_core__devel__doc__show extends \Cascade\Core\Block
 				$this->templateAdd(null, 'core/doc/show', array(
 						'block' => $block,
 						'heading_level' => $this->in('heading_level'),
-						'is_local' => in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', 'localhost')),
+						'is_local' => $is_local,
 						'code' => $this->in('show_code') ? $code : null,
 						'block_description' => $desc,
 						'composition_slot' => $composition_slot,
+						'is_editable' => $is_editable,
 					));
 				if (!empty($desc['is_composed_block'])) {
 					$this->cascadeAdd('cascade_diagram', 'core/devel/preview', null, array(
@@ -84,9 +88,19 @@ class B_core__devel__doc__show extends \Cascade\Core\Block
 				$this->out('blocks', @ $desc['blocks']);
 				$this->out('composition_slot', $composition_slot);
 				$this->out('done', true);
-				break;
+				return;
 			}
 		}
+
+		$this->templateAdd(null, 'core/doc/show', array(
+			'block' => $block,
+			'heading_level' => $this->in('heading_level'),
+			'is_local' => $is_local,
+			'code' => null,
+			'block_description' => null,
+			'composition_slot' => null,
+			'is_editable' => $is_editable,
+		));
 	}
 
 }
