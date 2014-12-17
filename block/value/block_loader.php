@@ -51,7 +51,7 @@ class B_core__value__block_loader extends \Cascade\Core\Block
 		$connections = $this->in('connections');
 		$output_forward = $this->in('output_forward');
 
-		$type = $block_fmt !== null ? sprintf($block_fmt, $block) : $block;
+		$type = preg_replace('/[^a-zA-Z0-9_\/]+/', '_', $block_fmt !== null ? sprintf($block_fmt, $block) : $block);
 
 		if ($id === null) {
 			$id = basename($type);
