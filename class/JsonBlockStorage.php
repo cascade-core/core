@@ -134,33 +134,39 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 		$outputs = array();
 
 		// Copied inputs
-		foreach ($doc['copy-inputs'] as $out => $in) {
-			$inputs[$in] = array(
-				'name' => $in,
-				'value' => null,
-				'comment' => sprintf(_('Copied to output "%s".'), $out),
-			);
-			$outputs[$out] = array(
-				'name' => $out,
-				'comment' => sprintf(_('Copied from input "%s".'), $in),
-			);
+		if (isset($doc['copy-inputs'])) {
+			foreach ($doc['copy-inputs'] as $out => $in) {
+				$inputs[$in] = array(
+					'name' => $in,
+					'value' => null,
+					'comment' => sprintf(_('Copied to output "%s".'), $out),
+				);
+				$outputs[$out] = array(
+					'name' => $out,
+					'comment' => sprintf(_('Copied from input "%s".'), $in),
+				);
+			}
 		}
 
 
 		// Outputs
-		foreach ($doc['outputs'] as $out => $src) {
-			$outputs[$out] = array(
-				'name' => $out,
-				'comment' => null,
-			);
+		if (isset($doc['outputs'])) {
+			foreach ($doc['outputs'] as $out => $src) {
+				$outputs[$out] = array(
+					'name' => $out,
+					'comment' => null,
+				);
+			}
 		}
 
 		// Forwarded-outputs
-		foreach ($doc['forward-outputs'] as $out => $src) {
-			$outputs[$out] = array(
-				'name' => $out,
-				'comment' => null,
-			);
+		if (isset($doc['forward-outputs'])) {
+			foreach ($doc['forward-outputs'] as $out => $src) {
+				$outputs[$out] = array(
+					'name' => $out,
+					'comment' => null,
+				);
+			}
 		}
 
 		// Store converted data
