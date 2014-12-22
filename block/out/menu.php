@@ -30,6 +30,8 @@ class B_core__out__menu extends \Cascade\Core\Block
 		'title_fmt' => null,		// Default: '{a}{label}{/a}'; wrapped with span if it is not in format '{a}...{/a}'
 		'class' => null,		// Class set to top-level element.
 		'max_depth' => PHP_INT_MAX,	// Show only items up to specified depth.
+		'column_count' => 4,		// Column count for columns layout
+		'active_only' => false,		// Render only active path
 		'slot' => 'default',
 		'slot_weight' => 50,
 	);
@@ -54,6 +56,8 @@ class B_core__out__menu extends \Cascade\Core\Block
 					'title_fmt' => $this->in('title_fmt'),
 					'class' => $this->in('class'),
 					'max_depth' => $this->in('max_depth'),
+					'column_count' => $this->in('column_count'),
+					'active_only' => $this->in('active_only'),
 				));
 		}
 	}
@@ -76,14 +80,18 @@ class B_core__out__menu extends \Cascade\Core\Block
 			$last = array_pop($best_path);
 			if (empty($best_path)) {
 				$items[$last]['classes'][] = 'active';
+				$items[$last]['is_active'] = true;
 			} else {
 				$i = & $items[reset($best_path)];
 				$i['classes'][] = 'active_child';
+				$i['has_active_child'] = true;
 				while (next($best_path) !== FALSE) {
 					$i = & $i['children'][current($best_path)];
 					$i['classes'][] = 'active_child';
+					$i['has_active_child'] = true;
 				}
 				$i['children'][$last]['classes'][] = 'active';
+				$i['children'][$last]['is_active'] = true;
 			}
 		}
 

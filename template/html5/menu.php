@@ -33,11 +33,13 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 		$max_depth = PHP_INT_MAX;
 	}
 
+	//debug_dump($items, $id);
+
 	switch ($layout) {
 		default:
 		case 'tree':
 			echo "<ul id=\"", htmlspecialchars($id), "\" class=\"menu", isset($class) ? ' '.$class : '', "\">\n";
-			tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth);
+			tpl_html5__core__menu__tree($id, $items, $title_fmt, $active_only - 1, $max_depth);
 			echo "</ul>\n";
 			break;
 
@@ -45,6 +47,18 @@ function TPL_html5__core__menu($t, $id, $d, $so)
 			echo "<div id=\"", htmlspecialchars($id), "\" class=\"menu", isset($class) ? ' '.$class : '', "\">\n";
 			tpl_html5__core__menu__row($id, $items, $title_fmt, $max_depth);
 			echo "</div>\n";
+			break;
+
+		case 'columns':
+			if (!isset($column_count)) {
+				$column_count = 4;
+			}
+			echo "<table id=\"", htmlspecialchars($id), "\" class=\"menu", isset($class) ? ' '.$class : '', "\">\n";
+			for ($c = 0; $c < $column_count; $c++) {
+				echo "<col width=\"", floor(100. / $column_count), "%\">\n";
+			}
+			tpl_html5__core__menu__columns($id, $items, $title_fmt, $column_count, $active_only - 1, $max_depth);
+			echo "</table>\n";
 			break;
 	}
 }
@@ -78,7 +92,7 @@ function tpl_html5__core__menu__label($id, $item, $title_fmt)
 }
 
 
-function tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth = PHP_INT_MAX)
+function tpl_html5__core__menu__tree($id, $items, $title_fmt, $active_only, $max_depth = PHP_INT_MAX)
 {
 	/* show menu */
 	foreach ($items as $i => $item) {
@@ -104,9 +118,9 @@ function tpl_html5__core__menu__tree($id, $items, $title_fmt, $max_depth = PHP_I
 		tpl_html5__core__menu__label($id, $item, $title_fmt);
 
 		/* recursively show children */
-		if ($has_children) {
+		if ($has_children && ($active_only <= 0 || !empty($item['has_active_child']) || !empty($item['is_active']))) {
 			echo "\n<ul>\n";
-			tpl_html5__core__menu__tree($id, $item['children'], $title_fmt, $max_depth - 1);
+			tpl_html5__core__menu__tree($id, $item['children'], $title_fmt, $active_only - 1, $max_depth - 1);
 			echo "</ul>\n";
 		}
 
@@ -147,5 +161,60 @@ function tpl_html5__core__menu__row($id, $items, $title_fmt, $max_depth = PHP_IN
 		}
 
 	}
+}
+
+
+function tpl_html5__core__menu__columns($id, $items, $title_fmt, $column_count, $active_only, $max_depth = PHP_INT_MAX)
+{
+	$column = 0;
+
+	echo "<tr>\n";
+
+	foreach ($items as $i => $item) {
+		if (!empty($item['hidden'])) {
+			continue;
+		}
+
+		if ($column >= $column_count) {
+			echo "</tr>\n<tr>\n";
+		}
+
+		$classes = (array) @ $item['classes'];
+		$classes[] = 'mni-'.str_replace(' ', '_', $i);
+
+		/* are there children nodes? */
+		if (!empty($item['children']) && $max_depth > 0) {
+			$has_children = true;
+			$classes[] = 'has_children';
+		} else {
+			$has_children = false;
+		}
+
+		/* build open tag with class attribute */
+		echo '<td class="', htmlspecialchars(join($classes, ' ')), '">';
+
+		/* show label */
+		echo "<div>";
+		tpl_html5__core__menu__label($id, $item, $title_fmt);
+		echo "</div>\n";
+
+		/* recursively show children */
+		if ($has_children && ($active_only <= 0 || !empty($item['has_active_child']) || !empty($item['is_active']))) {
+			echo "\n<ul>\n";
+			tpl_html5__core__menu__tree($id, $item['children'], $title_fmt, $active_only - 1, $max_depth - 1);
+			echo "</ul>\n";
+		}
+
+		echo "</td>\n";
+
+		$column++;
+	}
+
+	while ($column < $column_count) {
+		echo "<td></td>\n";
+		$column++;
+	}
+
+	echo "</tr>\n";
 }
 
