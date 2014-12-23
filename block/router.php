@@ -245,7 +245,19 @@ class B_core__router extends \Cascade\Core\Block
 	}
 
 
-	public static function findMatchingRoute($routes, $path, & $mask = null)
+	/**
+	 * Find route which matches given path.
+	 *
+	 * @param $routes Routes to search.
+	 * @param $path Path to find in `$routes`.
+	 * @param $mask Mask (pattern) of the found route.
+	 * @param $validation_callback Function which returns non-false when
+	 * 	found route is valid. If `false` is returned, router continues to
+	 * 	search as if the `$mask` did not match. Prototype: `function($outputs, $mask)`
+	 * @return Found route is returned. If `$validation_callback` is
+	 * 	specified, its return value is returned.
+	 */
+	public static function findMatchingRoute($routes, $path, & $mask = null, $validation_callback = null)
 	{
 		$path_len = count($path);
 
@@ -282,7 +294,7 @@ class B_core__router extends \Cascade\Core\Block
 					break;
 				}
 			}
-			if ($i >= $m_len) {
+			if ($i >= $m_len && ($validation_callback === null || ($outputs = $validation_callback($outputs, $mask)) !== false)) {
 				// match found
 				return $outputs;
 			}
