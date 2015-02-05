@@ -79,14 +79,18 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 
 	/* Store dot file, it will be rendered later */
 	@ mkdir(dirname($dot_file), 0777, true);
-	file_put_contents($dot_file, $dot);
+	if (!file_exists($dot_file)) {
+		file_put_contents($dot_file, $dot);
+	}
 
 	/* Prepare dot files for animation, but do not render them, becouse core/animate-cascade.sh will do */
 	if (!empty($core_cfg['debug']['animate_cascade'])) {
 		$steps = $cascade->currentStep(false) + 1;
 		for ($t = 0; $t <= $steps; $t++) {
 			$f = sprintf($movie_file, $t);
-			file_put_contents($f, gzencode($cascade->exportGraphvizDot($link, array(), $t), 2));
+			if (!file_exists($f)) {
+				file_put_contents($f, gzencode($cascade->exportGraphvizDot($link, array(), $t), 2));
+			}
 		}
 	}
 

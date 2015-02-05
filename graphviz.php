@@ -52,51 +52,18 @@ function render_graphviz($src_file, $dst_file, $format)
 	}
 
 	// Execute dot
-	$src = file_get_contents($src_file);
-	$result = exec_dot($src, $format);
-	if (!empty($result)) {
-		return file_put_contents($dst_file, $result);
+	error_log("graphviz.php: Rendering $src_file");
+	error_log("graphviz.php: To file:  $dst_file (older by ".($src_mtime - $dst_mtime)." seconds)");
+	$output = null;
+	$ret_val = -1;
+	unlink($dst_file);
+	exec('dot '.escapeshellarg($src_file).' -T '.escapeshellarg($format).' -o '.escapeshellarg($dst_file), $output, $ret_val);
+	if ($ret_val == 0) {
+		return true;
 	} else {
-		return false;
+		throw new \RuntimeException("graphviz.php: Dot failed (code $ret_val): $output");
 	}
 }
-
-
-/**
- * Execute dot (copy of CascadeController::execDot)
- */
-function exec_dot($dot_source, $out_type, $out_file = null)
-{
-	$descriptorspec = array(
-		0 => array('pipe', 'r'),
-		1 => ($out_file == null ? array('pipe', 'w') : array('file', $out_file, 'w')),
-	);
-	$pipe = null;
-
-	$proc = proc_open('dot -T '.escapeshellarg($out_type), $descriptorspec, $pipe);
-
-	if (is_resource($proc)) {
-
-		/* send dot source */
-		fwrite($pipe[0], $dot_source);
-		fclose($pipe[0]);
-
-		if ($out_file == null) {
-			/* load result */
-			$result = stream_get_contents($pipe[1]);
-			fclose($pipe[1]);
-
-			$ret_code = proc_close($proc);
-			return ($ret_code == 0 ? $result : false);
-		} else {
-			$ret_code = proc_close($proc);
-			return ($ret_code == 0 ? true : false);
-		}
-	} else {
-		return false;
-	}
-}
-
 
 
 /* Generate link suitable for use in HTML attribute */
