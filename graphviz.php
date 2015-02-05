@@ -38,11 +38,11 @@ function fail($code, $msg, $description = null)
 function render_graphviz($src_file, $dst_file, $format)
 {
 	// Check cache
-	$src_mtime = @ filemtime($src_mtime);
-	$dst_mtime = @ filemtime($dst_mtime);
-	if ($dst_mtime != null && $src_mtime <= $dst_file) {
+	$src_mtime = file_exists($src_file) ? filemtime($src_file) : null;
+	$dst_mtime = file_exists($dst_file) ? filemtime($dst_file) : null;
+	if ($dst_mtime !== null && $src_mtime <= $dst_mtime) {
 		// Cache hit, we are done.
-		return;
+		return true;
 	}
 
 	// Create dir if does not exist
@@ -119,9 +119,9 @@ function url($format = null, $hash = null)
 list($config_loader, $core_cfg) = require(dirname(__FILE__).'/init.php');
 
 // Get parameters
-$profile = @ $_GET['cfg'];
-$hash    = @ $_GET['hash'];
-$format  = @ $_GET['format'];
+$profile = isset($_GET['cfg']   ) ? $_GET['cfg']    : null;
+$hash    = isset($_GET['hash']  ) ? $_GET['hash']   : null;
+$format  = isset($_GET['format']) ? $_GET['format'] : null;
 
 // Default format
 if (empty($format)) {
@@ -129,10 +129,10 @@ if (empty($format)) {
 }
 
 // Check config
-$cfg = @ $core_cfg['graphviz'][$profile];
-if (empty($cfg) || $profile == 'renderer') {
+if (empty($core_cfg['graphviz'][$profile]) || $profile == 'renderer') {
 	fail(500, 'Configuration not found.');
 }
+$cfg = $core_cfg['graphviz'][$profile];
 
 // Check parameters
 if (!preg_match('/^[0-9a-z]{32}$/', $hash) || !preg_match('/^[a-z0-9][a-z0-9-]{1,10}$/', $format)) {
