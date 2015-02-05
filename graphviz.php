@@ -51,12 +51,16 @@ function render_graphviz($src_file, $dst_file, $format)
 		mkdir($dir, 0777, true);
 	}
 
+	// Make sure old image will not survive
+	if ($dst_mtime !== null) {
+		unlink($dst_file);
+	}
+
 	// Execute dot
 	error_log("graphviz.php: Rendering $src_file");
 	error_log("graphviz.php: To file:  $dst_file (older by ".($src_mtime - $dst_mtime)." seconds)");
 	$output = null;
 	$ret_val = -1;
-	unlink($dst_file);
 	exec('dot '.escapeshellarg($src_file).' -T '.escapeshellarg($format).' -o '.escapeshellarg($dst_file), $output, $ret_val);
 	if ($ret_val == 0) {
 		return true;
