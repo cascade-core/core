@@ -103,7 +103,7 @@ class Context {
 
 		// Use config loader ---- $cfg must not be modified after this ----
 		if (!empty($cfg['_load_config'])) {
-			$resource_cfg = $this->config_loader->load($cfg['_load_config']);
+			$resource_cfg = array_merge($this->config_loader->load($cfg['_load_config']), $cfg);
 		} else {
 			$resource_cfg = $cfg;
 		}
