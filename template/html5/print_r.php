@@ -26,13 +26,25 @@ function TPL_html5__core__print_r($t, $id, $d, $so)
 		echo "<$h>", htmlspecialchars($title), "</$h>\n";
 	}
 
-	if ($pretty) {
-		debug_dump($data);
-	} else {
-		ob_start();
-		print_r($data);
-		$str = ob_get_clean();
-		echo "<pre>", htmlspecialchars($str), "</pre>\n";
+	switch ($pretty) {
+		default:
+			debug_dump($data);
+			break;
+
+		case 'json':
+			echo "<pre>";
+			echo json_encode($data, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK
+				| JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				|  JSON_HEX_AMP | JSON_HEX_TAG);
+			echo "</pre>\n";
+			break;
+
+		case false:
+			ob_start();
+			print_r($data);
+			$str = ob_get_clean();
+			echo "<pre>", htmlspecialchars($str), "</pre>\n";
+			break;
 	}
 	echo "</div>\n";
 }
