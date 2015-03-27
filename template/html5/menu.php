@@ -177,6 +177,7 @@ function tpl_html5__core__menu__columns($id, $items, $title_fmt, $column_count, 
 
 		if ($column >= $column_count) {
 			echo "</tr>\n<tr>\n";
+			$column = 0;
 		}
 
 		$classes = (array) @ $item['classes'];
