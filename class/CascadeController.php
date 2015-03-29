@@ -570,6 +570,7 @@ class CascadeController {
 					$missing = true;
 					$zero = true;
 					$big = false;
+					$exists = false;
 
 					if (!is_object($out_mod)) {
 						$missing_blocks[$out_mod] = true;
