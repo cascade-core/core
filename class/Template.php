@@ -221,7 +221,13 @@ class Template {
 					}
 
 					/* call template (can recursively call processSlot()) */
-					$tpl_fn($this, $id, $data, $options);
+					try {
+						$tpl_fn($this, $id, $data, $options);
+					}
+					catch (\Exception $ex) {
+						error_msg('Template "%s" (object ID: "%s") threw an exception: %s', $template, $id, $ex->getMessage());
+						error_msg('Exception: %s', $ex);
+					}
 				} else {
 					error_msg('Failed to load template "%s"! Object ID is "%s".', $template, $id);
 				}
