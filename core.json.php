@@ -25,6 +25,7 @@
         "log_memory_usage": true,
         "add_cascade_graph": true,
         "cascade_graph_slot": "html_body",
+        "export_exceptions": true,
         "animate_cascade": false,
         "profiler_stats_file": "var/profiler.stats",
         "error_log": null

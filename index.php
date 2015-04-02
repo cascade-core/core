@@ -76,6 +76,7 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 	$link = $core_cfg['graphviz']['cascade']['src_file'];
 	$dot_file   = filename_format($link, array('hash' => $hash, 'ext' => 'dot'));
 	$movie_file = filename_format($link, array('hash' => $hash, 'ext' => '%06d.dot.gz'));
+	$ex_html_file = filename_format($link, array('hash' => $hash, 'ext' => 'exceptions.html.gz'));
 
 	/* Store dot file, it will be rendered later */
 	@ mkdir(dirname($dot_file), 0777, true);
@@ -92,6 +93,12 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 				file_put_contents($f, gzencode($cascade->exportGraphvizDot($link, array(), $t), 2));
 			}
 		}
+	}
+
+	/* Export exceptions to HTML, so they can be displayed with cascade */
+	if (!empty($core_cfg['debug']['export_exceptions'])) {
+		$exceptions_html = $cascade->exportFailedBlocksExceptionsHtml($core_cfg['graphviz']['cascade']['doc_link']);
+		file_put_contents($ex_html_file, gzencode($exceptions_html, 2));
 	}
 
 	/* Template object will render & cache image */

@@ -43,6 +43,8 @@ class CascadeController {
 	private $auth = null;
 	private $block_storages = array();
 
+	private $failed_blocks_exceptions = array();	// Exceptions thrown by blocks.
+
 
 	/**
 	 * Constructor.
@@ -803,6 +805,117 @@ class CascadeController {
 		unset($b);
 
 		return $desc;
+	}
+
+
+	/**
+	 * Get list of exceptions thrown by failed blocks.
+	 *
+	 * Returned array has following keys:
+	 *
+	 *   - `block_id`
+	 *   - `block_type`
+	 *   - `step` - execution step in moment of filure (see currentStep() function)
+	 *   - `exception` - the Exception object
+	 */
+	public function getFailedBocksExceptions()
+	{
+		return $this->failed_blocks_exceptions;
+	}
+
+
+	/**
+	 * Log exception from block (this must be called only by failing block).
+	 *
+	 * Exceptions are explicitly logged, because they are not supposed to
+	 * interrupt cascade evaluation. Block which throws an exception is
+	 * marked as failed, but evaluation continues, marking dependent blocks
+	 * as failed too.
+	 */
+	public function logFailedBlockException($block_id, $block_type, $exception)
+	{
+		$this->failed_blocks_exceptions[] = array(
+			'block_id' => $block_id,
+			'block_type' => $block_type,
+			'step' => $this->evaluation_step,
+			'exception' => $exception,
+		);
+	}
+
+
+	/**
+	 * Returns HTML string containing nicely formatted exceptions.
+	 */
+	public function exportFailedBlocksExceptionsHtml($doc_link)
+	{
+		ob_start();
+
+		$ff = function($filename) {
+			return htmlspecialchars(preg_replace("\xfe^".DIR_ROOT."\xfe", '…/', $filename));
+		};
+
+		echo "<dl style=\"text-align: left;\">\n";
+		foreach($this->failed_blocks_exceptions as $ex) {
+			echo "<dt>";
+			printf(_("<small>%s:</small><br> <b>%s</b>"), htmlspecialchars(get_class($ex['exception'])), htmlspecialchars($ex['exception']->getMessage()));
+			echo "</dt>\n";
+
+			echo "<dd>";
+			if (empty($doc_link)) {
+				printf(_("<em>Block:</em> <tt>%s</tt> (%s)"),
+					htmlspecialchars($ex['block_id']),
+					htmlspecialchars($ex['block_type']));
+			} else {
+				printf(_("<em>Block:</em> <tt>%s</tt> (<a href=\"%s\">%s</a>)"),
+					htmlspecialchars($ex['block_id']),
+					htmlspecialchars(filename_format($doc_link, array('block' => $ex['block_type']))),
+					htmlspecialchars($ex['block_type']));
+			}
+			echo "</dd>\n";
+
+			echo "<dd>";
+			printf(_("<em>File:</em> <tt>%s</tt> (line %d)"), $ff($ex['exception']->getFile()), $ex['exception']->getLine());
+			echo "</dd>\n";
+
+			echo "<dd>";
+			echo _("<em>Stack trace:</em>");
+			echo "<ol>\n";
+
+			$trace = $ex['exception']->getTrace();
+			$depth = count($trace);
+			foreach ($trace as $i => $tr) {
+				echo "<li value=\"", $depth - $i, "\"><b>";
+				$args = join(', ', array_map(function($a) {
+						if (is_string($a)) {
+							if (strlen($a) > 20) {
+								return var_export(substr($a, 0, 15).'…', true);
+							} else {
+								return var_export($a, true);
+							}
+						} else if (is_object($a)) {
+							return get_class($a);
+						} else if (is_array($a)) {
+							return 'array('.count($a).')';
+						} else {
+							return var_export($a, true);
+						}
+					}, $tr['args']));
+				if (isset($tr['class'])) {
+					printf(_("<tt>%s::%s(%s)</tt>"), htmlspecialchars($tr['class']), htmlspecialchars($tr['function']), htmlspecialchars($args));
+				} else {
+					printf(_("<tt>%s(%s)</tt>"), htmlspecialchars($tr['function']), htmlspecialchars($args));
+				}
+				echo "</b> &mdash; ";
+				printf(_("<tt>%s:%d</tt>"), $ff($tr['file']), $tr['line']);
+				echo "</li>\n";
+			}
+
+			echo "</ol>";
+			echo "</dd>\n";
+		}
+		echo "</dl>\n";
+
+		return ob_get_clean();
 	}
 
 }

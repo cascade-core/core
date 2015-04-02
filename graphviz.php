@@ -134,6 +134,7 @@ switch ($format) {
 	case 'html':
 		$map_format = 'cmapx';
 		$map_file = filename_format($cfg['cache_file'], array('hash' => $hash, 'ext' => $map_format));
+		$exceptions_file = filename_format($cfg['cache_file'], array('hash' => $hash, 'ext' => 'exceptions.html.gz'));
 
 		// Very simple HTML page that links few other files
 		header('Content-Type: text/html; encoding=UTF-8');
@@ -155,6 +156,10 @@ switch ($format) {
 				" | <a href=\"", url('dot'), "\" target=\"_blank\">dot</a>",
 				" | ", $hash,
 			" ]</div>\n";
+
+		if (file_exists($exceptions_file)) {
+			echo gzdecode(file_get_contents($exceptions_file));
+		}
 
 		render_graphviz($src_file, $map_file, $map_format);
 		$map_html_name = 'cascade_graph_map__'.htmlspecialchars($hash);
