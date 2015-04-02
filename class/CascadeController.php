@@ -857,28 +857,18 @@ class CascadeController {
 		echo "<dl style=\"text-align: left;\">\n";
 		foreach($this->failed_blocks_exceptions as $ex) {
 			echo "<dt>";
-			printf(_("<small>%s:</small><br> <b>%s</b>"), htmlspecialchars(get_class($ex['exception'])), htmlspecialchars($ex['exception']->getMessage()));
+			printf(_("<span>Uncaught exception <tt>%s</tt> in block <b>%s</b> (%s):</span><br> <big>%s</big>"),
+				htmlspecialchars(get_class($ex['exception'])),
+				htmlspecialchars($ex['block_id']),
+				$doc_link
+					? sprintf('<a href="%s">%s</a>',
+						htmlspecialchars(filename_format($doc_link, array('block' => $ex['block_type']))),
+						htmlspecialchars($ex['block_type']))
+					: htmlspecialchars($ex['block_type']),
+				htmlspecialchars($ex['exception']->getMessage()));
 			echo "</dt>\n";
 
 			echo "<dd>";
-			if (empty($doc_link)) {
-				printf(_("<em>Block:</em> <tt>%s</tt> (%s)"),
-					htmlspecialchars($ex['block_id']),
-					htmlspecialchars($ex['block_type']));
-			} else {
-				printf(_("<em>Block:</em> <tt>%s</tt> (<a href=\"%s\">%s</a>)"),
-					htmlspecialchars($ex['block_id']),
-					htmlspecialchars(filename_format($doc_link, array('block' => $ex['block_type']))),
-					htmlspecialchars($ex['block_type']));
-			}
-			echo "</dd>\n";
-
-			echo "<dd>";
-			printf(_("<em>File:</em> <tt>%s</tt> (line %d)"), $ff($ex['exception']->getFile()), $ex['exception']->getLine());
-			echo "</dd>\n";
-
-			echo "<dd>";
-			echo _("<em>Stack trace:</em>");
 			echo "<ol>\n";
 
 			$trace = $ex['exception']->getTrace();
