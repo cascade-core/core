@@ -916,14 +916,14 @@ class CascadeController {
 			$trace = $ex['exception']->getTrace();
 			$depth = count($trace);
 			foreach ($trace as $i => $tr) {
-				echo "<li value=\"", $depth - $i, "\"><b>";
+				echo "<li value=\"", $depth - $i, "\">";
 				$args = join(', ', array_map($to_string, $tr['args']));
 				if (isset($tr['class'])) {
-					printf(_("<tt>%s::%s(%s)</tt>"), htmlspecialchars($tr['class']), htmlspecialchars($tr['function']), htmlspecialchars($args));
+					printf(_("<tt><b>%s::%s(</b>%s<b>)</b></tt>"), htmlspecialchars($tr['class']), htmlspecialchars($tr['function']), htmlspecialchars($args));
 				} else {
-					printf(_("<tt>%s(%s)</tt>"), htmlspecialchars($tr['function']), htmlspecialchars($args));
+					printf(_("<tt><b>%s(</b>%s<b>)</b></tt>"), htmlspecialchars($tr['function']), htmlspecialchars($args));
 				}
-				echo "</b> &mdash; ";
+				echo " &mdash; ";
 				printf(_("<tt>%s:%d</tt>"), $ff($tr['file']), $tr['line']);
 				echo "</li>\n";
 			}
