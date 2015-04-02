@@ -101,6 +101,14 @@ class JsonConfig implements IConfig
 			$filenames[] = $afn;
 		}
 
+		// ... and if we are running from cli, load few more pieces.
+		if (empty($_SERVER['REMOTE_ADDR']) && php_sapi_name() == 'cli') {
+			$afn = DIR_APP.$name.'.cli.json.php';
+			if (file_exists($afn)) {
+				$filenames[] = $afn;
+			}
+		}
+
 		// And local config is even laster, so it can overwrite more 
 		// than anything. These files should not be commited, they are 
 		// .gitignored by default. Use them for things like database 
