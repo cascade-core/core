@@ -850,8 +850,26 @@ class CascadeController {
 	{
 		ob_start();
 
+		// Function to strip commont part of path to enhance readability
 		$ff = function($filename) {
 			return htmlspecialchars(preg_replace("\xfe^".DIR_ROOT."\xfe", '…/', $filename));
+		};
+
+		// Function to convert anything to readable string
+		$to_string = function($a) {
+			if (is_string($a)) {
+				if (strlen($a) > 20) {
+					return var_export(substr($a, 0, 15).'…', true);
+				} else {
+					return var_export($a, true);
+				}
+			} else if (is_object($a)) {
+				return get_class($a);
+			} else if (is_array($a)) {
+				return 'array('.count($a).')';
+			} else {
+				return var_export($a, true);
+			}
 		};
 
 		echo "<dl style=\"text-align: left;\">\n";
@@ -868,28 +886,38 @@ class CascadeController {
 				htmlspecialchars($ex['exception']->getMessage()));
 			echo "</dt>\n";
 
-			echo "<dd>";
-			echo "<ol>\n";
+			echo "<dd>\n";
 
+			// If exception provides SQL query, show it.
+			if (method_exists($ex['exception'], 'getQuerySql')) {
+				echo "<pre>", htmlspecialchars($ex['exception']->getQuerySql()), "</pre>\n";
+			} else if (method_exists($ex['exception'], 'getQueryString')) {
+				echo "<pre>", htmlspecialchars($ex['exception']->getQueryString()), "</pre>\n";
+			}
+
+			// Same with parameters for SQL query
+			if (method_exists($ex['exception'], 'getQueryParams')) {
+				$params = $ex['exception']->getQueryParams();
+				if ($params !== null) {
+					if (is_array($params)) {
+						echo "<ul>\n";
+						foreach ($params as $k => $v) {
+							echo "<li><code>", htmlspecialchars($k), " = ", htmlspecialchars($to_string($v)), "</code></li>\n";
+						}
+						echo "</ul>\n";
+					} else {
+						echo "<pre>", htmlspecialchars($to_string($ex['exception']->getQueryParams())), "</pre>\n";
+					}
+				}
+			}
+
+			// Show stacktrace
+			echo "<ol>\n";
 			$trace = $ex['exception']->getTrace();
 			$depth = count($trace);
 			foreach ($trace as $i => $tr) {
 				echo "<li value=\"", $depth - $i, "\"><b>";
-				$args = join(', ', array_map(function($a) {
-						if (is_string($a)) {
-							if (strlen($a) > 20) {
-								return var_export(substr($a, 0, 15).'…', true);
-							} else {
-								return var_export($a, true);
-							}
-						} else if (is_object($a)) {
-							return get_class($a);
-						} else if (is_array($a)) {
-							return 'array('.count($a).')';
-						} else {
-							return var_export($a, true);
-						}
-					}, $tr['args']));
+				$args = join(', ', array_map($to_string, $tr['args']));
 				if (isset($tr['class'])) {
 					printf(_("<tt>%s::%s(%s)</tt>"), htmlspecialchars($tr['class']), htmlspecialchars($tr['function']), htmlspecialchars($args));
 				} else {
@@ -899,8 +927,8 @@ class CascadeController {
 				printf(_("<tt>%s:%d</tt>"), $ff($tr['file']), $tr['line']);
 				echo "</li>\n";
 			}
-
-			echo "</ol>";
+			echo "</ol>\n";
+			
 			echo "</dd>\n";
 		}
 		echo "</dl>\n";
