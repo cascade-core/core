@@ -923,8 +923,10 @@ class CascadeController {
 				} else {
 					printf(_("<tt><b>%s(</b>%s<b>)</b></tt>"), htmlspecialchars($tr['function']), htmlspecialchars($args));
 				}
-				echo " &mdash; ";
-				printf(_("<tt>%s:%d</tt>"), $ff($tr['file']), $tr['line']);
+				if (isset($tr['file'])) {
+					echo " &mdash; ";
+					printf(_("<tt>%s:%d</tt>"), $ff($tr['file']), $tr['line']);
+				}
 				echo "</li>\n";
 			}
 			echo "</ol>\n";
