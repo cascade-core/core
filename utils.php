@@ -127,14 +127,14 @@ function extra_msg($msg)
  * Simple function for quick and dirty debugging. This prints variable in nice 
  * and readable way. Do not forget calls of this anywhere in final code.
  */
-function debug_dump($var, $label = null, $use_print_r = false, $top_level_only = false)
+function debug_dump($var, $label = null, $use_var_dump = false, $top_level_only = false)
 {
 	if (php_sapi_name() == "cli") {
 		if ($label != '') {
 			echo $label, ': ';
 		}
-		if ($use_print_r) {
-			print_r($var);
+		if ($use_var_dump) {
+			var_dump($var);
 		} else {
 			var_export($var);
 		}
@@ -142,7 +142,7 @@ function debug_dump($var, $label = null, $use_print_r = false, $top_level_only =
 		return;
 	}
 
-	$div = $use_print_r ? 'pre':'div';
+	$div = $use_var_dump ? 'pre':'div';
 
 	echo "<$div style='",
 		"display: block;",
@@ -172,9 +172,9 @@ function debug_dump($var, $label = null, $use_print_r = false, $top_level_only =
 		}
 		echo "</pre>\n";
 	} else {
-		if ($use_print_r) {
+		if ($use_var_dump) {
 			ob_start();
-			print_r($var);
+			var_dump($var);
 			echo htmlspecialchars(ob_get_clean());
 		} else {
 			echo preg_replace('|^([^/]*)&lt;\?php<br />|Um', '\1', highlight_string("<?php\n".preg_replace('/=> \n\s*/', "=> ", var_export($var, true)), true));
