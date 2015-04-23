@@ -42,6 +42,7 @@ class Template {
 	private $current_slot_depth = 0;
 	private $reverse_router = array();
 	private $redirect_enabled = true;
+	private $annotate = false;
 
 
 	/**
@@ -58,13 +59,18 @@ class Template {
 		if (isset($cfg['redirect_enabled'])) {
 			$this->redirect_enabled = $cfg['redirect_enabled'];
 		}
+
+		// Debug option to comment source of the HTML markup
+		if (isset($cfg['annotate'])) {
+			$this->annotate = $cfg['annotate'];
+		}
 	}
 
 
 	/**
 	 * Add object to specified slot and set its weight.
 	 */
-	function addObject($id, $slot, $weight, $template, $data = array(), $context = null)
+	function addObject(Block $source_block = null, $id, $slot, $weight, $template, $data = array(), $context = null)
 	{
 		debug_msg('New object: id = "%s", slot = "%s", weight = %d, template = "%s"', $id, $slot, $weight, $template);
 
@@ -72,7 +78,7 @@ class Template {
 			error_msg('Duplicate ID "%s"!', $id);
 			return false;
 		} else {
-			$this->objects[$id] = array($weight, $slot, $id, $template, $data, $context);
+			$this->objects[$id] = array($weight, $slot, $id, $template, $data, $context, $source_block);
 			$this->slot_content[$slot][] = & $this->objects[$id];
 			return true;
 		}
@@ -210,7 +216,7 @@ class Template {
 
 			/* process slot content */
 			foreach($content as $obj) {
-				list($weight, $slot, $id, $template, $data, $context) = $obj;
+				list($weight, $slot, $id, $template, $data, $context, $source_block) = $obj;
 				
 				$tpl_fn = 'TPL_'.$output_type.'__'.str_replace('/', '__', $template);
 
@@ -222,6 +228,10 @@ class Template {
 
 					/* call template (can recursively call processSlot()) */
 					try {
+						if ($this->annotate && $output_type == 'html5' && $source_block) {
+							// FIXME: This is specific for html5 output -- move it somewhere else
+							echo "<!-- Block: ", htmlspecialchars($source_block->id()), " (", htmlspecialchars($source_block->blockName()), ") -->\n";
+						}
 						$tpl_fn($this, $id, $data, $options);
 					}
 					catch (\Exception $ex) {

@@ -39,6 +39,7 @@
             },
             "template_engine": {
                 "class": "\\Cascade\\Core\\Template",
+                "annotate": true,
                 "default_type": "html5"
             }
         }

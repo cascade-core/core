@@ -705,7 +705,7 @@ abstract class Block
 	{
 		$id = $id_suffix === null ? $this->fullId() : $this->fullId().'_'.$id_suffix;
 		$t = $this->context->template_engine;
-		$t->addObject($id, $slot === null ? $this->in('slot') : $slot,
+		$t->addObject($this, $id, $slot === null ? $this->in('slot') : $slot,
 				($weight === null ? $this->in('slot_weight') : $weight) + $this->slot_weight_penalty,
 				$template, $data, $this->context);
 
