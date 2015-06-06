@@ -17,5 +17,6 @@ all:
 	@echo "\n#\n# Core\n#\n"
 	@make $@ -C core || true
 	@for d in plugin/* ; do echo "\n#\n# Plugin $$d\n#\n"; make $@ -C "$$d" ; done
+	@for d in lib/cascade/* ; do echo "\n#\n# Library $$d\n#\n"; make $@ -C "$$d" ; done
 
 
