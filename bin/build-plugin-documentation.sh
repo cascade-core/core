@@ -44,7 +44,7 @@ then
 
 	(
 		# get Doxyfile
-		sed 's|\(=[\t ]*\)doc/|\1../../../../core/doc/|' ../../../../core/doc/Doxyfile
+		sed 's|\(=[\t ]*\)doc/|\1../../../core/doc/|' ../../../../core/doc/Doxyfile
 
 		# override few options
 		echo "PROJECT_NAME=\"`head -n 1 ../README.md`\""
