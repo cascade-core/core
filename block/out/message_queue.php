@@ -34,6 +34,10 @@ class B_core__out__message_queue extends \Cascade\Core\Block
 
 	public function main()
 	{
+		if (!isset($_SESSION)) {
+			session_start();
+		}
+
 		if (is_array(@$_SESSION['message_queue'])) {
 			foreach ($_SESSION['message_queue'] as $id => $msg_data) {
 				$msg_data['msg_id'] = $id;

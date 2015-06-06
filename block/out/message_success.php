@@ -76,6 +76,9 @@ class B_core__out__message_success extends \Cascade\Core\Block
 
 			if (!$quiet_redirect) {
 				debug_msg('Storing message for later use.');
+				if (!isset($_SESSION)) {
+					session_start();
+				}
 				$_SESSION['message_queue'][] = $msg_data;
 			}
 		}

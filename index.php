@@ -21,12 +21,6 @@ define('CASCADE_MAIN', true);
 /* Call core's init file */
 list($default_context, $core_cfg) = require(dirname(__FILE__).'/init.php');
 
-/* Start session if not started yet */
-// TODO: Remove PHP session (required by message queue)
-if (!isset($_SESSION)) {
-	session_start();
-}
-
 /* Initialize cascade controller */
 $cascade_controller_class = $core_cfg['core']['cascade_controller_class'];
 $cascade = new $cascade_controller_class($default_context->auth, @$core_cfg['block_map'], @$core_cfg['shebangs']);
