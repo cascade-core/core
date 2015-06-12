@@ -265,7 +265,7 @@ function template_format($template, $values, $escaping_function = 'htmlspecialch
 {
 	$available_functions = array(
 		'sprintf'	=> 'sprintf',
-		'strftime'	=> 'strftime',
+		'strftime'	=> function($fmt, $t) { return strftime($fmt, strtotime($t)); },
 		'floor'		=> 'sprintf',
 		'ceil'		=> 'sprintf',
 		'frac'		=> 'sprintf',
