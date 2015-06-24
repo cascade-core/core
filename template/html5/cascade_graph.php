@@ -44,9 +44,10 @@ function TPL_html5__core__cascade_graph($t, $id, $d, $so)
 		case 'include':
 			$url = filename_format($link, array('profile' => $profile, 'hash' => $hash, 'ext' => 'html'));
 
-			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_iframe\" style=\"clear: both;\">\n";
+			echo "<div id=\"", htmlspecialchars($id), "\" class=\"cascade_iframe", ($error_count ? ' cascade_has_failed_blocks':''), "\" style=\"clear: both;\">\n";
 			echo	"\t<hr>\n",
-				"\t<h2><a target=\"_blank\" href=\"", htmlspecialchars($url), "\">Cascade</a></h2>\n",
+				"\t<h2><a target=\"_blank\" href=\"", htmlspecialchars($url), "\">Cascade",
+					($error_count ? " <em>(".htmlspecialchars($error_count).")</em>" : ''), "</a></h2>\n",
 				"\t<iframe src=\"", htmlspecialchars($url), "\" seamless frameborder=\"0\" width=\"100%\" height=\"85%\"></iframe>\n",
 				"</div>\n";
 			break;

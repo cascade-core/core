@@ -101,6 +101,7 @@ if (!empty($core_cfg['debug']['add_cascade_graph'])) {
 			'link' => $core_cfg['graphviz']['renderer']['link'],
 			'profile' => 'cascade',
 			'style' => $core_cfg['debug']['add_cascade_graph'],
+			'error_count' => $cascade->getFailedBlockCount(),
 		));
 
 	/* Store hash to HTTP header */

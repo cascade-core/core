@@ -76,11 +76,23 @@
 	}
 
 		#_cascade_graph.cascade_iframe h2 a {
-			color: #000;
+			color: inherit;
 			padding: 4px;
 			text-decoration: none;
 			display: block;
 		}
+
+		#_cascade_graph.cascade_iframe h2 a em {
+			font-style: normal;
+		}
+
+	#_cascade_graph.cascade_iframe.cascade_has_failed_blocks h2 {
+		background: #f60;
+		color: #fff;
+		opacity: 1;
+		-ms-filter: none;
+		filter: none;
+	}
 
 	#_cascade_graph.cascade_iframe hr {
 		display: none;

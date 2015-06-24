@@ -44,6 +44,7 @@ class CascadeController {
 	private $block_storages = array();
 
 	private $failed_blocks_exceptions = array();	// Exceptions thrown by blocks.
+	private $failed_blocks_count = 0;		// Count of failed blocks (not neccessairly with exception)
 
 
 	/**
@@ -825,12 +826,23 @@ class CascadeController {
 
 
 	/**
+	 * Get number of failed blocks.
+	 */
+	public function getFailedBlockCount()
+	{
+		return $this->failed_blocks_count;
+	}
+
+
+	/**
 	 * Log exception from block (this must be called only by failing block).
 	 *
 	 * Exceptions are explicitly logged, because they are not supposed to
 	 * interrupt cascade evaluation. Block which throws an exception is
 	 * marked as failed, but evaluation continues, marking dependent blocks
 	 * as failed too.
+	 *
+	 * This method increases counter of failed blocks.
 	 */
 	public function logFailedBlockException($block_id, $block_type, $exception)
 	{
@@ -840,6 +852,18 @@ class CascadeController {
 			'step' => $this->evaluation_step,
 			'exception' => $exception,
 		);
+		$this->failed_blocks_count++;
+	}
+
+
+	/**
+	 * Increase counter of failed blocks.
+	 *
+	 * It may log additional details in future, but for now parameters are ignored.
+	 */
+	public function logFailedBlock($block_id, $block_type, $message)
+	{
+		$this->failed_blocks_count++;
 	}
 
 

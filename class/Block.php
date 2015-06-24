@@ -372,6 +372,7 @@ abstract class Block
 		if (!$this->status == self::FAILED) {
 			error_msg('%s: Failed to prepare block "%s"', $this->blockName(), $this->fullId());
 			$this->timestamp_finish = $this->cascade_controller->currentStep();
+			$this->cascade_controller->logFailedBlock($this->fullId(), $this->blockName(), $this->status_message);
 			return false;
 		}
 
@@ -382,6 +383,7 @@ abstract class Block
 			if (!$d->cc_execute()) {
 				$this->status = self::FAILED;
 				$this->status_message = 'Unsolved dependencies';
+				$this->cascade_controller->logFailedBlock($this->fullId(), $this->blockName(), $this->status_message);
 				break;
 			}
 		}
@@ -457,6 +459,10 @@ abstract class Block
 				}
 				$this->output_cache[$name] = $this->collectOutputs($src, $name);
 			}
+		}
+
+		if ($this->status == self::FAILED) {
+			$this->cascade_controller->logFailedBlock($this->fullId(), $this->blockName(), $this->status_message);
 		}
 
 		return true;
