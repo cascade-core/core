@@ -24,7 +24,8 @@ class B_core__out__page extends \Cascade\Core\Block
 	const force_exec = true;
 
 	protected $inputs = array(
-		'css_link' => null,	// CSS file to link.
+		'css_link' => null,	// CSS file to link (string or array of strings).
+		'js_link' => null,	// JS file to link (string or array of strings).
 	);
 
 	protected $outputs = array(
@@ -35,6 +36,7 @@ class B_core__out__page extends \Cascade\Core\Block
 	{
 		$this->templateAddToSlot(null, 'root', 50, 'core/main', array(
 				'css_link' => $this->in('css_link'),
+				'js_link' => $this->in('js_link'),
 			));
 		$this->out('done', true);
 	}
