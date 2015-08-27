@@ -592,7 +592,16 @@ function parse_json_file($filename)
 	$error = json_last_error();
 
 	if ($error !== JSON_ERROR_NONE) {
-		throw new \Cascade\Core\JsonException(json_last_error_msg().' ('.$filename.')', $error);
+		switch ($error) {
+			case JSON_ERROR_NONE:           $e = 'No errors'; break;
+			case JSON_ERROR_DEPTH:          $e = 'Maximum stack depth exceeded'; break;
+			case JSON_ERROR_STATE_MISMATCH: $e = 'Underflow or the modes mismatch'; break;
+			case JSON_ERROR_CTRL_CHAR:      $e = 'Unexpected control character found'; break;
+			case JSON_ERROR_SYNTAX:         $e = 'Syntax error, malformed JSON'; break;
+			case JSON_ERROR_UTF8:           $e = 'Malformed UTF-8 characters, possibly incorrectly encoded'; break;
+			default:                        $e = 'Unknown error'; break;
+		}
+		throw new \Cascade\Core\JsonException($e.': '.json_last_error_msg().' ('.$filename.')', $error);
 	}
 
 	return $data;
