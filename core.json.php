@@ -61,6 +61,9 @@
         },
         "template": {
             "class": "\\Cascade\\Core\\TemplatingProxyBlock"
+        },
+        "null": {
+            "class": "\\Cascade\\Core\\NullShebangHandler"
         }
     },
     "block_map": {
