@@ -45,6 +45,7 @@ function TPL_raw__core__send_file($t, $id, $d, $so)
 	}
 
 	$full_filename = ($filename[0] == '/' ? $filename : getcwd().'/'.$filename);
+	$relative_filename = strpos($full_filename, DIR_ROOT) === 0 ? substr($full_filename, strlen(DIR_ROOT) - 1) : $full_filename;
 
 	// Expire header
 	if (!empty($expires)) {
@@ -57,6 +58,7 @@ function TPL_raw__core__send_file($t, $id, $d, $so)
 	}
 
 	// TODO: Resumable downloads, check mtime
-	header("X-Sendfile: ".$full_filename);
+	header("X-Sendfile: ".$full_filename);       // Lighttpd and Apache
+	header("X-Accel-Redirect: ".$relative_filename); // Nginx
 }
 
