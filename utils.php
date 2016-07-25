@@ -565,7 +565,7 @@ function write_json_file($filename, $json_array, array $whitelist = null, $json_
 			? (defined('JSON_PRETTY_PRINT')
 				? JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 				: JSON_NUMERIC_CHECK)
-			: $json_flags & ~(JSON_HEX_TAG | JSON_HEX_APOS));
+			: $json_options & ~(JSON_HEX_TAG | JSON_HEX_APOS));
 
 	if ($filename === null) {
 		return $json_str;
