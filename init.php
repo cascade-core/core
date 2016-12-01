@@ -38,7 +38,7 @@ chdir(DIR_ROOT);
 require(DIR_CORE.'utils.php');
 
 /* Add bin directory to $PATH, so bundled tools can be used */
-putenv('PATH='.DIR_ROOT.'bin'.(DIRECTORY_SEPARATOR == '/' ? ':' : ';').getenv('PATH'));
+putenv('PATH='.DIR_ROOT.'bin'.(DIRECTORY_SEPARATOR == '/' ? ':' : ';').(getenv('PATH') ? : '/usr/bin:/bin'));
 
 
 /* Scan plugins */
