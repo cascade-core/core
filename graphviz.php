@@ -87,7 +87,11 @@ function url($format = null, $hash = null)
 //--------------------------------------------------------------------------
 
 // Call core's init file
-list($config_loader, $core_cfg) = require(dirname(__FILE__).'/init.php');
+
+$root_directory = dirname(dirname(dirname(__DIR__)));
+require $root_directory.'/vendor/autoload.php';
+list($plugin_manager, $default_context) = \Cascade\Core\Application::initialize($root_directory);
+$core_cfg = $plugin_manager->loadCoreConfig();
 
 // Get parameters
 $profile = isset($_GET['cfg']   ) ? $_GET['cfg']    : null;

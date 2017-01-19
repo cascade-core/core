@@ -77,18 +77,17 @@ class PluginManager
 	/**
 	 * Get plugin list
 	 */
-	public function get_plugin_list()
+	public function getPluginList()
 	{
-		global $plugin_list;
+		return $this->plugin_list;
 
 		/* $plugin_list contains everything in plugin directory. It is not
 		 * filtered becouse CascadeController will not allow ugly block names
 		 * to be loaded. */
-
-		return array_filter(array_keys($plugin_list), function($block) {
-				/* Same as block name check in CascadeController */
-				return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
-			});
+		//return array_filter(array_keys($plugin_list), function($block) {
+		//		/* Same as block name check in CascadeController */
+		//		return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
+		//	});
 	}
 
 	/**
@@ -115,7 +114,7 @@ class PluginManager
 	/**
 	 * Get block's class name
 	 */
-	public function get_block_class_name($block)
+	public function getBlockClassName($block)
 	{
 		$class_name = 'B_'.str_replace('/', '__', $block);
 		if (class_exists($class_name)) {

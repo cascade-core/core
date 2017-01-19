@@ -47,7 +47,7 @@
     },
     "graphviz": {
         "renderer": {
-            "link": "/core/graphviz.php?hash={hash}&cfg={profile}&format={ext}"
+            "link": "/vendor/cascade/core/graphviz.php?hash={hash}&cfg={profile}&format={ext}"
         },
         "cascade": {
             "title": "Cascade {hash}",

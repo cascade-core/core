@@ -104,6 +104,15 @@ class CascadeController {
 
 
 	/**
+	 * Get plugin manager
+	 */
+	public function getPluginManager()
+	{
+		return $this->plugin_manager;
+	}
+
+
+	/**
 	 * Get authenticator object.
 	 */
 	public function getAuth()

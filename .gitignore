@@ -1,3 +1,4 @@
+vendor/
 doc/doxygen/
 run-tests.log
 test/*.diff

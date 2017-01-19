@@ -22,7 +22,8 @@
  * is cached automatically.
  */
 
-class B_core__config extends \Cascade\Core\Block {
+class B_core__config extends \Cascade\Core\Block
+{
 
 	protected $inputs = array(
 	);
@@ -37,20 +38,17 @@ class B_core__config extends \Cascade\Core\Block {
 
 	public function main()
 	{
-		$this->config = $this->context->config_loader;
+		$this->config = $this->getCascadeController()->getPluginManager();
 		$this->out('done', true);
 	}
 
 
 	public function getOutput($name)
 	{
-		// TODO: Cache loaded configuration
-
 		$keys = explode('.', $name);
 		$config_name = array_shift($keys);
 
-		$cfg = $this->config->load($config_name);
-
+		$cfg = $this->config->loadConfig($config_name);
 
 		if (empty($keys)) {
 			return $cfg;
