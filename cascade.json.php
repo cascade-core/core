@@ -14,6 +14,8 @@
         ],
         "umask": null
     },
+    "plugins": {
+    },
     "define": {
 
     },

@@ -26,11 +26,13 @@ class JsonConfigAPC extends JsonConfig
 
 	/**
 	 * Retrieve configuration from cache.
+	 *
+	 * @return false on cache miss, array otherwise
 	 */
 	protected function fetchFromCache($key, & $hit)
 	{
-		// TODO: Use global caching mechanism
-		return \apc_fetch($key, $hit);
+		$v = \apc_fetch(__CLASS__.'.'.$key, $hit);
+		return $hit ? $v : false;
 	}
 
 
@@ -39,8 +41,7 @@ class JsonConfigAPC extends JsonConfig
 	 */
 	protected function addToCache($key, $value)
 	{
-		// TODO: Use global caching mechanism
-		return \apc_add($key, $value, 0);
+		return \apc_add(__CLASS__.'.'.$key, $value, 0);
 	}
 
 

@@ -25,24 +25,27 @@ namespace Cascade\Core;
  *
  * This class does not use caching, but other classes can extend this one and 
  * add any cache implementation.
+ *
+ * TODO: Split cache and file loader
  */
-class JsonConfig implements IConfig
+class JsonConfig
 {
 
 	/**
 	 * Retrieve configuration from cache.
+	 *
+	 * @return false on cache miss, array otherwise
 	 */
-	protected function fetchFromCache($key, & $hit)
+	public function fetchFromCache($name)
 	{
-		$hit = false;
-		return null;
+		return false;
 	}
 
 
 	/**
 	 * Add configuration to cache.
 	 */
-	protected function addToCache($key, $value)
+	public function addToCache($name, $value)
 	{
 		return true;
 	}
@@ -63,18 +66,9 @@ class JsonConfig implements IConfig
 	 * Load and compose configuration from config files. Core, plugins, 
 	 * application and local config files are searched.
 	 */
-	public function load($name, $force_cache_reload = false)
+	public function load($name, $dir_root, $dir_core, $dir_app, $dir_plugin, $plugin_list)
 	{
 		$filenames = array();
-		$cache_key = __CLASS__.'.'.$name;
-
-		// Check if configuration is cached (invalid name will not be cached)
-		if (!$force_cache_reload) {
-			$cached_cfg = $this->fetchFromCache($cache_key, $hit);
-			if ($hit && is_array($cached_cfg)) {
-				return $cached_cfg;
-			}
-		}
 
 		// Validate $name
 		if (!preg_match('/^[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*$/', $name)) {
@@ -82,28 +76,28 @@ class JsonConfig implements IConfig
 		}
 
 		// Core
-		$cfn = DIR_CORE.$name.'.json.php';
+		$cfn = "$dir_core/$name.json.php";
 		if (file_exists($cfn)) {
 			$filenames[] = $cfn;
 		}
 
 		// All plugins
-		foreach (get_plugin_list() as $plugin) {
-			$pfn = DIR_PLUGIN.$plugin.'/'.$name.'.json.php';
+		foreach ($plugin_list as $plugin) {
+			$pfn = "$plugin_directory/$plugin/$name.json.php";
 			if (file_exists($pfn)) {
 				$filenames[] = $pfn;
 			}
 		}
 
 		// Application file is last, so it can ovewrite anything
-		$afn = DIR_APP.$name.'.json.php';
+		$afn = "$dir_app/$name.json.php";
 		if (file_exists($afn)) {
 			$filenames[] = $afn;
 		}
 
 		// ... and if we are running from cli, load few more pieces.
 		if (empty($_SERVER['REMOTE_ADDR']) && php_sapi_name() == 'cli') {
-			$afn = DIR_APP.$name.'.cli.json.php';
+			$afn = "$dir_app/$name.cli.json.php";
 			if (file_exists($afn)) {
 				$filenames[] = $afn;
 			}
@@ -113,7 +107,7 @@ class JsonConfig implements IConfig
 		// than anything. These files should not be commited, they are 
 		// .gitignored by default. Use them for things like database 
 		// configuration and other installation-specific setup.
-		$afn = DIR_ROOT.$name.'.local.json.php';
+		$afn = "$dir_root/$name.local.json.php";
 		if (file_exists($afn)) {
 			$filenames[] = $afn;
 		}
@@ -128,9 +122,6 @@ class JsonConfig implements IConfig
 		} else {
 			$final_cfg = call_user_func_array('array_replace_recursive', $all_cfg);
 		}
-
-		// Store loaded configuration to cache
-		$this->addToCache($cache_key, $final_cfg);
 
 		return $final_cfg;
 	}

@@ -593,13 +593,18 @@ function parse_json_file($filename)
 
 	if ($error !== JSON_ERROR_NONE) {
 		switch ($error) {
-			case JSON_ERROR_NONE:           $e = 'No errors'; break;
-			case JSON_ERROR_DEPTH:          $e = 'Maximum stack depth exceeded'; break;
-			case JSON_ERROR_STATE_MISMATCH: $e = 'Underflow or the modes mismatch'; break;
-			case JSON_ERROR_CTRL_CHAR:      $e = 'Unexpected control character found'; break;
-			case JSON_ERROR_SYNTAX:         $e = 'Syntax error, malformed JSON'; break;
-			case JSON_ERROR_UTF8:           $e = 'Malformed UTF-8 characters, possibly incorrectly encoded'; break;
-			default:                        $e = 'Unknown error'; break;
+			case JSON_ERROR_NONE:                  $e = 'No errors'; break;
+			case JSON_ERROR_DEPTH:                 $e = 'Maximum stack depth exceeded'; break;
+			case JSON_ERROR_STATE_MISMATCH:        $e = 'Underflow or the modes mismatch'; break;
+			case JSON_ERROR_CTRL_CHAR:             $e = 'Unexpected control character found'; break;
+			case JSON_ERROR_SYNTAX:                $e = 'Syntax error, malformed JSON'; break;
+			case JSON_ERROR_UTF8:                  $e = 'Malformed UTF-8 characters, possibly incorrectly encoded'; break;
+			case JSON_ERROR_RECURSION:             $e = 'One or more recursive references in the value to be encoded'; break;
+			case JSON_ERROR_INF_OR_NAN:            $e = 'One or more NAN or INF values in the value to be encoded'; break;
+			case JSON_ERROR_UNSUPPORTED_TYPE:      $e = 'A value of a type that cannot be encoded was given'; break;
+			case JSON_ERROR_INVALID_PROPERTY_NAME: $e = 'A property name that cannot be encoded was given'; break;
+			case JSON_ERROR_UTF16:                 $e = 'Malformed UTF-16 characters, possibly incorrectly encoded'; break;
+			default:                               $e = 'Unknown error'; break;
 		}
 		throw new \Cascade\Core\JsonException($e.': '.json_last_error_msg().' ('.$filename.')', $error);
 	}

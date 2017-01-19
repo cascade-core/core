@@ -1,0 +1,8 @@
+<?php
+
+// Load Composer's class loader
+require __DIR__."/vendor/autoload.php";
+
+// Start cascade
+\Cascade\Core\Application::main(__DIR__);
+

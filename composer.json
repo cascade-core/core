@@ -11,13 +11,14 @@
     "extra": {
     },
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.5",
         "ext-apcu": "*",
         "ext-gettext": "*",
         "ext-json": "*"
     },
     "autoload": {
-        "psr-4": { "Cascade\\Core\\": "class/" }
+        "psr-4": { "Cascade\\Core\\": "class/" },
+        "files": [ "utils.php" ]
     }
 }
 
