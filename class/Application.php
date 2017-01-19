@@ -33,8 +33,8 @@ class Application
 	public static function main($root_directory)
 	{
 		define('CASCADE_MAIN', true);
-		list($default_context, $core_cfg) = static::initialize($root_directory);
-		return static::frontController($core_cfg, $default_context);
+		list($plugin_manager, $default_context) = static::initialize($root_directory);
+		return static::frontController($plugin_manager, $default_context);
 	}
 
 
@@ -43,20 +43,20 @@ class Application
 	 */
 	public static function initialize($root_directory)
 	{
-		// Define directory and file names. Each DIR_* must be slash-terminated!
-		@define('DIR_ROOT',		$root_directory.'/');
-		@define('DIR_CORE',		dirname(__DIR__).'/');
-		@define('DIR_APP',		DIR_ROOT.'app/');
-		@define('DIR_VAR',		DIR_ROOT.'var/');
-		@define('DIR_VENDOR',		dirname(dirname(DIR_CORE)));
+	 	// TODO: Get rid of define() calls.
 
-		// Use with get_block_filename()
-		@define('DIR_CLASS',		'class/');
-		@define('DIR_BLOCK',		'block/');
-		@define('DIR_TEMPLATE',		'template/');
+		// Define directory and file names. Each DIR_* must be slash-terminated!
+		if(!defined('DIR_ROOT'))     define('DIR_ROOT',     $root_directory.'/');
+		if(!defined('DIR_CORE'))     define('DIR_CORE',     dirname(__DIR__).'/');
+		if(!defined('DIR_APP'))      define('DIR_APP',      DIR_ROOT.'app/');
+		if(!defined('DIR_VAR'))      define('DIR_VAR',      DIR_ROOT.'var/');
+		if(!defined('DIR_VENDOR'))   define('DIR_VENDOR',   dirname(dirname(DIR_CORE)));
 
 		// Configuration loader class name
-		@define('CLASS_CONFIG_LOADER',	'Cascade\Core\JsonConfig');
+		if(!defined('CLASS_CONFIG_LOADER')) define('CLASS_CONFIG_LOADER', 'Cascade\Core\JsonConfig');
+
+		// If true, this is main program -- this is defined in index.php
+		if(!defined('CASCADE_MAIN')) define('CASCADE_MAIN', false);
 
 		// Use exceptions instead of errors
 		set_error_handler(function ($errno, $errstr, $errfile, $errline) {
@@ -79,16 +79,11 @@ class Application
 		$plugin_manager = new PluginManager($root_directory, $config_loader);
 		$core_cfg = $plugin_manager->loadCoreConfig();
 
-		// Load remaining configuration
-
-		/* If true, this is main program -- this is defined in index.php */
-		@define('CASCADE_MAIN', false);
-
 		/* Setup debugging tools -- define few constants used all over this thing */
-		@define('DEVELOPMENT_ENVIRONMENT',       $core_cfg['debug']['development_environment']);
-		@define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
-		@define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
-		@define('DEBUG_PROFILER_STATS_FILE',     $core_cfg['debug']['profiler_stats_file']);
+		if(!defined('DEVELOPMENT_ENVIRONMENT'))   define('DEVELOPMENT_ENVIRONMENT',       $core_cfg['debug']['development_environment']);
+		if(!defined('DEBUG_LOGGING_ENABLED'))     define('DEBUG_LOGGING_ENABLED',  !empty($core_cfg['debug']['debug_logging_enabled']));
+		if(!defined('DEBUG_VERBOSE_BANNER'))      define('DEBUG_VERBOSE_BANNER',   !empty($core_cfg['debug']['verbose_banner']));
+		if(!defined('DEBUG_PROFILER_STATS_FILE')) define('DEBUG_PROFILER_STATS_FILE',     $core_cfg['debug']['profiler_stats_file']);
 
 		/* Load php.ini options */
 		foreach($core_cfg['php'] as $k => $v) {
@@ -116,23 +111,6 @@ class Application
 			umask($core_cfg['core']['umask']);
 		}
 
-		/* UTF-8 initializations for PHP older than 5.6 */
-		if (PHP_VERSION_ID < 50600) {
-
-			/* Initialize iconv */
-			if (function_exists('iconv_set_encoding')) {
-				iconv_set_encoding('input_encoding',    'UTF-8');
-				iconv_set_encoding('output_encoding',   'UTF-8');
-				iconv_set_encoding('internal_encoding', 'UTF-8');
-			}
-
-			/* Initialize mb */
-			if (function_exists('mb_internal_encoding')) {
-				mb_internal_encoding('UTF-8');
-			}
-
-		}
-
 		/* Initialize default context */
 		$context_cfg = $core_cfg['context'];
 		$context_class = $context_cfg['class'];
@@ -155,17 +133,19 @@ class Application
 			$_POST = (array) json_decode(file_get_contents('php://input'), TRUE, 512, JSON_BIGINT_AS_STRING);
 		}
 
-		return array($default_context, $core_cfg);
+		return array($plugin_manager, $default_context);
 	}
 
 	/**
 	 * Front controller
 	 */
-	public static function frontController($core_cfg, $default_context)
+	public static function frontController(PluginManager $plugin_manager, $default_context)
 	{
+		$core_cfg = $plugin_manager->loadCoreConfig();
+
 		/* Initialize cascade controller */
 		$cascade_controller_class = $core_cfg['core']['cascade_controller_class'];
-		$cascade = new $cascade_controller_class($default_context->auth, @$core_cfg['block_map'], @$core_cfg['shebangs']);
+		$cascade = new $cascade_controller_class($plugin_manager, $default_context->auth, @$core_cfg['block_map'], @$core_cfg['shebangs']);
 
 		/* Initialize block storages */
 		uasort($core_cfg['block_storage'], function($a, $b) { return $a['storage_weight'] - $b['storage_weight']; });
@@ -187,7 +167,7 @@ class Application
 			// Create storage
 			$storage_class = $storage_opts['storage_class'];
 			debug_msg('Initializing block storage "%s" (class %s) ...', $storage_name, $storage_class);
-			$s = new $storage_class($storage_opts, $default_context, $storage_name, $block_storage_write_allowed);
+			$s = new $storage_class($storage_opts, $plugin_manager, $default_context, $storage_name, $block_storage_write_allowed);
 			$cascade->addBlockStorage($s, $storage_name);
 		}
 
@@ -259,7 +239,9 @@ class Application
 		}
 
 		/* Generate output */
-		$default_context->template_engine->start();
+		$template_engine = $default_context->template_engine;
+		$template_engine->setPluginManager($plugin_manager);
+		$template_engine->start();
 
 		/* Store profiler statistics */
 		if (DEBUG_PROFILER_STATS_FILE) {
@@ -288,90 +270,6 @@ class Application
 				fclose($f);
 			}
 		}
-	}
-
-	/**
-	 * Get plugin list
-	 *
-	 * TODO: Move this into some nice class.
-	 */
-	public static function get_plugin_list()
-	{
-		global $plugin_list;
-
-		/* $plugin_list contains everything in plugin directory. It is not
-		 * filtered becouse CascadeController will not allow ugly block names
-		 * to be loaded. */
-
-		return array_filter(array_keys($plugin_list), function($block) {
-				/* Same as block name check in CascadeController */
-				return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
-			});
-	}
-
-	/**
-	 * Get block's file from it's name
-	 *
-	 * TODO: Move this into some nice class.
-	 */
-	public static function get_block_filename($block, $extension = '.php')
-	{
-		global $plugin_list;
-
-		@ list($head, $tail) = explode('/', $block, 2);
-
-		/* Core */
-		if ($head == 'core') {
-			return DIR_CORE.DIR_BLOCK.$tail.$extension;
-		}
-
-		/* Plugins */
-		if ($tail !== null && isset($plugin_list[$head])) {
-			return DIR_PLUGIN.$head.'/'.DIR_BLOCK.$tail.$extension;
-		}
-
-		/* Application */
-		return DIR_APP.DIR_BLOCK.$block.$extension;
-	}
-
-	/**
-	 * Get block's class name
-	 *
-	 * TODO: Move this into some nice class.
-	 */
-	public static function get_block_class_name($block)
-	{
-		$class_name = 'B_'.str_replace('/', '__', $block);
-		if (class_exists($class_name)) {
-			return $class_name;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Get template's file from it's name
-	 *
-	 * TODO: Move this into some nice class.
-	 */
-	public static function get_template_filename($output_type, $template_name, $extension = '.php')
-	{
-		global $plugin_list;
-
-		@ list($head, $tail) = explode('/', $template_name, 2);
-
-		/* Core */
-		if ($head == 'core') {
-			return DIR_CORE.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
-		}
-
-		/* Plugins */
-		if ($tail !== null && isset($plugin_list[$head])) {
-			return DIR_PLUGIN.$head.'/'.DIR_TEMPLATE.$output_type.'/'.$tail.$extension;
-		}
-
-		/* Application */
-		return DIR_APP.DIR_TEMPLATE.$output_type.'/'.$template_name.$extension;
 	}
 
 }

@@ -27,7 +27,7 @@ function first_msg()
 	if (php_sapi_name() == "cli") {
 		return;
 	}
-	if (DEBUG_VERBOSE_BANNER) {
+	if (defined('DEBUG_VERBOSE_BANNER') && DEBUG_VERBOSE_BANNER) {
 		error_log('--');
 		error_log(sprintf('New client:  %s:%d  at  %s',
 				$_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_PORT'],
@@ -49,7 +49,7 @@ function debug_msg($msg)
 {
 	global $_utils_php__first_msg;
 
-	if (!DEBUG_LOGGING_ENABLED) {
+	if (!defined('DEBUG_LOGGING_ENABLED') || !DEBUG_LOGGING_ENABLED) {
 		return;
 	}
 

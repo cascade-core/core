@@ -26,7 +26,11 @@ namespace Cascade\Core;
  *
  * TODO: Remove extending ClassBlockStorage (see getKnownBlocks()).
  */
-class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
+class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage
+{
+
+	/// Plugin Manager
+	protected $plugin_manager;
 
 	/// Is block storage allowed to store blocks?
 	protected $is_write_allowed;
@@ -63,9 +67,10 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 *		container) passed to all storages, and later also to 
 	 *		all blocks.
 	 */
-	public function __construct($storage_opts, $context, $alias, $is_write_allowed)
+	public function __construct($storage_opts, PluginManager $plugin_manager, $context, $alias, $is_write_allowed)
 	{
 		$this->context = $context;
+		$this->plugin_manager = $plugin_manager;
 		$this->is_write_allowed = $is_write_allowed;
 
 		if (!empty($storage_opts['default_block_class'])) {
@@ -120,7 +125,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function describeBlock ($block)
 	{
-		$filename = get_block_filename($block, '.json.php');
+		$filename = $this->plugin_manager->getBlockFilename($block, '.json.php');
 		if (!file_exists($filename)) {
 			return null;
 		}
@@ -182,7 +187,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function loadBlock ($block)
 	{
-		$filename = get_block_filename($block, '.json.php');
+		$filename = $this->plugin_manager->getBlockFilename($block, '.json.php');
 
 		if (!file_exists($filename)) {
 			return null;
@@ -202,7 +207,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 			return false;
 		}
 
-		$filename = get_block_filename($block, '.json.php');
+		$filename = $this->plugin_manager->getBlockFilename($block, '.json.php');
 		$dir = dirname($filename);
 
 		if (!file_exists($dir)) {
@@ -231,7 +236,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 			return false;
 		}
 
-		$filename = get_block_filename($block, '.json.php');
+		$filename = $this->plugin_manager->getBlockFilename($block, '.json.php');
 
 		return file_exists($filename) && unlink($filename);
 	}
@@ -242,7 +247,7 @@ class JsonBlockStorage extends ClassBlockStorage implements IBlockStorage {
 	 */
 	public function blockMTime ($block)
 	{
-		$filename = get_block_filename($block, '.json.php');
+		$filename = $this->plugin_manager->getBlockFilename($block, '.json.php');
 		return @filemtime($filename);
 	}
 

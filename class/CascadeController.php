@@ -40,6 +40,7 @@ class CascadeController {
 	private $execution_time = null;	// time [ms] spent in start()
 	private $memory_usage = null;	// memory used by cascade (after minus before)
 
+	private $plugin_manager = null;
 	private $auth = null;
 	private $block_storages = array();
 
@@ -57,8 +58,9 @@ class CascadeController {
 	 * The $replacement_table maps requested block type to some other block 
 	 * type.
 	 */
-	public function __construct(IAuth $auth = null, $replacement_table, $shebangs)
+	public function __construct(PluginManager $plugin_manager, IAuth $auth = null, $replacement_table, $shebangs)
 	{
+		$this->plugin_manager = $plugin_manager;
 		$this->auth = $auth;
 
 		if ($replacement_table != null) {
@@ -553,7 +555,9 @@ class CascadeController {
 			/* connect inputs */
 			foreach ($connections as $in => $out) {
 				$input_names[] = $in;
-				if (!is_object($out[0]) && $out[0][0] == ':') {
+				if (empty($out)) {
+					continue;
+				} else if (!is_object($out[0]) && $out[0][0] == ':') {
 					$function = $out[0];
 					$input_functions[$in] = $function;
 				} else {

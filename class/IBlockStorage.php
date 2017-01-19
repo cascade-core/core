@@ -30,6 +30,8 @@ interface IBlockStorage {
 	 * Constructor will get options from core.ini.php file.
 	 *
 	 * @param $storage_opts Options loaded from config file
+	 * @param $plugin_manager Plugin manager which provides paths and
+	 * 	enumerates plugins
 	 * @param $context Common default context (dependency injection
 	 * 	container) passed to all storages, and later also to all
 	 * 	blocks.
@@ -37,7 +39,7 @@ interface IBlockStorage {
 	 * @param $is_write_allowed If false, block storage is not allowed to
 	 * 	store or update any blocks.
 	 */
-	public function __construct($storage_opts, $context, $alias, $is_write_allowed);
+	public function __construct($storage_opts, PluginManager $plugin_manager, $context, $alias, $is_write_allowed);
 
 	/**
 	 * Returns true if there is no way that this storage can modify or 

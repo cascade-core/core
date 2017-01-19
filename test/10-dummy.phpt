@@ -3,7 +3,13 @@ Cascade with Dummy block
 --FILE--
 <?php
 define('DEBUG_LOGGING_ENABLED', false);
-require dirname(__FILE__).'/../init.php';
+
+// Load Composer's class loader
+require __DIR__."/../vendor/autoload.php";
+
+// Initialize framework
+list($plugin_manager, $default_context) = \Cascade\Core\Application::initialize(__DIR__);
+$core_cfg = $plugin_manager->loadCoreConfig();
 
 /* Initialize default context */
 $default_context = new Cascade\Core\Context(array(

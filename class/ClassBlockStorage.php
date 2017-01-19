@@ -25,7 +25,11 @@ namespace Cascade\Core;
  *
  * This class loads native PHP classes.
  */
-class ClassBlockStorage implements IBlockStorage {
+class ClassBlockStorage implements IBlockStorage
+{
+
+	/// Plugin Manager
+	protected $plugin_manager;
 
 	/**
 	 * Regular expression to match files containing block classes.
@@ -47,8 +51,10 @@ class ClassBlockStorage implements IBlockStorage {
 	 *		container) passed to all storages, and later also to 
 	 *		all blocks.
 	 */
-	public function __construct($storage_opts, $context, $alias, $is_write_allowed)
+	public function __construct($storage_opts, PluginManager $plugin_manager, $context, $alias, $is_write_allowed)
 	{
+		$this->plugin_manager = $plugin_manager;
+
 		spl_autoload_register(function ($class)
 		{
 			// TODO: Remove this
@@ -59,7 +65,7 @@ class ClassBlockStorage implements IBlockStorage {
 			/* Block */
 			if ($tail === null && $class[0] == 'B' && $class[1] == '_') {
 				$m = str_replace('__', '/', substr($class, 2));
-				$f = get_block_filename($m);
+				$f = $this->plugin_manager->getBlockFilename($m);
 				if (file_exists($f)) {
 					require($f);
 				}
@@ -111,7 +117,7 @@ class ClassBlockStorage implements IBlockStorage {
 			return false;
 		}
 
-		$filename = get_block_filename($block, '.php');
+		$filename = $this->plugin_manager->getBlockFilename($block, '.php');
 		$documentator = new ClassBlockDocumentator($filename, $expected_class);
 		return $documentator->describe();
 	}
@@ -154,7 +160,7 @@ class ClassBlockStorage implements IBlockStorage {
 	 */
 	public function blockMTime ($block)
 	{
-		$filename = get_block_filename($block, '.php');
+		$filename = $this->plugin_manager->getBlockFilename($block, '.php');
 		return @filemtime($filename);
 	}
 

@@ -17,7 +17,6 @@
     "plugins": {
     },
     "define": {
-
     },
     "debug": {
         "development_environment": true,

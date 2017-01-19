@@ -34,7 +34,9 @@ namespace Cascade\Core;
  * Templating engine also keeps track of all reverse routers -- the objects 
  * which translate an object ID to URI. These are used to generate links.
  */
-class Template {
+class Template
+{
+	protected $plugin_manager;
 
 	private $objects = array();
 	private $slot_content = array();
@@ -64,6 +66,15 @@ class Template {
 		if (isset($cfg['annotate'])) {
 			$this->annotate = $cfg['annotate'];
 		}
+	}
+
+
+	/**
+	 * Register plugin manager. This must be set before start().
+	 */
+	function setPluginManager(PluginManager $plugin_manager)
+	{
+		$this->plugin_manager = $plugin_manager;
 	}
 
 
@@ -156,7 +167,7 @@ class Template {
 	 */
 	function loadTemplate($output_type, $template_name, $function_name, $indent = '')
 	{
-		$f = get_template_filename($output_type, $template_name);
+		$f = $this->plugin_manager->getTemplateFilename($output_type, $template_name);
 
 		if (is_readable($f)) {
 			debug_msg('%s Loading "%s"', $indent, substr($f, strlen(DIR_ROOT)));
@@ -309,11 +320,11 @@ class Template {
 		}
 
 		/* load init.php */
-		$init_filename = get_template_filename($this->slot_options['root']['type'], 'init');
+		$init_filename = $this->plugin_manager->getTemplateFilename($this->slot_options['root']['type'], 'init');
 		if (file_exists($init_filename)) {
 			include $init_filename;
 		} else {
-			$core_init_filename = get_template_filename($this->slot_options['root']['type'], 'core/init');
+			$core_init_filename = $this->plugin_manager->getTemplateFilename($this->slot_options['root']['type'], 'core/init');
 			if (file_exists($core_init_filename)) {
 				include $core_init_filename;
 			}

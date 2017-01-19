@@ -74,5 +74,79 @@ class PluginManager
 		return $cfg;
 	}
 
+	/**
+	 * Get plugin list
+	 */
+	public function get_plugin_list()
+	{
+		global $plugin_list;
+
+		/* $plugin_list contains everything in plugin directory. It is not
+		 * filtered becouse CascadeController will not allow ugly block names
+		 * to be loaded. */
+
+		return array_filter(array_keys($plugin_list), function($block) {
+				/* Same as block name check in CascadeController */
+				return !(!is_string($block) || strpos($block, '.') !== FALSE || !ctype_graph($block));
+			});
+	}
+
+	/**
+	 * Get block's file from it's name
+	 */
+	public function getBlockFilename($block, $extension = '.php')
+	{
+		@ list($head, $tail) = explode('/', $block, 2);
+
+		/* Core */
+		if ($head == 'core') {
+			return $this->dir_core.'/block/'.$tail.$extension;
+		}
+
+		/* Plugins */
+		if ($tail !== null && isset($plugin_list[$head])) {
+			return $this->dir_plugin.'/'.$head.'/block/'.$tail.$extension;
+		}
+
+		/* Application */
+		return $this->dir_app.'/block/'.$block.$extension;
+	}
+
+	/**
+	 * Get block's class name
+	 */
+	public function get_block_class_name($block)
+	{
+		$class_name = 'B_'.str_replace('/', '__', $block);
+		if (class_exists($class_name)) {
+			return $class_name;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Get template's file from it's name
+	 */
+	public function getTemplateFilename($output_type, $template_name, $extension = '.php')
+	{
+		global $plugin_list;
+
+		@ list($head, $tail) = explode('/', $template_name, 2);
+
+		/* Core */
+		if ($head == 'core') {
+			return $this->dir_core.'/template/'.$output_type.'/'.$tail.$extension;
+		}
+
+		/* Plugins */
+		if ($tail !== null && isset($plugin_list[$head])) {
+			return $this->dir_plugin.'/'.$head.'/template/'.$output_type.'/'.$tail.$extension;
+		}
+
+		/* Application */
+		return $this->dir_app.'/template/'.$output_type.'/'.$template_name.$extension;
+	}
+
 }
 
