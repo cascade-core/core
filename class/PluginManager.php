@@ -28,7 +28,7 @@ class PluginManager
 	protected $dir_vendor;
 	protected $dir_app;
 
-	protected $plugin_list;
+	protected $plugins;
 	protected $config_loader;
 	protected $core_config = false;
 
@@ -52,12 +52,13 @@ class PluginManager
 
 		$cfg = $this->config_loader->fetchFromCache($name);
 		if ($cfg !== false) {
+			$this->plugins = array_keys($cfg['plugins']);
 			return $cfg;
 		}
 
 		$cfg = $this->config_loader->load($name, $this->dir_root, $this->dir_core, $this->dir_app, $this->dir_vendor, []);
-		$this->plugin_list = array_keys($cfg['plugins']);
-		$this->core_config = $this->config_loader->load($name, $this->dir_root, $this->dir_core, $this->dir_app, $this->dir_vendor, $this->plugin_list);
+		$this->plugins = $cfg['plugins'];
+		$this->core_config = $this->config_loader->load($name, $this->dir_root, $this->dir_core, $this->dir_app, $this->dir_vendor, $this->plugins);
 
 		$this->config_loader->addToCache($name, $this->core_config);
 		return $this->core_config;
@@ -68,7 +69,7 @@ class PluginManager
 	{
 		$cfg = $this->config_loader->fetchFromCache($name);
 		if ($cfg === false) {
-			$cfg = $this->config_loader->load($name, $this->dir_root, $this->dir_core, $this->dir_app, $this->dir_vendor, $this->plugin_list);
+			$cfg = $this->config_loader->load($name, $this->dir_root, $this->dir_core, $this->dir_app, $this->dir_vendor, $this->plugins);
 			$this->config_loader->addToCache($name, $cfg);
 		}
 		return $cfg;
@@ -79,7 +80,7 @@ class PluginManager
 	 */
 	public function getPluginList()
 	{
-		return $this->plugin_list;
+		return $this->plugins;
 
 		/* $plugin_list contains everything in plugin directory. It is not
 		 * filtered becouse CascadeController will not allow ugly block names
@@ -103,8 +104,8 @@ class PluginManager
 		}
 
 		/* Plugins */
-		if ($tail !== null && isset($plugin_list[$head])) {
-			return $this->dir_plugin.'/'.$head.'/block/'.$tail.$extension;
+		if ($tail !== null && isset($this->plugins[$head])) {
+			return $this->dir_vendor.'/'.$head.'/block/'.$tail.$extension;
 		}
 
 		/* Application */
@@ -129,8 +130,6 @@ class PluginManager
 	 */
 	public function getTemplateFilename($output_type, $template_name, $extension = '.php')
 	{
-		global $plugin_list;
-
 		@ list($head, $tail) = explode('/', $template_name, 2);
 
 		/* Core */
@@ -139,8 +138,8 @@ class PluginManager
 		}
 
 		/* Plugins */
-		if ($tail !== null && isset($plugin_list[$head])) {
-			return $this->dir_plugin.'/'.$head.'/template/'.$output_type.'/'.$tail.$extension;
+		if ($tail !== null && isset($this->plugins[$head])) {
+			return $this->dir_vendor.'/'.$this->plugins[$head].'/template/'.$output_type.'/'.$tail.$extension;
 		}
 
 		/* Application */

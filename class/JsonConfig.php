@@ -82,8 +82,8 @@ class JsonConfig
 		}
 
 		// All plugins
-		foreach ($plugin_list as $plugin) {
-			$pfn = "$plugin_directory/$plugin/$name.json.php";
+		foreach ($plugin_list as $plugin_name => $plugin_subdir) {
+			$pfn = "$dir_plugin/$plugin_subdir/$name.json.php";
 			if (file_exists($pfn)) {
 				$filenames[] = $pfn;
 			}
