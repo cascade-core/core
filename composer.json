@@ -12,9 +12,11 @@
     },
     "require": {
         "php": ">=5.6",
-        "ext-apcu": "*",
         "ext-gettext": "*",
         "ext-json": "*"
+    },
+    "suggest": {
+        "ext-apcu": "To allow use of caching in JsonConfigAPC class"
     },
     "autoload": {
         "psr-4": { "Cascade\\Core\\": "class/" },
